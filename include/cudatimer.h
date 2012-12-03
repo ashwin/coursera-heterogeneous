@@ -6,6 +6,15 @@
 #ifndef CUDATIMER_H
 #define CUDATIMER_H
 
+// TODO
+// do not need it #include <cutil.h> // -I${CUDA}/sdk/C/common/inc
+// #if CUDART_VERSION >= 4000
+// #define CUT_DEVICE_SYNCHRONIZE( )   cudaDeviceSynchronize();
+// #else
+// #define CUT_DEVICE_SYNCHRONIZE( )   cudaThreadSynchronize();
+// #endif
+
+// #include <cuda.h>
 // Namespace because windows.h causes errors
 namespace CudaTimerNS
 {
@@ -18,30 +27,27 @@ namespace CudaTimerNS
         double        freq_;
         // On Windows time{1,2}_ are LARGE_INTEGER.QuadPart fields
         // On Linux time{1,2}_ are timespec.tv_nsec fields
-        unsigned long time1_
-        unsigned long time2_
+        unsigned long time1_;
+        unsigned long time2_;
         unsigned long getTime();
-#endif
     public:
-        CudaTimer::CudaTimer();
-        void start();
-        void stop();
-        double value()
-        {
-            return (time2_ - time1_) * freq_ * 1000;
-        }
+        CudaTimer();
         void start()
         {
-            cudaDeviceSynchronize();
+            // CUT_DEVICE_SYNCHRONIZE // TODO
             time1_ = getTime();
             return;
         }
 
         void stop()
         {
-            cudaDeviceSynchronize();
+            // CUT_DEVICE_SYNCHRONIZE // TODO
             time2_ = getTime();
             return;
+        }
+        double value()
+        {
+            return (time2_ - time1_) * freq_ * 1000;
         }
     };
 }

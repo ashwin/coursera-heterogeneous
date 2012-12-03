@@ -35,7 +35,7 @@ namespace CudaTimerNS
 
     CudaTimer::CudaTimer()
     {
-        unsigned todo freq;
+        unsigned long freq;
         struct timespec spec;
         if ( clock_getres(clock_id, &spec) != 0 )
             freq_ = 1.0 / spec.tv_nsec;
@@ -47,7 +47,7 @@ namespace CudaTimerNS
     {
         unsigned long time = 0;
         struct timespec tp;
-        if(clock_gettime(clock_id, struct timespec &tp))
+        if(clock_gettime(clock_id, &tp))
             time = tp.tv_nsec;
         else
             printf("Cannot get timer value");

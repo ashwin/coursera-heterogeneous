@@ -31,21 +31,23 @@ int main(int argc, char ** argv) {
                 wbLog(TRACE, "Hello Ondra");
                 wbLog(TRACE, "There is 1 device supporting CUDA");
             } else {
-                wbLog(TRACE, "There are ", deviceCount, " devices supporting CUDA");
+                wbLog(TRACE, "There are is n devices supporting CUDA", deviceCount);
             }
         }
 
-        wbLog(TRACE, "Device ", dev, " name: ", deviceProp.name);
-        wbLog(TRACE, " Computational Capabilities: ", deviceProp.major, ".", deviceProp.minor);
+        // wbLog(TRACE, "Device ", dev, " name: ", deviceProp.name);
+         wbLog(TRACE, "Device name: ", deviceProp.name);
+        wbLog(TRACE, " Computational Capabilities: ", deviceProp.major);
+        wbLog(TRACE, " Computational Capabilities: ...", deviceProp.minor);
         wbLog(TRACE, " Maximum global memory size: ", deviceProp.totalGlobalMem);
         wbLog(TRACE, " Maximum constant memory size: ", deviceProp.totalConstMem);
         wbLog(TRACE, " Maximum shared memory size per block: ", deviceProp.sharedMemPerBlock);
-        wbLog(TRACE, " Maximum block dimensions: ", deviceProp.maxThreadsDim[0], " x ",
-                                                    deviceProp.maxThreadsDim[1], " x ",
-                                                    deviceProp.maxThreadsDim[2]);
-        wbLog(TRACE, " Maximum grid dimensions: ", deviceProp.maxGridSize[0], " x ",
-                                                   deviceProp.maxGridSize[1], " x ",
-                                                   deviceProp.maxGridSize[2]);
+        wbLog(TRACE, " Maximum block dimensions [0]: ", deviceProp.maxThreadsDim[0]); 
+        wbLog(TRACE, " Maximum block dimensions [1]: ", deviceProp.maxThreadsDim[1]);
+        wbLog(TRACE, " Maximum block dimensions [2]: ", deviceProp.maxThreadsDim[2]);
+        wbLog(TRACE, " Maximum grid dimensions 0: ", deviceProp.maxGridSize[0]);
+        wbLog(TRACE, " Maximum grid dimensions 1: ", deviceProp.maxGridSize[1]);
+        wbLog(TRACE, " Maximum grid dimensions 2: ", deviceProp.maxGridSize[2]);
         wbLog(TRACE, " Warp size: ", deviceProp.warpSize);
     }
 
