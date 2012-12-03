@@ -24,6 +24,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include "cudatimer.h"
 
 ////
 // Logging
@@ -146,53 +147,6 @@ float* wbImport( char* fname, int* itemNum )
     return fBuf;
 }
 
-////
-// Timer
-////
-
-// Namespace because windows.h causes errors
-namespace CudaTimerNS
-{
-    // CudaTimer class from: https://bitbucket.org/ashwin/cudatimer
-
-    #include <Windows.h>
-
-    class CudaTimer
-    {
-    private:
-        double        _freq;
-        LARGE_INTEGER _time1;
-        LARGE_INTEGER _time2;
-
-    public:
-        CudaTimer::CudaTimer()
-        {
-            LARGE_INTEGER freq;
-            QueryPerformanceFrequency(&freq);
-            _freq = 1.0 / freq.QuadPart;
-            return;    
-        }
-
-        void start()
-        {
-            cudaDeviceSynchronize();
-            QueryPerformanceCounter( &_time1 );
-            return;
-        }
-
-        void stop()
-        {
-            cudaDeviceSynchronize();
-            QueryPerformanceCounter( &_time2 );
-            return;
-        }
-
-        double value()
-        {
-            return (_time2.QuadPart - _time1.QuadPart) * _freq * 1000;
-        }
-    };
-}
 
 enum wbTimeType
 {
