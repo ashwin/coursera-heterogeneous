@@ -3,6 +3,7 @@
 // wb.h: Header file for Heterogeneous Parallel Programming course (Coursera)
 //
 // Copyright (c) 2012 Ashwin Nanjappa
+// Copyright (c) 2012 Greg Bowyer
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -52,38 +53,28 @@ const char* _wbLogLevelStr[] = {
     "***InvalidLogLevel***", //*** Keep this at the end
 };
 
-const char* _wbLogLevelToStr( wbLogLevel level )
-{
+const char* _wbLogLevelToStr( wbLogLevel level ) {
     assert( level >= OFF && level <= TRACE );
-
     return _wbLogLevelStr[ level ];
 }
 
-inline void _wbLog( wbLogLevel level, const char* logStr )
-{
-    std::cout << _wbLogLevelToStr( level ) << " ";
-    std::cout << logStr;
-
-    return;
+template<typename T>
+inline void _wbLog(T const& val) {
+    std::cout << val << " ";
 }
 
-inline void wbLog( wbLogLevel level, const char* logStr )
-{
-    _wbLog( level, logStr );
-    std::cout << std::endl;
-
-    return;
+template<typename First, typename ... Rest>
+inline void _wbLog(First const& first, Rest const&... rest) {
+    std::cout << first << " ";
+    _wbLog(rest ...);
 }
-
-template < typename T >
-inline void wbLog( wbLogLevel level, const char* logStr, T val )
-{
-    _wbLog( level, logStr );
-    std::cout << val << std::endl;
-
-    return;
-}
-
+#define wbLog(level, ...) \
+    do { \
+        std::cout << _wbLogLevelToStr(level) << " ";\
+        std::cout << __func__ << "::" << __LINE__ << " "; \
+        _wbLog(__VA_ARGS__); \
+        std::cout << std::endl; \
+    } while (0)
 ////
 // Input arguments
 ////
