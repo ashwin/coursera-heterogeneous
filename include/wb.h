@@ -17,6 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef __WB_H__
+
 #include <algorithm>
 #include <cassert>
 #include <fstream>
@@ -33,8 +35,7 @@
 // Logging
 ////
 
-enum wbLogLevel
-{
+enum wbLogLevel {
     OFF,
     FATAL,
     ERROR,
@@ -56,9 +57,9 @@ const char* _wbLogLevelStr[] = {
     "***InvalidLogLevel***", //*** Keep this at the end
 };
 
-const char* _wbLogLevelToStr( wbLogLevel level ) {
-    assert( level >= OFF && level <= TRACE );
-    return _wbLogLevelStr[ level ];
+const char* _wbLogLevelToStr(wbLogLevel level) {
+    assert(level >= OFF && level <= TRACE);
+    return _wbLogLevelStr[level];
 }
 
 template<typename T>
@@ -73,7 +74,7 @@ inline void _wbLog(First const& first, Rest const&... rest) {
 }
 #define wbLog(level, ...) \
     do { \
-        std::cout << _wbLogLevelToStr(level) << " ";\
+        std::cout << _wbLogLevelToStr(level) << " "; \
         std::cout << __func__ << "::" << __LINE__ << " "; \
         _wbLog(__VA_ARGS__); \
         std::cout << std::endl; \
@@ -83,60 +84,50 @@ inline void _wbLog(First const& first, Rest const&... rest) {
 // Input arguments
 ////
 
-struct wbArg_t
-{
+struct wbArg_t {
     int    argc;
     char** argv;
 };
 
-wbArg_t wbArg_read( int argc, char** argv )
-{
+wbArg_t wbArg_read(int argc, char** argv) {
     wbArg_t argInfo = { argc, argv };
     return argInfo;
 }
 
-char* wbArg_getInputFile( wbArg_t argInfo, int argNum )
-{
-    assert( argNum >= 0 && argNum < ( argInfo.argc - 1 ) );
-
-    return argInfo.argv[ argNum + 1 ];
+char* wbArg_getInputFile(wbArg_t argInfo, int argNum) {
+    assert(argNum >= 0 && argNum < (argInfo.argc - 1));
+    return argInfo.argv[argNum + 1];
 }
 
-float* wbImport( char* fname, int* itemNum )
-{
+float* wbImport(char* fname, int* itemNum) {
     // Open file
 
-    std::ifstream inFile( fname );
+    std::ifstream inFile(fname);
 
-    if ( !inFile )
-    {
+    if (!inFile) {
         std::cout << "Error opening input file: " << fname << " !\n";
-        exit( 1 );
+        exit(1);
     }
 
     // Read file to vector
-
     std::string sval;
     float fval;
-    std::vector< float > fVec;
+    std::vector<float> fVec;
 
-    while ( inFile >> sval )
-    {
-        std::istringstream iss( sval );
-
+    while (inFile >> sval) {
+        std::istringstream iss(sval);
         iss >> fval;
-
-        fVec.push_back( fval );
+        fVec.push_back(fval );
     }
 
     // Vector to malloc memory
-
     *itemNum = fVec.size();
 
-    float* fBuf = ( float* ) malloc( *itemNum * sizeof( float ) );
+    float* fBuf = (float*) malloc(*itemNum * sizeof(float));
 
-    for ( int i = 0; i < *itemNum; ++i )
+    for (int i = 0; i < *itemNum; ++i) {
         fBuf[i] = fVec[i];
+    }
 
     return fBuf;
 }
@@ -146,8 +137,7 @@ float* wbImport( char* fname, int* itemNum )
 ////
 
 // Namespace because windows.h causes errors
-namespace CudaTimerNS
-{
+namespace CudaTimerNS {
     // CudaTimer class from: https://bitbucket.org/ashwin/cudatimer
 
     #include <Windows.h>
@@ -160,37 +150,32 @@ namespace CudaTimerNS
         LARGE_INTEGER _time2;
 
     public:
-        CudaTimer::CudaTimer()
-        {
+        CudaTimer::CudaTimer() {
             LARGE_INTEGER freq;
             QueryPerformanceFrequency(&freq);
             _freq = 1.0 / freq.QuadPart;
             return;    
         }
 
-        void start()
-        {
+        void start() {
             cudaDeviceSynchronize();
             QueryPerformanceCounter( &_time1 );
             return;
         }
 
-        void stop()
-        {
+        void stop() {
             cudaDeviceSynchronize();
             QueryPerformanceCounter( &_time2 );
             return;
         }
 
-        double value()
-        {
+        double value() {
             return (_time2.QuadPart - _time1.QuadPart) * _freq * 1000;
         }
     };
 }
 
-enum wbTimeType
-{
+enum wbTimeType {
     Generic,
     GPU,
     Compute,
@@ -206,43 +191,34 @@ const char* wbTimeTypeStr[] = {
     "***Invalid***",
 };
 
-const char* wbTimeTypeToStr( wbTimeType t )
-{
-    assert( t >= Generic && t < wbTimeTypeNum );
-
+const char* wbTimeTypeToStr(wbTimeType t) {
+    assert(t >= Generic && t < wbTimeTypeNum);
     return wbTimeTypeStr[t];
 }
 
-struct wbTimerInfo
-{
+struct wbTimerInfo {
     wbTimeType             type;
     std::string            name;
     CudaTimerNS::CudaTimer timer;
 
-    bool operator == ( const wbTimerInfo& t2 ) const
-    {
-        return ( type == t2.type && ( 0 == name.compare( t2.name ) ) );
+    bool operator == (const wbTimerInfo& t2) const {
+        return (type == t2.type && (0 == name.compare(t2.name)));
     }
 };
 
 typedef std::list< wbTimerInfo> wbTimerInfoList;
-
 wbTimerInfoList gTimerInfoList;
 
-void wbTime_start( wbTimeType timeType, const std::string timeStar )
-{
+void wbTime_start(wbTimeType timeType, const std::string timeStar) {
     CudaTimerNS::CudaTimer timer;
     timer.start();
 
     wbTimerInfo tInfo = { timeType, timeStar, timer };
 
-    gTimerInfoList.push_front( tInfo );
-
-    return;
+    gTimerInfoList.push_front(tInfo);
 }
 
-void wbTime_stop( wbTimeType timeType, const std::string timeStar )
-{
+void wbTime_stop(wbTimeType timeType, const std::string timeStar) {
     // Find timer
 
     const wbTimerInfo searchInfo         = { timeType, timeStar };
@@ -259,10 +235,7 @@ void wbTime_stop( wbTimeType timeType, const std::string timeStar )
     std::cout << timerInfo.name << std::endl;
 
     // Delete timer from list
-
-    gTimerInfoList.erase( iter );
-
-    return;
+    gTimerInfoList.erase(iter);
 }
 
 ////
@@ -270,9 +243,9 @@ void wbTime_stop( wbTimeType timeType, const std::string timeStar )
 ////
 
 template < typename T, typename S >
-void wbSolution( wbArg_t args, const T& t, const S& s )
-{
+void wbSolution(wbArg_t args, const T& t, const S& s) {
     return;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+#define __WB_H_
+#endif
