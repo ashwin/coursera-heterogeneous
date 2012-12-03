@@ -4,7 +4,7 @@
 //
 // Copyright (c) 2012 Ashwin Nanjappa
 // Copyright (c) 2012 Greg Bowyer
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
 // deal in the Software without restriction, including without limitation the
@@ -64,36 +64,40 @@ const char* _wbLogLevelToStr(wbLogLevel level) {
 
 // BEGIN FUGLY C++03 HACK
 //------------------------------------------------------------------------------------------
+//
+template<typename First>
+inline void _wbLog(First const& first) {
+    std::cout << first;
+}
+
 template<typename First, typename Second>
 inline void _wbLog(First const& first, Second const& second) {
-    std::cout << first << " " << second;
+    std::cout << first << second;
 }
 
 template<typename First, typename Second, typename Third>
 inline void _wbLog(First const& first, Second const& second, Third const& third) {
-    std::cout << first << " " << second << " " << third;
+    std::cout << first << second << third;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth>
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth) {
-    std::cout << first << " " << second << " " << third << " " << fourth;
+    std::cout << first << second << third << fourth;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
     typename Fifth>
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth) {
-    std::cout << first << " " << second << " " << third << " " << fourth
-        << " " << fifth;
+    std::cout << first << second << third << fourth << fifth;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
     typename Fifth, typename Sixth>
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth) {
-    std::cout << first << " " << second << " " << third << " " << fourth
-        << " " << fifth << " " << sixth;
+    std::cout << first << second << third << fourth << fifth << sixth;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
@@ -101,8 +105,8 @@ template<typename First, typename Second, typename Third, typename Fourth,
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
         Seventh const& seventh) {
-    std::cout << first << " " << second << " " << third << " " << fourth
-        << " " << fifth << " " << sixth << "  " << seventh;
+    std::cout << first << second << third << fourth << fifth << sixth
+        << seventh;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
@@ -110,9 +114,8 @@ template<typename First, typename Second, typename Third, typename Fourth,
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
         Seventh const& seventh, Eighth const& eighth) {
-    std::cout << first << " " << second << " " << third << " " << fourth
-        << " " << fifth << " " << sixth << "  " << seventh << " "
-        << eighth;
+    std::cout << first << second << third << fourth << fifth << sixth
+        << seventh << eighth;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
@@ -121,9 +124,8 @@ template<typename First, typename Second, typename Third, typename Fourth,
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
         Seventh const& seventh, Eighth const& eighth, Ninth const& ninth) {
-    std::cout << first << " " << second << " " << third << " " << fourth
-        << " " << fifth << " " << sixth << "  " << seventh << " "
-        << eighth << " " << ninth;
+    std::cout << first << second << third << fourth << fifth << sixth
+        << seventh << eighth << ninth;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
@@ -133,9 +135,8 @@ inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
         Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
         Tenth const& tenth) {
-    std::cout << first << " " << second << " " << third << " " << fourth
-        << " " << fifth << " " << sixth << "  " << seventh << " "
-        << eighth << " " << ninth << " " << tenth;
+    std::cout << first << second << third << fourth << fifth << sixth
+        << seventh << eighth << ninth << tenth;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
@@ -145,9 +146,8 @@ inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
         Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
         Tenth const& tenth, Eleventh const& eleventh) {
-    std::cout << first << " " << second << " " << third << " " << fourth
-        << " " << fifth << " " << sixth << "  " << seventh << " "
-        << eighth << " " << ninth << " " << tenth << " " << eleventh;
+    std::cout << first << second << third << fourth << fifth << sixth
+        << seventh << eighth << ninth << tenth << eleventh;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
@@ -157,10 +157,8 @@ inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
         Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
         Tenth const& tenth, Eleventh const& eleventh, Twelfth const& twelfth) {
-    std::cout << first << " " << second << " " << third << " " << fourth
-        << " " << fifth << " " << sixth << "  " << seventh << " "
-        << eighth << " " << ninth << " " << tenth << " " << eleventh
-        << " " << twelfth;
+    std::cout << first << second << third << fourth << fifth << sixth
+        << seventh << eighth << ninth << tenth << eleventh << twelfth;
 }
 
 // END FUGLY C++03 HACK
@@ -248,7 +246,7 @@ namespace CudaTimerNS {
             LARGE_INTEGER freq;
             QueryPerformanceFrequency(&freq);
             _freq = 1.0 / freq.QuadPart;
-            return;    
+            return;
         }
 
         void start() {
@@ -350,7 +348,7 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar) {
     wbTimerInfo& timerInfo = *iter;
 
     timerInfo.timer.stop();
-    
+
     std::cout << "[" << wbTimeTypeToStr( timerInfo.type ) << "] ";
     std::cout << timerInfo.timer.value() << " ";
     std::cout << timerInfo.name << std::endl;
