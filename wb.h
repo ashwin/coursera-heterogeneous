@@ -26,6 +26,9 @@
 #include <string>
 #include <vector>
 
+#include <cuda.h>
+#include <cuda_runtime.h>
+
 ////
 // Logging
 ////
@@ -75,6 +78,7 @@ inline void _wbLog(First const& first, Rest const&... rest) {
         _wbLog(__VA_ARGS__); \
         std::cout << std::endl; \
     } while (0)
+
 ////
 // Input arguments
 ////
