@@ -62,16 +62,110 @@ const char* _wbLogLevelToStr(wbLogLevel level) {
     return _wbLogLevelStr[level];
 }
 
-template<typename T>
-inline void _wbLog(T const& val) {
-    std::cout << val << " ";
+// BEGIN FUGLY C++03 HACK
+//------------------------------------------------------------------------------------------
+template<typename First, typename Second>
+inline void _wbLog(First const& first, Second const& second) {
+    std::cout << first << " " << second;
 }
 
-template<typename First, typename ... Rest>
-inline void _wbLog(First const& first, Rest const&... rest) {
-    std::cout << first << " ";
-    _wbLog(rest ...);
+template<typename First, typename Second, typename Third>
+inline void _wbLog(First const& first, Second const& second, Third const& third) {
+    std::cout << first << " " << second << " " << third;
 }
+
+template<typename First, typename Second, typename Third, typename Fourth>
+inline void _wbLog(First const& first, Second const& second, Third const& third,
+        Fourth const& fourth) {
+    std::cout << first << " " << second << " " << third << " " << fourth;
+}
+
+template<typename First, typename Second, typename Third, typename Fourth,
+    typename Fifth>
+inline void _wbLog(First const& first, Second const& second, Third const& third,
+        Fourth const& fourth, Fifth const& fifth) {
+    std::cout << first << " " << second << " " << third << " " << fourth
+        << " " << fifth;
+}
+
+template<typename First, typename Second, typename Third, typename Fourth,
+    typename Fifth, typename Sixth>
+inline void _wbLog(First const& first, Second const& second, Third const& third,
+        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth) {
+    std::cout << first << " " << second << " " << third << " " << fourth
+        << " " << fifth << " " << sixth;
+}
+
+template<typename First, typename Second, typename Third, typename Fourth,
+    typename Fifth, typename Sixth, typename Seventh>
+inline void _wbLog(First const& first, Second const& second, Third const& third,
+        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
+        Seventh const& seventh) {
+    std::cout << first << " " << second << " " << third << " " << fourth
+        << " " << fifth << " " << sixth << "  " << seventh;
+}
+
+template<typename First, typename Second, typename Third, typename Fourth,
+    typename Fifth, typename Sixth, typename Seventh, typename Eighth>
+inline void _wbLog(First const& first, Second const& second, Third const& third,
+        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
+        Seventh const& seventh, Eighth const& eighth) {
+    std::cout << first << " " << second << " " << third << " " << fourth
+        << " " << fifth << " " << sixth << "  " << seventh << " "
+        << eighth;
+}
+
+template<typename First, typename Second, typename Third, typename Fourth,
+    typename Fifth, typename Sixth, typename Seventh, typename Eighth,
+    typename Ninth>
+inline void _wbLog(First const& first, Second const& second, Third const& third,
+        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
+        Seventh const& seventh, Eighth const& eighth, Ninth const& ninth) {
+    std::cout << first << " " << second << " " << third << " " << fourth
+        << " " << fifth << " " << sixth << "  " << seventh << " "
+        << eighth << " " << ninth;
+}
+
+template<typename First, typename Second, typename Third, typename Fourth,
+    typename Fifth, typename Sixth, typename Seventh, typename Eighth,
+    typename Ninth, typename Tenth>
+inline void _wbLog(First const& first, Second const& second, Third const& third,
+        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
+        Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
+        Tenth const& tenth) {
+    std::cout << first << " " << second << " " << third << " " << fourth
+        << " " << fifth << " " << sixth << "  " << seventh << " "
+        << eighth << " " << ninth << " " << tenth;
+}
+
+template<typename First, typename Second, typename Third, typename Fourth,
+    typename Fifth, typename Sixth, typename Seventh, typename Eighth,
+    typename Ninth, typename Tenth, typename Eleventh>
+inline void _wbLog(First const& first, Second const& second, Third const& third,
+        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
+        Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
+        Tenth const& tenth, Eleventh const& eleventh) {
+    std::cout << first << " " << second << " " << third << " " << fourth
+        << " " << fifth << " " << sixth << "  " << seventh << " "
+        << eighth << " " << ninth << " " << tenth << " " << eleventh;
+}
+
+template<typename First, typename Second, typename Third, typename Fourth,
+    typename Fifth, typename Sixth, typename Seventh, typename Eighth,
+    typename Ninth, typename Tenth, typename Eleventh, typename Twelfth>
+inline void _wbLog(First const& first, Second const& second, Third const& third,
+        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
+        Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
+        Tenth const& tenth, Eleventh const& eleventh, Twelfth const& twelfth) {
+    std::cout << first << " " << second << " " << third << " " << fourth
+        << " " << fifth << " " << sixth << "  " << seventh << " "
+        << eighth << " " << ninth << " " << tenth << " " << eleventh
+        << " " << twelfth;
+}
+
+// END FUGLY C++03 HACK
+//------------------------------------------------------------------------------------------
+
 #define wbLog(level, ...) \
     do { \
         std::cout << _wbLogLevelToStr(level) << " "; \
