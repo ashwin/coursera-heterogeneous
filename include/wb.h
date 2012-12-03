@@ -140,10 +140,10 @@ float* wbImport(char* fname, int* itemNum) {
 namespace CudaTimerNS {
     // CudaTimer class from: https://bitbucket.org/ashwin/cudatimer
 
+#ifdef _windows
     #include <Windows.h>
 
-    class CudaTimer
-    {
+    class CudaTimer {
     private:
         double        _freq;
         LARGE_INTEGER _time1;
@@ -159,13 +159,13 @@ namespace CudaTimerNS {
 
         void start() {
             cudaDeviceSynchronize();
-            QueryPerformanceCounter( &_time1 );
+            QueryPerformanceCounter(&_time1);
             return;
         }
 
         void stop() {
             cudaDeviceSynchronize();
-            QueryPerformanceCounter( &_time2 );
+            QueryPerformanceCounter(&_time2);
             return;
         }
 
@@ -173,6 +173,33 @@ namespace CudaTimerNS {
             return (_time2.QuadPart - _time1.QuadPart) * _freq * 1000;
         }
     };
+#else
+    // Assume a unix
+    // This is not a high frequency timer so its probably not as good
+    // as the windows one
+    #include <ctime>
+    #include <sys/time.h>
+
+    class CudaTimer {
+    private:
+        struct timeval start_time;
+        struct timeval end_time;
+
+    public:
+        void start() {
+            gettimeofday(&start_time, 0);
+        }
+
+        void stop() {
+            gettimeofday(&end_time, 0);
+        }
+
+        double value() {
+            return (1000.0 * (end_time.tv_sec - start_time.tv_sec) +
+                   (0.001 * (end_time.tv_usec - start_time.tv_usec)));
+        }
+    };
+#endif
 }
 
 enum wbTimeType {
