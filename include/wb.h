@@ -17,8 +17,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __WB_H__
+#pragma once
 
+////
+// Headers
+////
+
+// C++
 #include <algorithm>
 #include <cassert>
 #include <fstream>
@@ -28,6 +33,7 @@
 #include <string>
 #include <vector>
 
+// CUDA
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -35,7 +41,8 @@
 // Logging
 ////
 
-enum wbLogLevel {
+enum wbLogLevel
+{
     OFF,
     FATAL,
     ERROR,
@@ -43,10 +50,11 @@ enum wbLogLevel {
     INFO,
     DEBUG,
     TRACE,
-    wbLogLevelNum, //*** Keep this at the end
+    wbLogLevelNum, // Keep this at the end
 };
 
-const char* _wbLogLevelStr[] = {
+const char* _wbLogLevelStr[] =
+{
     "Off",
     "Fatal",
     "Error",
@@ -54,49 +62,57 @@ const char* _wbLogLevelStr[] = {
     "Info",
     "Debug",
     "Trace",
-    "***InvalidLogLevel***", //*** Keep this at the end
+    "***InvalidLogLevel***", // Keep this at the end
 };
 
-const char* _wbLogLevelToStr(wbLogLevel level) {
+const char* _wbLogLevelToStr(wbLogLevel level)
+{
     assert(level >= OFF && level <= TRACE);
     return _wbLogLevelStr[level];
 }
 
-// BEGIN FUGLY C++03 HACK
-//------------------------------------------------------------------------------------------
-//
+//-----------------------------------------------------------------------------
+// Begin: Ugly C++03 hack
+// NVCC does not support C++11 variadic template yet
+
 template<typename First>
-inline void _wbLog(First const& first) {
+inline void _wbLog(First const& first)
+{
     std::cout << first;
 }
 
 template<typename First, typename Second>
-inline void _wbLog(First const& first, Second const& second) {
+inline void _wbLog(First const& first, Second const& second)
+{
     std::cout << first << second;
 }
 
 template<typename First, typename Second, typename Third>
-inline void _wbLog(First const& first, Second const& second, Third const& third) {
+inline void _wbLog(First const& first, Second const& second, Third const& third)
+{
     std::cout << first << second << third;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth>
 inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth) {
+        Fourth const& fourth)
+{
     std::cout << first << second << third << fourth;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
     typename Fifth>
 inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth, Fifth const& fifth) {
+        Fourth const& fourth, Fifth const& fifth)
+{
     std::cout << first << second << third << fourth << fifth;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
     typename Fifth, typename Sixth>
 inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth) {
+        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth)
+{
     std::cout << first << second << third << fourth << fifth << sixth;
 }
 
@@ -104,16 +120,17 @@ template<typename First, typename Second, typename Third, typename Fourth,
     typename Fifth, typename Sixth, typename Seventh>
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
-        Seventh const& seventh) {
-    std::cout << first << second << third << fourth << fifth << sixth
-        << seventh;
+        Seventh const& seventh)
+{
+    std::cout << first << second << third << fourth << fifth << sixth << seventh;
 }
 
 template<typename First, typename Second, typename Third, typename Fourth,
     typename Fifth, typename Sixth, typename Seventh, typename Eighth>
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
-        Seventh const& seventh, Eighth const& eighth) {
+        Seventh const& seventh, Eighth const& eighth)
+{
     std::cout << first << second << third << fourth << fifth << sixth
         << seventh << eighth;
 }
@@ -123,7 +140,8 @@ template<typename First, typename Second, typename Third, typename Fourth,
     typename Ninth>
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
-        Seventh const& seventh, Eighth const& eighth, Ninth const& ninth) {
+        Seventh const& seventh, Eighth const& eighth, Ninth const& ninth)
+{
     std::cout << first << second << third << fourth << fifth << sixth
         << seventh << eighth << ninth;
 }
@@ -134,7 +152,8 @@ template<typename First, typename Second, typename Third, typename Fourth,
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
         Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
-        Tenth const& tenth) {
+        Tenth const& tenth)
+{
     std::cout << first << second << third << fourth << fifth << sixth
         << seventh << eighth << ninth << tenth;
 }
@@ -145,7 +164,8 @@ template<typename First, typename Second, typename Third, typename Fourth,
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
         Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
-        Tenth const& tenth, Eleventh const& eleventh) {
+        Tenth const& tenth, Eleventh const& eleventh)
+{
     std::cout << first << second << third << fourth << fifth << sixth
         << seventh << eighth << ninth << tenth << eleventh;
 }
@@ -156,18 +176,19 @@ template<typename First, typename Second, typename Third, typename Fourth,
 inline void _wbLog(First const& first, Second const& second, Third const& third,
         Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
         Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
-        Tenth const& tenth, Eleventh const& eleventh, Twelfth const& twelfth) {
+        Tenth const& tenth, Eleventh const& eleventh, Twelfth const& twelfth)
+{
     std::cout << first << second << third << fourth << fifth << sixth
         << seventh << eighth << ninth << tenth << eleventh << twelfth;
 }
 
-// END FUGLY C++03 HACK
-//------------------------------------------------------------------------------------------
+// End: Ugly C++03 hack
+//-----------------------------------------------------------------------------
 
 #define wbLog(level, ...) \
     do { \
         std::cout << _wbLogLevelToStr(level) << " "; \
-        std::cout << __func__ << "::" << __LINE__ << " "; \
+        std::cout << __FUNCTION__ << "::" << __LINE__ << " "; \
         _wbLog(__VA_ARGS__); \
         std::cout << std::endl; \
     } while (0)
@@ -176,48 +197,57 @@ inline void _wbLog(First const& first, Second const& second, Third const& third,
 // Input arguments
 ////
 
-struct wbArg_t {
+struct wbArg_t
+{
     int    argc;
     char** argv;
 };
 
-wbArg_t wbArg_read(int argc, char** argv) {
+wbArg_t wbArg_read(int argc, char** argv)
+{
     wbArg_t argInfo = { argc, argv };
     return argInfo;
 }
 
-char* wbArg_getInputFile(wbArg_t argInfo, int argNum) {
+char* wbArg_getInputFile(wbArg_t argInfo, int argNum)
+{
     assert(argNum >= 0 && argNum < (argInfo.argc - 1));
     return argInfo.argv[argNum + 1];
 }
 
-float* wbImport(char* fname, int* itemNum) {
+float* wbImport(char* fname, int* itemNum)
+{
     // Open file
 
     std::ifstream inFile(fname);
 
-    if (!inFile) {
+    if (!inFile)
+    {
         std::cout << "Error opening input file: " << fname << " !\n";
         exit(1);
     }
 
     // Read file to vector
+
     std::string sval;
     float fval;
     std::vector<float> fVec;
 
-    while (inFile >> sval) {
+    while (inFile >> sval)
+    {
         std::istringstream iss(sval);
         iss >> fval;
         fVec.push_back(fval );
     }
 
     // Vector to malloc memory
+
     *itemNum = fVec.size();
 
     float* fBuf = (float*) malloc(*itemNum * sizeof(float));
 
-    for (int i = 0; i < *itemNum; ++i) {
+    for (int i = 0; i < *itemNum; ++i)
+    {
         fBuf[i] = fVec[i];
     }
 
@@ -229,39 +259,45 @@ float* wbImport(char* fname, int* itemNum) {
 ////
 
 // Namespace because windows.h causes errors
-namespace CudaTimerNS {
+namespace CudaTimerNS
+{
     // CudaTimer class from: https://bitbucket.org/ashwin/cudatimer
 
-#ifdef _windows
+#if defined (_WIN32)
     #include <Windows.h>
 
-    class CudaTimer {
+    class CudaTimer
+    {
     private:
         double        _freq;
         LARGE_INTEGER _time1;
         LARGE_INTEGER _time2;
 
     public:
-        CudaTimer::CudaTimer() {
+        CudaTimer::CudaTimer()
+        {
             LARGE_INTEGER freq;
             QueryPerformanceFrequency(&freq);
             _freq = 1.0 / freq.QuadPart;
             return;
         }
 
-        void start() {
+        void start()
+        {
             cudaDeviceSynchronize();
             QueryPerformanceCounter(&_time1);
             return;
         }
 
-        void stop() {
+        void stop()
+        {
             cudaDeviceSynchronize();
             QueryPerformanceCounter(&_time2);
             return;
         }
 
-        double value() {
+        double value()
+        {
             return (_time2.QuadPart - _time1.QuadPart) * _freq * 1000;
         }
     };
@@ -272,21 +308,25 @@ namespace CudaTimerNS {
     #include <ctime>
     #include <sys/time.h>
 
-    class CudaTimer {
+    class CudaTimer
+    {
     private:
         struct timeval start_time;
         struct timeval end_time;
 
     public:
-        void start() {
+        void start()
+        {
             gettimeofday(&start_time, 0);
         }
 
-        void stop() {
+        void stop()
+        {
             gettimeofday(&end_time, 0);
         }
 
-        double value() {
+        double value()
+        {
             return (1000.0 * (end_time.tv_sec - start_time.tv_sec) +
                    (0.001 * (end_time.tv_usec - start_time.tv_usec)));
         }
@@ -294,7 +334,8 @@ namespace CudaTimerNS {
 #endif
 }
 
-enum wbTimeType {
+enum wbTimeType
+{
     Generic,
     GPU,
     Compute,
@@ -302,25 +343,29 @@ enum wbTimeType {
     wbTimeTypeNum, // Keep this at the end
 };
 
-const char* wbTimeTypeStr[] = {
+const char* wbTimeTypeStr[] =
+{
     "Generic",
     "GPU    ",
     "Compute",
     "Copy   ",
-    "***Invalid***",
+    "***InvalidTimeType***", // Keep this at the end
 };
 
-const char* wbTimeTypeToStr(wbTimeType t) {
+const char* wbTimeTypeToStr(wbTimeType t)
+{
     assert(t >= Generic && t < wbTimeTypeNum);
     return wbTimeTypeStr[t];
 }
 
-struct wbTimerInfo {
+struct wbTimerInfo
+{
     wbTimeType             type;
     std::string            name;
     CudaTimerNS::CudaTimer timer;
 
-    bool operator == (const wbTimerInfo& t2) const {
+    bool operator == (const wbTimerInfo& t2) const
+    {
         return (type == t2.type && (0 == name.compare(t2.name)));
     }
 };
@@ -328,16 +373,20 @@ struct wbTimerInfo {
 typedef std::list< wbTimerInfo> wbTimerInfoList;
 wbTimerInfoList gTimerInfoList;
 
-void wbTime_start(wbTimeType timeType, const std::string timeStar) {
+void wbTime_start(wbTimeType timeType, const std::string timeStar)
+{
     CudaTimerNS::CudaTimer timer;
     timer.start();
 
     wbTimerInfo tInfo = { timeType, timeStar, timer };
 
     gTimerInfoList.push_front(tInfo);
+
+    return;
 }
 
-void wbTime_stop(wbTimeType timeType, const std::string timeStar) {
+void wbTime_stop(wbTimeType timeType, const std::string timeStar)
+{
     // Find timer
 
     const wbTimerInfo searchInfo         = { timeType, timeStar };
@@ -355,6 +404,8 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar) {
 
     // Delete timer from list
     gTimerInfoList.erase(iter);
+
+    return;
 }
 
 ////
@@ -362,9 +413,7 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar) {
 ////
 
 template < typename T, typename S >
-void wbSolution(wbArg_t args, const T& t, const S& s) {
+void wbSolution(wbArg_t args, const T& t, const S& s)
+{
     return;
 }
-
-#define __WB_H_
-#endif
