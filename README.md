@@ -2,6 +2,7 @@ coursera-heterogeneous
 ======================
  * This header is meant to be fix for compilation on local machine 
  for the course https://www.coursera.org/course/hetero.
+ * TO RUN IT ON LINUX FROM THIS DIRECTORY(with this readme): cd test && make tests
  * I add Linux functionality and Makefile to original Windows version from https://bitbucket.org/ashwin/cudatimer
  * I busttled wbLog with numerous template variants so it fits all logs in mp0 and mp1.
  * I *added timer functionality* for Linux.
