@@ -234,4 +234,14 @@ void wbSolution( wbArg_t args, const T& t, const S& s )
     return;
 }
 
+// used for mp1 printing out hostArray 
+template < typename T>
+void wbSolution( wbArg_t args, const T& t, const int& c )
+{
+    for (int i = 0; i < c; ++i)
+        std::cout << t[i] << ' ';
+    std::cout << std::endl;
+
+    return;
+}
 ///////////////////////////////////////////////////////////////////////////////
