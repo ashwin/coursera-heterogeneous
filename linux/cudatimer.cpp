@@ -24,33 +24,32 @@ I also suggest looking at clock_nanosleep(), but that’s a separate topic.
 */
 
 #include <time.h>
-#include "cudatimer.h"
 #include <stdio.h>
+#include "cudatimer.h"
 
 // Namespace because windows.h causes errors
 namespace CudaTimerNS
 {
-    // TODO change to correct type
-    const clockid_t clock_id = CLOCK_REALTIME; 
-
     CudaTimer::CudaTimer()
     {
         unsigned long freq;
-        struct timespec spec;
-        if ( clock_getres(clock_id, &spec) != 0 )
-            freq_ = 1.0 / spec.tv_nsec;
+        struct timespec tp;
+        // TODO is this the correct type 
+        if ( clock_getres(CLOCK_REALTIME, &tp) != 0 )
+            printf("Cannot access timer\n");
         else
-            printf("Cannot access timer");
+            freq_ = 1.0 / tp.tv_nsec;
     }
 
     unsigned long CudaTimer::getTime()
     {
         unsigned long time = 0;
         struct timespec tp;
-        if(clock_gettime(clock_id, &tp))
-            time = tp.tv_nsec;
+        // TODO change to correct type
+        if(clock_gettime(CLOCK_REALTIME, &tp))
+            printf("Cannot get timer value\n");
         else
-            printf("Cannot get timer value");
+            time = tp.tv_nsec;
         return time;
     }
 
