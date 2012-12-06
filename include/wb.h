@@ -85,6 +85,42 @@ inline void wbLog( wbLogLevel level, const char* logStr, T val )
     return;
 }
 
+template < typename T1, typename T2 >
+inline void wbLog( wbLogLevel level, const char* logStr, T1 v1 , T2 v2 )
+{
+    _wbLog( level, logStr );
+    std::cout << v1 << v2 << std::endl;
+
+    return;
+}
+
+template < typename T1, typename T2, typename T3 >
+inline void wbLog( wbLogLevel level, const char* logStr, T1 v1, T2 v2, T3 v3 )
+{
+    _wbLog( level, logStr );
+    std::cout << v1 << v2 << v3 << std::endl;
+
+    return;
+}
+
+template < typename T1, typename T2, typename T3 , typename T4>
+inline void wbLog( wbLogLevel level, const char* logStr, T1 v1, T2 v2, T3 v3, T4 v4 )
+{
+    _wbLog( level, logStr );
+    std::cout << v1 << v2 << v3 << v4 << std::endl;
+
+    return;
+}
+
+template < typename T1, typename T2, typename T3 , typename T4,typename T5>
+inline void wbLog( wbLogLevel level, const char* logStr, T1 v1, T2 v2, T3 v3, T4 v4, T5 v5 )
+{
+    _wbLog( level, logStr );
+    std::cout << v1 << v2 << v3 << v4 << v5 << std::endl;
+
+    return;
+}
+
 ////
 // Input arguments
 ////
