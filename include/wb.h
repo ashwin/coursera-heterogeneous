@@ -472,14 +472,61 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar)
 template < typename T, typename S >
 void wbSolution(wbArg_t args, const T& t, const S& s)
 {
+	int solnItems;
+	float *soln = (float *) wbImport(wbArg_getInputFile(args, 2), &solnItems);
+	if (solnItems != s) {
+		std::cout << "Number of items in solution does not match. ";
+		std::cout << "Expecting " << s << " but got " << solnItems << ".\n";
+		return;
+	}
+	
+	// Check answer
+	int item;
+	int errCnt = 0;
+	for (item = 0; item < solnItems; item++) {
+		if (abs(soln[item] - t[item]) > .005) {
+			std::cout << "Solution does not match at item " << item << ". ";
+			std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
+			errCnt++;
+		}
+	}
+	if (!errCnt)
+		std::cout << "All tests passed!\n";
+    else
+		std::cout << errCnt << " tests failed.\n";
+		
     return;
 }
 
 template < typename T, typename S, typename U >
     void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
 {
+	int solnRows, solnColumns;
+	float *soln = (float *) wbImport(wbArg_getInputFile(args, 2), &solnRows, &solnColumns);
+	if (solnRows != s || solnColumns != u) {
+		std::cout << "Size of solution does not match. ";
+		std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
+		return;
+	}
+	
+	// Check solution
+	int errCnt = 0;
+	int row, col;
+	for (row = 0; row < solnRows; row++) {
+		for (col = 0; col < solnColumns; col++) {
+			float expected = *(soln + row * solnColumns + col);
+			float got = *(t + row * solnColumns + col);
+			if (abs(expected - got) > 0.005) {
+				std::cout << "Solution does not match at (" << row << ", " << col << "). ";
+				std::cout << "Expecting " << expected << " but got " << got << ".\n";
+				errCnt++;
+			}
+		}
+	}
+	if (!errCnt)
+		std::cout << "All tests passed!\n";
+    else
+		std::cout << errCnt << " tests failed.\n";
+		
     return;
 }
-    
-
-
