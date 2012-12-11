@@ -1,5 +1,7 @@
 // GenDataMP2.cpp: Generate data for assignment MP2
 
+#include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 
@@ -12,7 +14,7 @@ void genMatrix( float* mat, int rows, int cols )
 {
     for ( int r = 0; r < rows; ++r )
         for ( int c = 0; c < cols; ++c )
-            mat[ rows * r + c ] = genRandomFloat();
+            mat[ cols * r + c ] = genRandomFloat();
 }
 
 void mulMatrices
@@ -37,7 +39,7 @@ int BCols
             for ( int z = 0; z < ACols; ++z )
                 sum += matA[ ACols * r + z ] * matB[ BCols * z + c ];
 
-            matC[ CRows * r + c ] = sum;
+            matC[ CCols * r + c ] = sum;
         }
     }
 }
@@ -99,6 +101,10 @@ int main( int argc, const char** argv )
     const int BCols = atoi( argv[3] );
     const int CRows = ARows;
     const int CCols = BCols;
+
+    std::cout << "Dimensions of matrix A = [" << ARows << " x " << ACols << "]\n";
+    std::cout << "Dimensions of matrix B = [" << BRows << " x " << BCols << "]\n";
+    std::cout << "Dimensions of matrix C = [" << CRows << " x " << CCols << "]\n";
 
     // Memory for matrices
 
