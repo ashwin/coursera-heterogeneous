@@ -216,54 +216,7 @@ char* wbArg_getInputFile(wbArg_t argInfo, int argNum)
     return argInfo.argv[argNum + 1];
 }
 
-float* wbImport(char* fname, int* numRows, int* numCols)
-{
-    // Open file
-
-    std::ifstream inFile(fname);
-
-    if (!inFile)
-    {
-        std::cout << "Error opening input file: " << fname << " !\n";
-        exit(1);
-    }
-
-    // Read file to vector
-
-    std::string sval;
-    float fval;
-    std::vector<float> fVec;
-    int itemNum = 0;
-
-    // Read in matrix dimensions
-    inFile >> *numRows;
-    inFile >> *numCols;
-
-    while (inFile >> sval)
-    {
-        std::istringstream iss(sval);
-        iss >> fval;
-        fVec.push_back(fval );
-    }
-
-    // Vector to malloc memory
-
-    if (fVec.size() != (*numRows * *numCols)) {
-        std::cout << "Error reading matrix content for a " << *numRows << " * " << *numCols << "matrix!\n";
-        exit(1);
-    }
-
-    itemNum = *numRows * *numCols;    
-    float* fBuf = (float*) malloc(itemNum * sizeof(float));
-
-    for (int i = 0; i < itemNum; ++i)
-    {
-        fBuf[i] = fVec[i];
-    }
-
-    return fBuf;
-}    
-
+// For assignment MP1
 float* wbImport(char* fname, int* itemNum)
 {
     // Open file
@@ -303,6 +256,57 @@ float* wbImport(char* fname, int* itemNum)
     return fBuf;
 }
 
+// For assignment MP2
+float* wbImport(char* fname, int* numRows, int* numCols)
+{
+    // Open file
+
+    std::ifstream inFile(fname);
+
+    if (!inFile)
+    {
+        std::cout << "Error opening input file: " << fname << " !\n";
+        exit(1);
+    }
+
+    // Read file to vector
+
+    std::string sval;
+    float fval;
+    std::vector<float> fVec;
+    int itemNum = 0;
+
+    // Read in matrix dimensions
+    inFile >> *numRows;
+    inFile >> *numCols;
+
+    while (inFile >> sval)
+    {
+        std::istringstream iss(sval);
+        iss >> fval;
+        fVec.push_back(fval );
+    }
+
+    // Vector to malloc memory
+
+    if (fVec.size() != (*numRows * *numCols))
+    {
+        std::cout << "Error reading matrix content for a " << *numRows << " * " << *numCols << "matrix!\n";
+        exit(1);
+    }
+
+    itemNum = *numRows * *numCols;
+
+    float* fBuf = (float*) malloc(itemNum * sizeof(float));
+
+    for (int i = 0; i < itemNum; ++i)
+    {
+        fBuf[i] = fVec[i];
+    }
+
+    return fBuf;
+}
+
 ////
 // Timer
 ////
@@ -310,11 +314,10 @@ float* wbImport(char* fname, int* itemNum)
 // Namespace because windows.h causes errors
 namespace CudaTimerNS
 {
-    // CudaTimer class from: https://bitbucket.org/ashwin/cudatimer
-
 #if defined (_WIN32)
     #include <Windows.h>
 
+    // CudaTimer class from: https://bitbucket.org/ashwin/cudatimer
     class CudaTimer
     {
     private:
@@ -363,29 +366,30 @@ namespace CudaTimerNS
         void start()
         {
             struct timespec sp;
-            if (0 == clock_gettime(CLOCK_REALTIME,&sp)) {
-                _start=1000000000LL; /* seconds->nanonseconds */
-                _start*=sp.tv_sec;
-                _start+=sp.tv_nsec;
-            }
 
+            if (0 == clock_gettime(CLOCK_REALTIME,&sp))
+            {
+                _start  = 1000000000LL; // seconds->nanonseconds
+                _start *= sp.tv_sec;
+                _start += sp.tv_nsec;
+            }
         }
 
         void stop()
         {
             struct timespec sp;
-            if (0 == clock_gettime(CLOCK_REALTIME,&sp)) {
-                _end=1000000000LL; /* seconds->nanonseconds */
-                _end*=sp.tv_sec;
-                _end+=sp.tv_nsec;
-            }
-                    
 
+            if (0 == clock_gettime(CLOCK_REALTIME,&sp))
+            {
+                _end  = 1000000000LL; // seconds->nanonseconds
+                _end *= sp.tv_sec;
+                _end += sp.tv_nsec;
+            }
         }
 
         double value()
         {
-            return ((double)_end - (double)_start)/1000000000LL;            
+            return ((double) _end - (double) _start) / 1000000000LL;
         }
     };
 #endif
@@ -476,10 +480,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
 }
 
 template < typename T, typename S, typename U >
-    void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
+void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
 {
     return;
 }
-    
-
-
