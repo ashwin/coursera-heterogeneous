@@ -10,26 +10,24 @@ int main(int argc, char ** argv) {
     wbArg_read(argc, argv);
 
     cudaGetDeviceCount(&deviceCount);
+	
+    if (deviceCount == 0) {
+        wbLog(TRACE, "No CUDA GPU has been detected");
+        return -1;
+    } else if (deviceCount == 1) {
+        //@@ WbLog is a provided logging API (similar to Log4J).
+        //@@ The logging function wbLog takes a level which is either
+        //@@ OFF, FATAL, ERROR, WARN, INFO, DEBUG, or TRACE and a
+        //@@ message to be printed.
+        wbLog(TRACE, "There is 1 device supporting CUDA");
+    } else {
+        wbLog(TRACE, "There are ", deviceCount, " devices supporting CUDA");
+    }
 
     for (int dev = 0; dev < deviceCount; dev++) {
         cudaDeviceProp deviceProp;
 
         cudaGetDeviceProperties(&deviceProp, dev);
-
-        if (dev == 0) {
-            if (deviceProp.major == 9999 && deviceProp.minor == 9999) {
-                wbLog(TRACE, "No CUDA GPU has been detected");
-                return -1;
-            } else if (deviceCount == 1) {
-                //@@ WbLog is a provided logging API (similar to Log4J).
-                //@@ The logging function wbLog takes a level which is either
-                //@@ OFF, FATAL, ERROR, WARN, INFO, DEBUG, or TRACE and a
-                //@@ message to be printed.
-                wbLog(TRACE, "There is 1 device supporting CUDA");
-            } else {
-                wbLog(TRACE, "There are ", deviceCount, " devices supporting CUDA");
-            }
-        }
 
         wbLog(TRACE, "Device ", dev, " name: ", deviceProp.name);
         wbLog(TRACE, " Computational Capabilities: ", deviceProp.major, ".", deviceProp.minor);
