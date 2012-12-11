@@ -1,11 +1,15 @@
 // GenDataMP1.cpp: Generate data for assignment MP1
 
 #include <cassert>
+#include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <vector>
 
 typedef std::vector< float > FloatVec;
+
+
 
 float genRandomFloat()
 {
