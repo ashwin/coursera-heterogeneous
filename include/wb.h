@@ -28,6 +28,7 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <list>
 #include <sstream>
 #include <string>
@@ -215,6 +216,54 @@ char* wbArg_getInputFile(wbArg_t argInfo, int argNum)
     return argInfo.argv[argNum + 1];
 }
 
+float* wbImport(char* fname, int* numRows, int* numCols)
+{
+    // Open file
+
+    std::ifstream inFile(fname);
+
+    if (!inFile)
+    {
+        std::cout << "Error opening input file: " << fname << " !\n";
+        exit(1);
+    }
+
+    // Read file to vector
+
+    std::string sval;
+    float fval;
+    std::vector<float> fVec;
+    int itemNum = 0;
+
+    // Read in matrix dimensions
+    inFile >> *numRows;
+    inFile >> *numCols;
+
+    while (inFile >> sval)
+    {
+        std::istringstream iss(sval);
+        iss >> fval;
+        fVec.push_back(fval );
+    }
+
+    // Vector to malloc memory
+
+    if (fVec.size() != (*numRows * *numCols)) {
+        std::cout << "Error reading matrix content for a " << *numRows << " * " << *numCols << "matrix!\n";
+        exit(1);
+    }
+
+    itemNum = *numRows * *numCols;    
+    float* fBuf = (float*) malloc(itemNum * sizeof(float));
+
+    for (int i = 0; i < itemNum; ++i)
+    {
+        fBuf[i] = fVec[i];
+    }
+
+    return fBuf;
+}    
+
 float* wbImport(char* fname, int* itemNum)
 {
     // Open file
@@ -302,33 +351,41 @@ namespace CudaTimerNS
         }
     };
 #else
-    // Assume a unix
-    // This is not a high frequency timer so its probably not as good
-    // as the windows one
-    #include <ctime>
-    #include <sys/time.h>
+    #include <time.h>
 
     class CudaTimer
     {
     private:
-        struct timeval start_time;
-        struct timeval end_time;
+        long long _start;
+        long long _end;
 
     public:
         void start()
         {
-            gettimeofday(&start_time, 0);
+            struct timespec sp;
+            if (0 == clock_gettime(CLOCK_REALTIME,&sp)) {
+                _start=1000000000LL; /* seconds->nanonseconds */
+                _start*=sp.tv_sec;
+                _start+=sp.tv_nsec;
+            }
+
         }
 
         void stop()
         {
-            gettimeofday(&end_time, 0);
+            struct timespec sp;
+            if (0 == clock_gettime(CLOCK_REALTIME,&sp)) {
+                _end=1000000000LL; /* seconds->nanonseconds */
+                _end*=sp.tv_sec;
+                _end+=sp.tv_nsec;
+            }
+                    
+
         }
 
         double value()
         {
-            return (1000.0 * (end_time.tv_sec - start_time.tv_sec) +
-                   (0.001 * (end_time.tv_usec - start_time.tv_usec)));
+            return ((double)_end - (double)_start)/1000000000LL;            
         }
     };
 #endif
@@ -399,7 +456,7 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar)
     timerInfo.timer.stop();
 
     std::cout << "[" << wbTimeTypeToStr( timerInfo.type ) << "] ";
-    std::cout << timerInfo.timer.value() << " ";
+    std::cout << std::fixed << std::setprecision(10) << timerInfo.timer.value() << " ";
     std::cout << timerInfo.name << std::endl;
 
     // Delete timer from list
@@ -417,3 +474,12 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
 {
     return;
 }
+
+template < typename T, typename S, typename U >
+    void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
+{
+    return;
+}
+    
+
+
