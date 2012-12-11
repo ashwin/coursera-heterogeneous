@@ -212,28 +212,19 @@ float* wbImport(char* fname, int* itemNum)
         exit(1);
     }
 
-    // Read file to vector
+    // Read from file
+
+    inFile >> *itemNum;
+
+    float* fBuf = (float*) malloc( *itemNum * sizeof(float) );
 
     std::string sval;
-    float fval;
-    std::vector<float> fVec;
+    int idx = 0;
 
     while (inFile >> sval)
     {
         std::istringstream iss(sval);
-        iss >> fval;
-        fVec.push_back(fval );
-    }
-
-    // Vector to malloc memory
-
-    *itemNum = fVec.size();
-
-    float* fBuf = (float*) malloc(*itemNum * sizeof(float));
-
-    for (int i = 0; i < *itemNum; ++i)
-    {
-        fBuf[i] = fVec[i];
+        iss >> fBuf[ idx++ ];
     }
 
     return fBuf;
@@ -460,36 +451,36 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar)
 template < typename T, typename S >
 void wbSolution(wbArg_t args, const T& t, const S& s)
 {
-	int solnItems;
-	float *soln = (float *) wbImport(wbArg_getInputFile(args, 2), &solnItems);
+    int solnItems;
+    float *soln = (float *) wbImport(wbArg_getInputFile(args, 2), &solnItems);
 
-	if (solnItems != s)
+    if (solnItems != s)
     {
-		std::cout << "Number of items in solution does not match. ";
-		std::cout << "Expecting " << s << " but got " << solnItems << ".\n";
-		return;
-	}
-	
-	// Check answer
+        std::cout << "Number of items in solution does not match. ";
+        std::cout << "Expecting " << s << " but got " << solnItems << ".\n";
+        return;
+    }
+    
+    // Check answer
 
-	int item;
-	int errCnt = 0;
+    int item;
+    int errCnt = 0;
 
-	for (item = 0; item < solnItems; item++)
+    for (item = 0; item < solnItems; item++)
     {
-		if (abs(soln[item] - t[item]) > .005)
+        if (abs(soln[item] - t[item]) > .005)
         {
-			std::cout << "Solution does not match at item " << item << ". ";
-			std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
-			errCnt++;
-		}
-	}
+            std::cout << "Solution does not match at item " << item << ". ";
+            std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
+            errCnt++;
+        }
+    }
 
-	if (!errCnt)
-		std::cout << "All tests passed!\n";
+    if (!errCnt)
+        std::cout << "All tests passed!\n";
     else
-		std::cout << errCnt << " tests failed.\n";
-		
+        std::cout << errCnt << " tests failed.\n";
+        
     return;
 }
 
@@ -497,41 +488,41 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
 template < typename T, typename S, typename U >
 void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
 {
-	int solnRows, solnColumns;
-	float *soln = (float *) wbImport(wbArg_getInputFile(args, 2), &solnRows, &solnColumns);
+    int solnRows, solnColumns;
+    float *soln = (float *) wbImport(wbArg_getInputFile(args, 2), &solnRows, &solnColumns);
 
-	if (solnRows != s || solnColumns != u)
+    if (solnRows != s || solnColumns != u)
     {
-		std::cout << "Size of solution does not match. ";
-		std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
-		return;
-	}
-	
-	// Check solution
+        std::cout << "Size of solution does not match. ";
+        std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
+        return;
+    }
+    
+    // Check solution
 
-	int errCnt = 0;
-	int row, col;
+    int errCnt = 0;
+    int row, col;
 
-	for (row = 0; row < solnRows; row++)
+    for (row = 0; row < solnRows; row++)
     {
-		for (col = 0; col < solnColumns; col++)
+        for (col = 0; col < solnColumns; col++)
         {
-			float expected = *(soln + row * solnColumns + col);
-			float got = *(t + row * solnColumns + col);
+            float expected = *(soln + row * solnColumns + col);
+            float got = *(t + row * solnColumns + col);
 
-			if (abs(expected - got) > 0.005)
+            if (abs(expected - got) > 0.005)
             {
-				std::cout << "Solution does not match at (" << row << ", " << col << "). ";
-				std::cout << "Expecting " << expected << " but got " << got << ".\n";
-				errCnt++;
-			}
-		}
-	}
+                std::cout << "Solution does not match at (" << row << ", " << col << "). ";
+                std::cout << "Expecting " << expected << " but got " << got << ".\n";
+                errCnt++;
+            }
+        }
+    }
 
-	if (!errCnt)
-		std::cout << "All tests passed!\n";
+    if (!errCnt)
+        std::cout << "All tests passed!\n";
     else
-		std::cout << errCnt << " tests failed.\n";
-		
+        std::cout << errCnt << " tests failed.\n";
+        
     return;
 }
