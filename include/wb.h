@@ -59,111 +59,64 @@ const char* _wbLogLevelToStr(wbLogLevel level)
 // Begin: Ugly C++03 hack
 // NVCC does not support C++11 variadic template yet
 
-template<typename First>
-inline void _wbLog(First const& first)
+template<typename T1>
+inline void _wbLog(T1 const& p1)
 {
-    std::cout << first;
+    std::cout << p1;
 }
 
-template<typename First, typename Second>
-inline void _wbLog(First const& first, Second const& second)
+template<typename T1, typename T2>
+inline void _wbLog(T1 const& p1, T2 const& p2)
 {
-    std::cout << first << second;
+    std::cout << p1 << p2;
 }
 
-template<typename First, typename Second, typename Third>
-inline void _wbLog(First const& first, Second const& second, Third const& third)
+template<typename T1, typename T2, typename T3>
+inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3)
 {
-    std::cout << first << second << third;
+    std::cout << p1 << p2 << p3;
 }
 
-template<typename First, typename Second, typename Third, typename Fourth>
-inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth)
+template<typename T1, typename T2, typename T3, typename T4>
+inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4)
 {
-    std::cout << first << second << third << fourth;
+    std::cout << p1 << p2 << p3 << p4;
 }
 
-template<typename First, typename Second, typename Third, typename Fourth,
-    typename Fifth>
-inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth, Fifth const& fifth)
+template<typename T1, typename T2, typename T3, typename T4, typename T5>
+inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5)
 {
-    std::cout << first << second << third << fourth << fifth;
+    std::cout << p1 << p2 << p3 << p4 << p5;
 }
 
-template<typename First, typename Second, typename Third, typename Fourth,
-    typename Fifth, typename Sixth>
-inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth)
+template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6)
 {
-    std::cout << first << second << third << fourth << fifth << sixth;
+    std::cout << p1 << p2 << p3 << p4 << p5 << p6;
 }
 
-template<typename First, typename Second, typename Third, typename Fourth,
-    typename Fifth, typename Sixth, typename Seventh>
-inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
-        Seventh const& seventh)
+template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7)
 {
-    std::cout << first << second << third << fourth << fifth << sixth << seventh;
+    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7;
 }
 
-template<typename First, typename Second, typename Third, typename Fourth,
-    typename Fifth, typename Sixth, typename Seventh, typename Eighth>
-inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
-        Seventh const& seventh, Eighth const& eighth)
+template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8)
 {
-    std::cout << first << second << third << fourth << fifth << sixth
-        << seventh << eighth;
+    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8;
 }
 
-template<typename First, typename Second, typename Third, typename Fourth,
-    typename Fifth, typename Sixth, typename Seventh, typename Eighth,
-    typename Ninth>
-inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
-        Seventh const& seventh, Eighth const& eighth, Ninth const& ninth)
+template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9)
 {
-    std::cout << first << second << third << fourth << fifth << sixth
-        << seventh << eighth << ninth;
+    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9;
 }
 
-template<typename First, typename Second, typename Third, typename Fourth,
-    typename Fifth, typename Sixth, typename Seventh, typename Eighth,
-    typename Ninth, typename Tenth>
-inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
-        Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
-        Tenth const& tenth)
+template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10>
+inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9, T10 const& p10)
 {
-    std::cout << first << second << third << fourth << fifth << sixth
-        << seventh << eighth << ninth << tenth;
-}
-
-template<typename First, typename Second, typename Third, typename Fourth,
-    typename Fifth, typename Sixth, typename Seventh, typename Eighth,
-    typename Ninth, typename Tenth, typename Eleventh>
-inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
-        Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
-        Tenth const& tenth, Eleventh const& eleventh)
-{
-    std::cout << first << second << third << fourth << fifth << sixth
-        << seventh << eighth << ninth << tenth << eleventh;
-}
-
-template<typename First, typename Second, typename Third, typename Fourth,
-    typename Fifth, typename Sixth, typename Seventh, typename Eighth,
-    typename Ninth, typename Tenth, typename Eleventh, typename Twelfth>
-inline void _wbLog(First const& first, Second const& second, Third const& third,
-        Fourth const& fourth, Fifth const& fifth, Sixth const& sixth,
-        Seventh const& seventh, Eighth const& eighth, Ninth const& ninth,
-        Tenth const& tenth, Eleventh const& eleventh, Twelfth const& twelfth)
-{
-    std::cout << first << second << third << fourth << fifth << sixth
-        << seventh << eighth << ninth << tenth << eleventh << twelfth;
+    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10;
 }
 
 // End: Ugly C++03 hack
