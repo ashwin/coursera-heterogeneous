@@ -9,8 +9,6 @@
 
 typedef std::vector< float > FloatVec;
 
-
-
 float genRandomFloat()
 {
     return ( (float) rand() / RAND_MAX );
