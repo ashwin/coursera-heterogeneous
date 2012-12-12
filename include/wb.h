@@ -282,11 +282,7 @@ namespace CudaTimerNS
         }
     };
 #else
-    #if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
-        #include <time.h>
-    #else
-        #include <sys/time.h>
-    #endif
+    #include <time.h>
 
     class CudaTimer
     {
@@ -294,42 +290,29 @@ namespace CudaTimerNS
         long long _start;
         long long _end;
 
-        long long getTime()
-        {
-            long long time;
-
-            #if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
-                struct timestamp ts;
-
-                if (0 == clock_gettime(CLOCK_REALTIME, &ts))
-                {
-                    time  = 1000000000LL; // seconds->nanonseconds
-                    time *= ts.tv_sec;
-                    time += ts.tv_nsec;
-                }
-            #else
-                struct timeval tv;
-
-                if (0 == gettimeofday(&tv, NULL))
-                {
-                    time  = 1000000000LL;      // seconds->nanonseconds
-                    time *= tv.tv_sec;
-                    time += tv.tv_usec * 1000; // ms->ns
-                }
-            #endif
-
-            return time;
-        }
-
     public:
         void start()
         {
-            _start = getTime();
+            struct timespec sp;
+
+            if (0 == clock_gettime(CLOCK_REALTIME,&sp))
+            {
+                _start  = 1000000000LL; // seconds->nanonseconds
+                _start *= sp.tv_sec;
+                _start += sp.tv_nsec;
+            }
         }
 
         void stop()
         {
-            _end = getTime();
+            struct timespec sp;
+
+            if (0 == clock_gettime(CLOCK_REALTIME,&sp))
+            {
+                _end  = 1000000000LL; // seconds->nanonseconds
+                _end *= sp.tv_sec;
+                _end += sp.tv_nsec;
+            }
         }
 
         double value()
