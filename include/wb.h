@@ -122,12 +122,13 @@ inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 co
 // End: Ugly C++03 hack
 //-----------------------------------------------------------------------------
 
-#define wbLog(level, ...) \
-    do { \
-        std::cout << _wbLogLevelToStr(level) << " "; \
+#define wbLog(level, ...)                                     \
+    do                                                        \
+    {                                                         \
+        std::cout << _wbLogLevelToStr(level) << " ";          \
         std::cout << __FUNCTION__ << "::" << __LINE__ << " "; \
-        _wbLog(__VA_ARGS__); \
-        std::cout << std::endl; \
+        _wbLog(__VA_ARGS__);                                  \
+        std::cout << std::endl;                               \
     } while (0)
 
 ////
@@ -281,10 +282,10 @@ namespace CudaTimerNS
         }
     };
 #else
-    #if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
-        #include<time.h>
+    #if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
+        #include <time.h>
     #else
-        #include<sys/time.h>
+        #include <sys/time.h>
     #endif
 
     class CudaTimer
@@ -293,37 +294,42 @@ namespace CudaTimerNS
         long long _start;
         long long _end;
 
-	long long get_time() {
-	    long long time;
-	    #if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
+        long long getTime()
+        {
+            long long time;
+
+            #if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
                 struct timestamp ts;
-                if (0 == clock_gettime(CLOCK_REALTIME,&ts))
+
+                if (0 == clock_gettime(CLOCK_REALTIME, &ts))
                 {
                     time  = 1000000000LL; // seconds->nanonseconds
                     time *= ts.tv_sec;
-		    time += ts.tv_nsec;
+                    time += ts.tv_nsec;
                 }
-	    #else
+            #else
                 struct timeval tv;
+
                 if (0 == gettimeofday(&tv, NULL))
                 {
-		    time  = 1000000000LL; // seconds->nanonseconds
-		    time *= tv.tv_sec;
-		    time += tv.tv_usec * 1000; // ms->ns
+                    time  = 1000000000LL;      // seconds->nanonseconds
+                    time *= tv.tv_sec;
+                    time += tv.tv_usec * 1000; // ms->ns
                 }
             #endif
-	  return time;
-      }
+
+            return time;
+        }
 
     public:
         void start()
         {
-            _start = get_time();
+            _start = getTime();
         }
 
         void stop()
         {
-            _end = get_time();
+            _end = getTime();
         }
 
         double value()
