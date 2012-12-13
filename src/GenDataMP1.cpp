@@ -20,12 +20,12 @@ void genVector( FloatVec& vec, int vecLen )
         vec.push_back( genRandomFloat() );
 }
 
-void mulVector( const FloatVec& vecA, const FloatVec& vecB, FloatVec& vecC )
+void addVector( const FloatVec& vecA, const FloatVec& vecB, FloatVec& vecC )
 {
     assert( vecA.size() == vecB.size() );
 
     for ( int i = 0; i < (int) vecA.size(); ++i )
-        vecC.push_back( vecA[i] * vecB[i] );
+        vecC.push_back( vecA[i] + vecB[i] );
 }
 
 void writeVector( const FloatVec& vec, const char* fname )
@@ -73,7 +73,7 @@ int main( int argc, const char** argv )
 
     genVector( vecA, vecLen );
     genVector( vecB, vecLen );
-    mulVector( vecA, vecB, vecC );
+    addVector( vecA, vecB, vecC );
 
     // Write to files
 
