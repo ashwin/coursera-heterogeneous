@@ -294,37 +294,42 @@ namespace CudaTimerNS
         long long _start;
         long long _end;
 
-	long long get_time() {
-	    long long time;
-	    #if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
-                struct timespec ts;
-                if (0 == clock_gettime(CLOCK_REALTIME,&ts))
-                {
-                    time  = 1000000000LL; // seconds->nanonseconds
-                    time *= ts.tv_sec;
-		    time += ts.tv_nsec;
-                }
-	    #else
-                struct timeval tv;
-                if (0 == gettimeofday(&tv, NULL))
-                {
-		    time  = 1000000000LL; // seconds->nanonseconds
-		    time *= tv.tv_sec;
-		    time += tv.tv_usec * 1000; // ms->ns
-                }
-            #endif
-	  return time;
-      }
+        long long getTime()
+        {
+            long long time;
+        #if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
+
+            struct timespec ts;
+
+            if ( 0 == clock_gettime(CLOCK_REALTIME, &ts) )
+            {
+                time  = 1000000000LL; // seconds->nanonseconds
+                time *= ts.tv_sec;
+                time += ts.tv_nsec;
+            }
+        #else
+            struct timeval tv;
+
+            if ( 0 == gettimeofday(&tv, NULL) )
+            {
+                time  = 1000000000LL; // seconds->nanonseconds
+                time *= tv.tv_sec;
+                time += tv.tv_usec * 1000; // ms->ns
+            }
+        #endif
+
+            return time;
+        }
 
     public:
         void start()
         {
-            _start = get_time();
+            _start = getTime();
         }
 
         void stop()
         {
-            _end = get_time();
+            _end = getTime();
         }
 
         double value()
