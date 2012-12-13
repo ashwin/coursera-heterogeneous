@@ -281,7 +281,7 @@ namespace CudaTimerNS
             return (_time2.QuadPart - _time1.QuadPart) * _freq * 1000;
         }
     };
-#elif defined __APPLE__
+#elif defined (__APPLE__)
     #include <mach/mach_time.h>
 
     class CudaTimer
@@ -306,9 +306,10 @@ namespace CudaTimerNS
         double value()
         {
             static mach_timebase_info_data_t tb;
-            if (tb.denom == 0) {
+
+            if (0 == tb.denom)
                 (void) mach_timebase_info(&tb); // Calculate ratio of mach_absolute_time ticks to nanoseconds
-            }
+
             return ((double) _end - (double) _start) * (tb.numer / tb.denom) / 1000000000ULL;
         }
     };
