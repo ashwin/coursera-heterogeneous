@@ -21,3 +21,9 @@ CUDA_ADD_EXECUTABLE(mp0
 
 CUDA_ADD_EXECUTABLE(mp1 
     src/mp1.cu)
+
+CUDA_ADD_EXECUTABLE(mp2 
+    src/mp2.cu)
+
+CUDA_ADD_EXECUTABLE(mp3 
+    src/mp3.cu)
