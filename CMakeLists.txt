@@ -12,6 +12,9 @@ set(BUILD_SHARED_LIBS ON)
 if(UNIX AND NOT APPLE)
   set(CMAKE_EXE_LINKER_FLAGS "-lrt")
 endif(UNIX AND NOT APPLE)
+if(APPLE)
+  set(CMAKE_EXE_LINKER_FLAGS "-F/Library/Frameworks -framework CUDA")
+endif(APPLE)
 
 INCLUDE_DIRECTORIES(./include)
 
