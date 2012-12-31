@@ -27,3 +27,6 @@ CUDA_ADD_EXECUTABLE(mp2
 
 CUDA_ADD_EXECUTABLE(mp3 
     src/mp3.cu)
+
+CUDA_ADD_EXECUTABLE(mp4
+    src/mp4.cu)
