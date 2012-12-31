@@ -450,12 +450,12 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar)
 // Solution
 ////
 
-// For assignment MP1
+// For assignment MP1 & MP4
 template < typename T, typename S >
 void wbSolution(wbArg_t args, const T& t, const S& s)
 {
     int solnItems;
-    float *soln = (float *) wbImport(wbArg_getInputFile(args, 2), &solnItems);
+    float *soln = (float *) wbImport(wbArg_getInputFile(args, args.argc-2), &solnItems);
 
     if (solnItems != s)
     {
