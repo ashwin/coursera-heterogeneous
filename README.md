@@ -1,9 +1,11 @@
-coursera-heterogeneous
-======================
+About
+=====
+***
 
-These are offline resources to work on the assignments of [**Heterogenous Parallel Programming**](https://www.coursera.org/course/hetero) course from [**Coursera**](https://www.coursera.org/).
+This **coursera-heterogeneous** project provides offline resources to work on the assignments of [**Heterogenous Parallel Programming**](https://www.coursera.org/course/hetero) course from [**Coursera**](https://www.coursera.org/).
+This is a collaborative effort by the students of the course and you are welcome to [contribute](#contributors) to improve it.
 
-Files include:
+Files available include:
 
 - WB API header file (`wb.h`)
 - Generate data to test assignments (`GenDataMP1.cpp`, `GenDataMP2.cpp`, ...)
@@ -13,6 +15,7 @@ All of this works **only** if you have access to CUDA hardware.
 
 Usage
 =====
+***
 
 On Windows with Visual Studio
 -----------------------------
@@ -71,15 +74,19 @@ To run each homework assignment:
 - After compiling, to run the homework program, run `./mp<N> tests/mp<N>_data/<D>/*`, where <N> is a homework number and <D> is a dataset number.
  - For example, to execute MP2 on dataset 0, run `./mp3 tests/mp3_data/0/*`.
 
+<a name="contributors"/>
 Contributors
 ============
+***
 
 [View list of contributors](https://github.com/ashwin/coursera-heterogeneous/contributors)
 
 We welcome improvements to this code. Fork it, make your change and give me a pull request. Please follow the coding conventions already in use in the source files.
 
+
 License
 =======
+***
 
 All the files in this project are shared under the [MIT License](http://opensource.org/licenses/mit-license.php).
 
