@@ -30,17 +30,46 @@ On OS X with Xcode
 Make sure you have XCode & Cmake.
 You can get cmake from macports via: `sudo port install cmake` or homebrew via:  `brew install cmake`
 
--  Download and install NVIDIA CUDA for MacOS from [here](http://developer.download.nvidia.com/compute/cuda/5_0/rel-update-1/installers/cuda_5.0.36_macos.pkg)
--  Clone repo and run: `cmake CMakeLists.txt -G Xcode`
--  Open the resulting Project.xcodeproj
+### Dependencies
+
+- Download and install Xcode from the Apple App Store.
+- Download and install NVIDIA CUDA for MacOS from [here](http://developer.download.nvidia.com/compute/cuda/5_0/rel-update-1/installers/cuda_5.0.36_macos.pkg)
+- Install cmake from macports (sudo port install cmake) or homebrew (brew install cmake).
+- Clone the coursera-heterogenous repository.
+- At this point, you can either use the Xcode GUI or use a traditional Unix makefile.
+
+### Using Xcode GUI
+
+Initial setup:
+
+- cd into the repository root directory and run: `cmake CMakeLists.txt -G Xcode`
+-  Open the resulting Project.xcodeproj: `open Project.xcodeproj`
 -  Change Loading flags:
  -  Highlight Project
  -  Select mp0 under targets
  -  Under Build Settings, select Linking: Other Linker flags
+ -  Make sure that the disclosure arrow for "Other Linker Flags" is pointing to the right (i.e. closed)
  -  Double click to expand the flags
  -  Click the (+) at the bottom of the flags window
  -  Add the following: `-F/Library/Frameworks -framework CUDA`
+ -  Repeat for other targets: mp1, m2, mp3, etc.
+
+To run each homework assignment:
+
 - Now you can run & add debug points
+
+### Using Unix makefile
+
+Initial setup:
+
+- cd into the repository root directory and run: `cmake CMakeLists.txt`
+
+To run each homework assignment:
+
+- To compile a homework program, run `make mp<N>`, where <N> is a homework number.
+ - For example, to compile MP2, run `make mp2`.
+- After compiling, to run the homework program, run `./mp<N> tests/mp<N>_data/<D>/*`, where <N> is a homework number and <D> is a dataset number.
+ - For example, to execute MP2 on dataset 0, run `./mp3 tests/mp3_data/0/*`.
 
 Contributors
 ============
