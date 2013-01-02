@@ -19,7 +19,8 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 install_manifest.txt
-
+Testing
+CTestTestfile.cmake
 
 ## C++.gitignore
 # Compiled Object files
