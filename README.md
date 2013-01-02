@@ -10,6 +10,7 @@ Files available include:
 - WB API header file (`wb.h`)
 - Generate data to test assignments (`GenDataMP1.cpp`, `GenDataMP2.cpp`, ...)
 - Assignment files (`MP0.cu`, `MP1.cu`, ...)
+- A CUDA diagnostics program (`cudadiag.cu`)
 
 All of this works **only** if you have access to CUDA hardware.
 

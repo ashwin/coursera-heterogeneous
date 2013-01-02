@@ -16,6 +16,9 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 INCLUDE_DIRECTORIES(./include)
 
+CUDA_ADD_EXECUTABLE(cudadiag
+    src/cudadiag.cu)
+
 CUDA_ADD_EXECUTABLE(mp0 
     src/mp0.cc)
 
