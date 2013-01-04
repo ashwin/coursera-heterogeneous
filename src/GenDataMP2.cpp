@@ -124,5 +124,10 @@ int main( int argc, const char** argv )
     writeMatrix( matB, BRows, BCols, "matB.txt" );
     writeMatrix( matC, CRows, CCols, "matC.txt" );
 
+    // Free memory
+    delete [] matA;
+    delete [] matB;
+    delete [] matC;
+
     return 0;
 }
