@@ -37,7 +37,8 @@ enable_testing()
 # tests for mp0
 add_test(mp0 mp0)
 set_tests_properties (mp0
-        PROPERTIES FAIL_REGULAR_EXPRESSION "No CUDA GPU has been detected")
+        PROPERTIES FAIL_REGULAR_EXPRESSION "No CUDA GPU has been detected"
+        LABELS mp0)
 
 # sets the number of data sets to test
 set (numtests 6)
@@ -50,7 +51,8 @@ WHILE (${i} LESS ${numtests})
         tests/mp1_data/${i}/input1.raw 
         tests/mp1_data/${i}/output.raw)
       set_tests_properties (mp1-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed")
+        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed"
+        LABELS mp1)
       MATH(EXPR i "${i} + 1")
 ENDWHILE (${i} LESS ${numtests} )
 
@@ -62,7 +64,8 @@ WHILE (${i} LESS ${numtests})
         tests/mp2_data/${i}/input1.raw 
         tests/mp2_data/${i}/output.raw)
       set_tests_properties (mp2-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed")
+        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed"
+        LABELS mp2)
       MATH(EXPR i "${i} + 1")
 ENDWHILE (${i} LESS ${numtests} )
 
@@ -74,7 +77,8 @@ WHILE (${i} LESS ${numtests})
         tests/mp3_data/${i}/input1.raw 
         tests/mp3_data/${i}/output.raw)
       set_tests_properties (mp3-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed")
+        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed"
+        LABELS mp3)
       MATH(EXPR i "${i} + 1")
 ENDWHILE (${i} LESS ${numtests})
 
@@ -85,6 +89,7 @@ WHILE (${i} LESS ${numtests})
         tests/mp4_data/${i}/input.raw
         tests/mp4_data/${i}/output.raw)
       set_tests_properties (mp4-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed")
+        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed"
+        LABELS mp4)
       MATH(EXPR i "${i} + 1")
 ENDWHILE (${i} LESS ${numtests})
