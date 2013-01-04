@@ -471,7 +471,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
 
     for (item = 0; item < solnItems; item++)
     {
-        if (abs(soln[item] - t[item]) > .005)
+        if (abs(soln[item] - t[item]) > .01)
         {
             std::cout << "Solution does not match at item " << item << ". ";
             std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
@@ -513,7 +513,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
             float expected = *(soln + row * solnColumns + col);
             float got = *(t + row * solnColumns + col);
 
-            if (abs(expected - got) > 0.005)
+            if (abs(expected - got) > 0.01)
             {
                 std::cout << "Solution does not match at (" << row << ", " << col << "). ";
                 std::cout << "Expecting " << expected << " but got " << got << ".\n";
