@@ -71,6 +71,16 @@ To run each assignment:
 - To run an assignment, type `./mp<N> tests/mp<N>_data/<D>/*`, where `<N>` is a homework number and `<D>` is a dataset number
  - For example, to execute assignment MP2 on dataset 0 type `./mp3 tests/mp3_data/0/*`
 
+You can also test each homework (`mp`) against the official datasets
+using the command `ctest` (part of cmake):
+
+- To run all the `mps` against the official datasets: `ctest`.
+- To run a specific mp, for example MP2, run `ctest -L mp2`
+
+The details of the execution of the tests can be found in the folder
+`Testing/Temporary/LastTest.log`. Or can be viewed adding the `-V` or
+`-VV` for extra verbose information, i.e. `ctest -L mp2 -V`.
+
 <a name="contributors"/>
 Contributors
 ============
