@@ -31,6 +31,9 @@ CUDA_ADD_EXECUTABLE(mp3
 CUDA_ADD_EXECUTABLE(mp4
     src/mp4.cu)
 
+CUDA_ADD_EXECUTABLE(mp5
+    src/mp5.cu)
+
 # Added tests, to execute use 'ctest'
 enable_testing()
 
