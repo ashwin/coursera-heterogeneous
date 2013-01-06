@@ -98,3 +98,15 @@ WHILE (${i} LESS ${numtests})
         LABELS mp4)
       MATH(EXPR i "${i} + 1")
 ENDWHILE (${i} LESS ${numtests})
+
+# tests for mp5
+set (i 0)
+WHILE (${i} LESS ${numtests})
+      add_test(mp5-${i} mp5 
+        tests/mp5_data/${i}/input.raw
+        tests/mp5_data/${i}/output.raw)
+      set_tests_properties (mp5-${i}
+        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed"
+        LABELS mp5)
+      MATH(EXPR i "${i} + 1")
+ENDWHILE (${i} LESS ${numtests})
