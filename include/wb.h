@@ -367,7 +367,7 @@ namespace CudaTimerNS
 
         double value()
         {
-            return ((double) endTime - (double) startTime) / 1000000000LL;
+            return ((double) endTime - startTime) / 1000000000LL;
         }
     };
 #endif
@@ -462,6 +462,9 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
     {
         std::cout << "Number of elements in solution file does not match. ";
         std::cout << "Expecting " << s << " but got " << solnItems << ".\n";
+
+        free(soln);
+
         return;
     }
     
@@ -483,7 +486,9 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
         std::cout << "Solution is correct.\n";
     else
         std::cout << errCnt << " tests failed!\n";
-        
+    
+    free(soln);
+
     return;
 }
 
@@ -498,6 +503,9 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
     {
         std::cout << "Size of solution file does not match. ";
         std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
+
+        free(soln);
+
         return;
     }
     
@@ -525,6 +533,8 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
         std::cout << "Solution is correct.\n";
     else
         std::cout << errCnt << " tests failed!\n";
-        
+    
+    free(soln);
+
     return;
 }
