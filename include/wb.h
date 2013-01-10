@@ -462,31 +462,27 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
     {
         std::cout << "Number of elements in solution file does not match. ";
         std::cout << "Expecting " << s << " but got " << solnItems << ".\n";
-
-        free(soln);
-
-        return;
     }
-    
-    // Check solution
-
-    int errCnt = 0;
-
-    for (int item = 0; item < solnItems; item++)
+    else // Check solution
     {
-        if (fabs((soln[item] - t[item]) / (t[item] == 0.0f ? 1.0f : t[item])) > 0.005f)
+        int errCnt = 0;
+
+        for (int item = 0; item < solnItems; item++)
         {
-            std::cout << "The solution did not match the expected result at element " << item << ". ";
-            std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
-            errCnt++;
+            if (fabs((soln[item] - t[item]) / (t[item] == 0.0f ? 1.0f : t[item])) > 0.005f)
+            {
+                std::cout << "The solution did not match the expected result at element " << item << ". ";
+                std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
+                errCnt++;
+            }
         }
+
+        if (!errCnt)
+            std::cout << "Solution is correct.\n";
+        else
+            std::cout << errCnt << " tests failed!\n";
     }
 
-    if (!errCnt)
-        std::cout << "Solution is correct.\n";
-    else
-        std::cout << errCnt << " tests failed!\n";
-    
     free(soln);
 
     return;
@@ -503,37 +499,33 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
     {
         std::cout << "Size of solution file does not match. ";
         std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
-
-        free(soln);
-
-        return;
     }
-    
-    // Check solution
-
-    int errCnt = 0;
-
-    for (int row = 0; row < solnRows; row++)
+    else // Check solution
     {
-        for (int col = 0; col < solnColumns; col++)
-        {
-            float expected = *(soln + row * solnColumns + col);
-            float result = *(t + row * solnColumns + col);
+        int errCnt = 0;
 
-            if (fabs((soln[item] - t[item]) / (t[item] == 0.0f ? 1.0f : t[item])) > 0.005f)
+        for (int row = 0; row < solnRows; row++)
+        {
+            for (int col = 0; col < solnColumns; col++)
             {
-                std::cout << "The solution did not match the expected results at column " << col << " and row " << row << "). ";
-                std::cout << "Expecting " << expected << " but got " << result << ".\n";
-                errCnt++;
+                float expected = *(soln + row * solnColumns + col);
+                float result = *(t + row * solnColumns + col);
+
+                if (fabs((soln[item] - t[item]) / (t[item] == 0.0f ? 1.0f : t[item])) > 0.005f)
+                {
+                    std::cout << "The solution did not match the expected results at column " << col << " and row " << row << "). ";
+                    std::cout << "Expecting " << expected << " but got " << result << ".\n";
+                    errCnt++;
+                }
             }
         }
+
+        if (!errCnt)
+            std::cout << "Solution is correct.\n";
+        else
+            std::cout << errCnt << " tests failed!\n";
     }
 
-    if (!errCnt)
-        std::cout << "Solution is correct.\n";
-    else
-        std::cout << errCnt << " tests failed!\n";
-    
     free(soln);
 
     return;
