@@ -511,7 +511,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
                 float expected = *(soln + row * solnColumns + col);
                 float result = *(t + row * solnColumns + col);
 
-                if (fabs((soln[item] - t[item]) / (t[item] == 0.0f ? 1.0f : t[item])) > 0.005f)
+                if (fabs((expected - result) / (result == 0.0f ? 1.0f : result)) > 0.005f)
                 {
                     std::cout << "The solution did not match the expected results at column " << col << " and row " << row << "). ";
                     std::cout << "Expecting " << expected << " but got " << result << ".\n";
