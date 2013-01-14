@@ -358,11 +358,13 @@ namespace CudaTimerNS
     public:
         void start()
         {
+            cudaDeviceSynchronize();
             startTime = getTime();
         }
 
         void stop()
         {
+            cudaDeviceSynchronize();
             endTime = getTime();
         }
 
