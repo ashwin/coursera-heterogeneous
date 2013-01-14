@@ -9,6 +9,7 @@
 // C++
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -451,6 +452,19 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar)
 // Solutions
 ////
 
+bool wbFPCloseEnough(const float u, const float v)
+{
+    // Note that the tolerance level, e, is still an arbitrarily chosen value. Ideally, this value should scale
+    // std::numeric_limits<float>::epsilon() by the number of rounding operations
+    const float e = 0.005f;
+
+    // For floating point values u and v with tolerance e:
+    //   |u - v| / |u| <= e || |u - v| / |v| <= e
+    // defines a 'close enough' relationship between u and v that scales for magnitude
+    // See Knuth, Seminumerical Algorithms 3e, s. 4.2.4, pp. 213-225
+    return ((fabs(u - v) / fabs(u == 0.0f ? 1.0f : u) <= e) || (fabs(u - v) / fabs(v == 0.0f ? 1.0f : v) <= e));
+}
+
 // For assignments MP1, MP4 & MP5
 template < typename T, typename S >
 void wbSolution(wbArg_t args, const T& t, const S& s)
@@ -469,7 +483,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
 
         for (int item = 0; item < solnItems; item++)
         {
-            if (fabs((soln[item] - t[item]) / (t[item] == 0.0f ? 1.0f : t[item])) > 0.005f)
+            if (!wbFPCloseEnough(soln[item], t[item]))
             {
                 std::cout << "The solution did not match the expected result at element " << item << ". ";
                 std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
@@ -511,7 +525,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
                 float expected = *(soln + row * solnColumns + col);
                 float result = *(t + row * solnColumns + col);
 
-                if (fabs((expected - result) / (result == 0.0f ? 1.0f : result)) > 0.005f)
+                if (!wbFPCloseEnough(expected, result))
                 {
                     std::cout << "The solution did not match the expected results at column " << col << " and row " << row << "). ";
                     std::cout << "Expecting " << expected << " but got " << result << ".\n";
