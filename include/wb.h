@@ -9,6 +9,7 @@
 // C++
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -153,7 +154,7 @@ char* wbArg_getInputFile(wbArg_t argInfo, int argNum)
     return argInfo.argv[argNum + 1];
 }
 
-// For assignment MP1
+// For assignments MP1, MP4 & MP5
 float* wbImport(char* fname, int* itemNum)
 {
     // Open file
@@ -184,7 +185,7 @@ float* wbImport(char* fname, int* itemNum)
     return fBuf;
 }
 
-// For assignment MP2
+// For assignments MP2 & MP3
 float* wbImport(char* fname, int* numRows, int* numCols)
 {
     // Open file
@@ -205,6 +206,7 @@ float* wbImport(char* fname, int* numRows, int* numCols)
     int itemNum = 0;
 
     // Read in matrix dimensions
+
     inFile >> *numRows;
     inFile >> *numCols;
 
@@ -249,36 +251,36 @@ namespace CudaTimerNS
     class CudaTimer
     {
     private:
-        double        _freq;
-        LARGE_INTEGER _time1;
-        LARGE_INTEGER _time2;
+        double        timerResolution;
+        LARGE_INTEGER startTime;
+        LARGE_INTEGER endTime;
 
     public:
         CudaTimer::CudaTimer()
         {
             LARGE_INTEGER freq;
             QueryPerformanceFrequency(&freq);
-            _freq = 1.0 / freq.QuadPart;
+            timerResolution = 1.0 / freq.QuadPart;
             return;
         }
 
         void start()
         {
             cudaDeviceSynchronize();
-            QueryPerformanceCounter(&_time1);
+            QueryPerformanceCounter(&startTime);
             return;
         }
 
         void stop()
         {
             cudaDeviceSynchronize();
-            QueryPerformanceCounter(&_time2);
+            QueryPerformanceCounter(&endTime);
             return;
         }
 
         double value()
         {
-            return (_time2.QuadPart - _time1.QuadPart) * _freq * 1000;
+            return (endTime.QuadPart - startTime.QuadPart) * timerResolution * 1000;
         }
     };
 #elif defined (__APPLE__)
@@ -287,20 +289,20 @@ namespace CudaTimerNS
     class CudaTimer
     {
     private:
-        uint64_t _start;
-        uint64_t _end;
+        uint64_t startTime;
+        uint64_t endTime;
 
     public:
         void start()
         {
             cudaDeviceSynchronize();
-            _start = mach_absolute_time();
+            startTime = mach_absolute_time();
         }
 
         void stop()
         {
             cudaDeviceSynchronize();
-            _end = mach_absolute_time();
+            endTime = mach_absolute_time();
         }
 
         double value()
@@ -310,7 +312,7 @@ namespace CudaTimerNS
             if (0 == tb.denom)
                 (void) mach_timebase_info(&tb); // Calculate ratio of mach_absolute_time ticks to nanoseconds
 
-            return ((double) _end - (double) _start) * (tb.numer / tb.denom) / 1000000000ULL;
+            return ((double) endTime - startTime) * (tb.numer / tb.denom) / 1000000000ULL;
         }
     };
 #else
@@ -323,8 +325,8 @@ namespace CudaTimerNS
     class CudaTimer
     {
     private:
-        long long _start;
-        long long _end;
+        long long startTime;
+        long long endTime;
 
         long long getTime()
         {
@@ -356,17 +358,19 @@ namespace CudaTimerNS
     public:
         void start()
         {
-            _start = getTime();
+            cudaDeviceSynchronize();
+            startTime = getTime();
         }
 
         void stop()
         {
-            _end = getTime();
+            cudaDeviceSynchronize();
+            endTime = getTime();
         }
 
         double value()
         {
-            return ((double) _end - (double) _start) / 1000000000LL;
+            return ((double) endTime - startTime) / 1000000000LL;
         }
     };
 #endif
@@ -437,7 +441,7 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar)
     timerInfo.timer.stop();
 
     std::cout << "[" << wbTimeTypeToStr( timerInfo.type ) << "] ";
-    std::cout << std::fixed << std::setprecision(10) << timerInfo.timer.value() << " ";
+    std::cout << std::fixed << std::setprecision(9) << timerInfo.timer.value() << " ";
     std::cout << timerInfo.name << std::endl;
 
     // Delete timer from list
@@ -447,47 +451,60 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar)
 }
 
 ////
-// Solution
+// Solutions
 ////
 
-// For assignment MP1 & MP4
+bool wbFPCloseEnough(const float u, const float v)
+{
+    // Note that the tolerance level, e, is still an arbitrarily chosen value. Ideally, this value should scale
+    // std::numeric_limits<float>::epsilon() by the number of rounding operations
+    const float e = 0.005f;
+
+    // For floating point values u and v with tolerance e:
+    //   |u - v| / |u| <= e || |u - v| / |v| <= e
+    // defines a 'close enough' relationship between u and v that scales for magnitude
+    // See Knuth, Seminumerical Algorithms 3e, s. 4.2.4, pp. 213-225
+    return ((fabs(u - v) / fabs(u == 0.0f ? 1.0f : u) <= e) || (fabs(u - v) / fabs(v == 0.0f ? 1.0f : v) <= e));
+}
+
+// For assignments MP1, MP4 & MP5
 template < typename T, typename S >
 void wbSolution(wbArg_t args, const T& t, const S& s)
 {
     int solnItems;
-    float *soln = (float *) wbImport(wbArg_getInputFile(args, args.argc-2), &solnItems);
+    float *soln = (float *) wbImport(wbArg_getInputFile(args, args.argc - 2), &solnItems);
 
     if (solnItems != s)
     {
-        std::cout << "Number of items in solution does not match. ";
+        std::cout << "Number of elements in solution file does not match. ";
         std::cout << "Expecting " << s << " but got " << solnItems << ".\n";
-        return;
     }
-    
-    // Check answer
-
-    int item;
-    int errCnt = 0;
-
-    for (item = 0; item < solnItems; item++)
+    else // Check solution
     {
-        if (abs(soln[item] - t[item]) > .01)
+        int errCnt = 0;
+
+        for (int item = 0; item < solnItems; item++)
         {
-            std::cout << "Solution does not match at item " << item << ". ";
-            std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
-            errCnt++;
+            if (!wbFPCloseEnough(soln[item], t[item]))
+            {
+                std::cout << "The solution did not match the expected result at element " << item << ". ";
+                std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
+                errCnt++;
+            }
         }
+
+        if (!errCnt)
+            std::cout << "Solution is correct.\n";
+        else
+            std::cout << errCnt << " tests failed!\n";
     }
 
-    if (!errCnt)
-        std::cout << "All tests passed!\n";
-    else
-        std::cout << errCnt << " tests failed.\n";
-        
+    free(soln);
+
     return;
 }
 
-// For assignment MP2
+// For assignments MP2 & MP3
 template < typename T, typename S, typename U >
 void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
 {
@@ -496,36 +513,36 @@ void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
 
     if (solnRows != s || solnColumns != u)
     {
-        std::cout << "Size of solution does not match. ";
+        std::cout << "Size of solution file does not match. ";
         std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
-        return;
     }
-    
-    // Check solution
-
-    int errCnt = 0;
-    int row, col;
-
-    for (row = 0; row < solnRows; row++)
+    else // Check solution
     {
-        for (col = 0; col < solnColumns; col++)
-        {
-            float expected = *(soln + row * solnColumns + col);
-            float got = *(t + row * solnColumns + col);
+        int errCnt = 0;
 
-            if (abs(expected - got) > 0.01)
+        for (int row = 0; row < solnRows; row++)
+        {
+            for (int col = 0; col < solnColumns; col++)
             {
-                std::cout << "Solution does not match at (" << row << ", " << col << "). ";
-                std::cout << "Expecting " << expected << " but got " << got << ".\n";
-                errCnt++;
+                float expected = *(soln + row * solnColumns + col);
+                float result = *(t + row * solnColumns + col);
+
+                if (!wbFPCloseEnough(expected, result))
+                {
+                    std::cout << "The solution did not match the expected results at column " << col << " and row " << row << "). ";
+                    std::cout << "Expecting " << expected << " but got " << result << ".\n";
+                    errCnt++;
+                }
             }
         }
+
+        if (!errCnt)
+            std::cout << "Solution is correct.\n";
+        else
+            std::cout << errCnt << " tests failed!\n";
     }
 
-    if (!errCnt)
-        std::cout << "All tests passed!\n";
-    else
-        std::cout << errCnt << " tests failed.\n";
-        
+    free(soln);
+
     return;
 }
