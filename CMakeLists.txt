@@ -56,7 +56,7 @@ WHILE (${i} LESS ${numtests})
         tests/mp1_data/${i}/input1.raw 
         tests/mp1_data/${i}/output.raw)
       set_tests_properties (mp1-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed"
+        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
         LABELS mp1)
       MATH(EXPR i "${i} + 1")
 ENDWHILE (${i} LESS ${numtests} )
@@ -69,7 +69,7 @@ WHILE (${i} LESS ${numtests})
         tests/mp2_data/${i}/input1.raw 
         tests/mp2_data/${i}/output.raw)
       set_tests_properties (mp2-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed"
+        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
         LABELS mp2)
       MATH(EXPR i "${i} + 1")
 ENDWHILE (${i} LESS ${numtests} )
@@ -82,7 +82,7 @@ WHILE (${i} LESS ${numtests})
         tests/mp3_data/${i}/input1.raw 
         tests/mp3_data/${i}/output.raw)
       set_tests_properties (mp3-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed"
+        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
         LABELS mp3)
       MATH(EXPR i "${i} + 1")
 ENDWHILE (${i} LESS ${numtests})
@@ -94,7 +94,7 @@ WHILE (${i} LESS ${numtests})
         tests/mp4_data/${i}/input.raw
         tests/mp4_data/${i}/output.raw)
       set_tests_properties (mp4-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed"
+        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
         LABELS mp4)
       MATH(EXPR i "${i} + 1")
 ENDWHILE (${i} LESS ${numtests})
@@ -106,7 +106,7 @@ WHILE (${i} LESS ${numtests})
         tests/mp5_data/${i}/input.raw
         tests/mp5_data/${i}/output.raw)
       set_tests_properties (mp5-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "All tests passed"
+        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
         LABELS mp5)
       MATH(EXPR i "${i} + 1")
 ENDWHILE (${i} LESS ${numtests})
