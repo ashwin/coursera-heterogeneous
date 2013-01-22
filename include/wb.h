@@ -425,8 +425,11 @@ struct wbTimerInfo
     }
 };
 
-typedef std::list< wbTimerInfo> wbTimerInfoList;
-wbTimerInfoList gTimerInfoList;
+namespace wbInternal
+{
+    typedef std::list<wbTimerInfo> wbTimerInfoList;
+    wbTimerInfoList timerInfoList;
+}
 
 void wbTime_start(wbTimeType timeType, const std::string timeMessage)
 {
@@ -435,7 +438,7 @@ void wbTime_start(wbTimeType timeType, const std::string timeMessage)
 
     wbTimerInfo timerInfo = { timeType, timeMessage, timer };
 
-    gTimerInfoList.push_front(timerInfo);
+    wbInternal::timerInfoList.push_front(timerInfo);
 
     return;
 }
@@ -444,8 +447,8 @@ void wbTime_stop(wbTimeType timeType, const std::string timeMessage)
 {
     // Find timer
 
-    const wbTimerInfo searchInfo         = { timeType, timeMessage };
-    const wbTimerInfoList::iterator iter = std::find( gTimerInfoList.begin(), gTimerInfoList.end(), searchInfo );
+    const wbTimerInfo searchInfo = { timeType, timeMessage };
+    const wbInternal::wbTimerInfoList::iterator iter = std::find( wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo );
 
     // Stop timer and print time
 
@@ -458,7 +461,8 @@ void wbTime_stop(wbTimeType timeType, const std::string timeMessage)
     std::cout << timerInfo.message << std::endl;
 
     // Delete timer from list
-    gTimerInfoList.erase(iter);
+
+    wbInternal::timerInfoList.erase(iter);
 
     return;
 }
