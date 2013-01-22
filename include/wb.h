@@ -176,6 +176,12 @@ float* wbImport(char* fname, int* itemNum)
 
     float* fBuf = (float*) malloc(*itemNum * sizeof(float));
 
+    if (!fBuf)
+    {
+        std::cout << "Unable to allocate memory for array of size " << *itemNum * sizeof(float) <<" bytes";
+        exit(EXIT_FAILURE);
+    }
+
     std::string sval;
     int idx = 0;
 
@@ -230,6 +236,12 @@ float* wbImport(char* fname, int* numRows, int* numCols)
     // Vector to malloc memory
 
     float* fBuf = (float*) malloc(itemNum * sizeof(float));
+
+    if (!fBuf)
+    {
+        std::cout << "Unable to allocate memory for array of size " << itemNum * sizeof(float) <<" bytes";
+        exit(EXIT_FAILURE);
+    }
 
     for (int i = 0; i < itemNum; ++i)
     {
