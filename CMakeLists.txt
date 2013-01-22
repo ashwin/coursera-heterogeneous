@@ -82,3 +82,24 @@ FOREACH (test ${tests})
           MATH(EXPR i "${i} + 1")
     ENDWHILE (${i} LESS ${numtests})
 ENDFOREACH(test)
+
+# official graded tests
+set (numtests 10)
+
+# tests for mp1 mp2 mp3
+set (tests mp1 mp2 mp3)
+FOREACH (test ${tests})
+    set (path tests/${test}_grade)
+    set (i 0)
+    WHILE (${i} LESS ${numtests})
+          set(testname ${test}_grade-${i})
+          add_test(${testname} ${test} 
+            ${path}/${i}/input0.raw 
+            ${path}/${i}/input1.raw 
+            ${path}/${i}/output.raw)
+          set_tests_properties (${testname}
+            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
+            LABELS ${testname})
+          MATH(EXPR i "${i} + 1")
+    ENDWHILE (${i} LESS ${numtests} )
+ENDFOREACH(test)
