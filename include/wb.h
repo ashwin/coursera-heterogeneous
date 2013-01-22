@@ -1,4 +1,6 @@
+////
 // wb.h: Header file for Heterogeneous Parallel Programming course (Coursera)
+////
 
 #pragma once
 
@@ -10,6 +12,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -38,7 +41,7 @@ enum wbLogLevel
     wbLogLevelNum, // Keep this at the end
 };
 
-const char* _wbLogLevelStr[] =
+const char* wbLogLevelStr[] =
 {
     "Off",
     "Fatal",
@@ -50,10 +53,10 @@ const char* _wbLogLevelStr[] =
     "***InvalidLogLevel***", // Keep this at the end
 };
 
-const char* _wbLogLevelToStr(wbLogLevel level)
+const char* wbLogLevelToStr(wbLogLevel level)
 {
     assert(level >= OFF && level <= TRACE);
-    return _wbLogLevelStr[level];
+    return wbLogLevelStr[level];
 }
 
 //-----------------------------------------------------------------------------
@@ -126,7 +129,7 @@ inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 co
 #define wbLog(level, ...)                                     \
     do                                                        \
     {                                                         \
-        std::cout << _wbLogLevelToStr(level) << " ";          \
+        std::cout << wbLogLevelToStr(level) << " ";          \
         std::cout << __FUNCTION__ << "::" << __LINE__ << " "; \
         _wbLog(__VA_ARGS__);                                  \
         std::cout << std::endl;                               \
@@ -164,14 +167,14 @@ float* wbImport(char* fname, int* itemNum)
     if (!inFile)
     {
         std::cout << "Error opening input file: " << fname << " !\n";
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     // Read from file
 
     inFile >> *itemNum;
 
-    float* fBuf = (float*) malloc( *itemNum * sizeof(float) );
+    float* fBuf = (float*) malloc(*itemNum * sizeof(float));
 
     std::string sval;
     int idx = 0;
@@ -195,37 +198,36 @@ float* wbImport(char* fname, int* numRows, int* numCols)
     if (!inFile)
     {
         std::cout << "Error opening input file: " << fname << " !\n";
-        exit(1);
+        exit(EXIT_FAILURE);
     }
-
-    // Read file to vector
-
-    std::string sval;
-    float fval;
-    std::vector<float> fVec;
-    int itemNum = 0;
 
     // Read in matrix dimensions
 
     inFile >> *numRows;
     inFile >> *numCols;
 
+    std::string sval;
+    float fval;
+    std::vector<float> fVec;
+
+    // Read file to vector
+    
     while (inFile >> sval)
     {
         std::istringstream iss(sval);
         iss >> fval;
-        fVec.push_back(fval );
+        fVec.push_back(fval);
+    }
+
+    int itemNum = *numRows * *numCols;
+
+    if (static_cast<int>(fVec.size()) != itemNum)
+    {
+        std::cout << "Error reading matrix content for a " << *numRows << " * " << *numCols << "matrix!\n";
+        exit(EXIT_FAILURE);
     }
 
     // Vector to malloc memory
-
-    if (fVec.size() != (*numRows * *numCols))
-    {
-        std::cout << "Error reading matrix content for a " << *numRows << " * " << *numCols << "matrix!\n";
-        exit(1);
-    }
-
-    itemNum = *numRows * *numCols;
 
     float* fBuf = (float*) malloc(itemNum * sizeof(float));
 
@@ -394,44 +396,44 @@ const char* wbTimeTypeStr[] =
     "***InvalidTimeType***", // Keep this at the end
 };
 
-const char* wbTimeTypeToStr(wbTimeType t)
+const char* wbTimeTypeToStr(wbTimeType timeType)
 {
-    assert(t >= Generic && t < wbTimeTypeNum);
-    return wbTimeTypeStr[t];
+    assert(timeType >= Generic && timeType < wbTimeTypeNum);
+    return wbTimeTypeStr[timeType];
 }
 
 struct wbTimerInfo
 {
     wbTimeType             type;
-    std::string            name;
+    std::string            message;
     CudaTimerNS::CudaTimer timer;
 
-    bool operator == (const wbTimerInfo& t2) const
+    bool operator==(const wbTimerInfo& t2) const
     {
-        return (type == t2.type && (0 == name.compare(t2.name)));
+        return (type == t2.type && (0 == message.compare(t2.message)));
     }
 };
 
 typedef std::list< wbTimerInfo> wbTimerInfoList;
 wbTimerInfoList gTimerInfoList;
 
-void wbTime_start(wbTimeType timeType, const std::string timeStar)
+void wbTime_start(wbTimeType timeType, const std::string timeMessage)
 {
     CudaTimerNS::CudaTimer timer;
     timer.start();
 
-    wbTimerInfo tInfo = { timeType, timeStar, timer };
+    wbTimerInfo timerInfo = { timeType, timeMessage, timer };
 
-    gTimerInfoList.push_front(tInfo);
+    gTimerInfoList.push_front(timerInfo);
 
     return;
 }
 
-void wbTime_stop(wbTimeType timeType, const std::string timeStar)
+void wbTime_stop(wbTimeType timeType, const std::string timeMessage)
 {
     // Find timer
 
-    const wbTimerInfo searchInfo         = { timeType, timeStar };
+    const wbTimerInfo searchInfo         = { timeType, timeMessage };
     const wbTimerInfoList::iterator iter = std::find( gTimerInfoList.begin(), gTimerInfoList.end(), searchInfo );
 
     // Stop timer and print time
@@ -442,7 +444,7 @@ void wbTime_stop(wbTimeType timeType, const std::string timeStar)
 
     std::cout << "[" << wbTimeTypeToStr( timerInfo.type ) << "] ";
     std::cout << std::fixed << std::setprecision(9) << timerInfo.timer.value() << " ";
-    std::cout << timerInfo.name << std::endl;
+    std::cout << timerInfo.message << std::endl;
 
     // Delete timer from list
     gTimerInfoList.erase(iter);
@@ -458,7 +460,7 @@ bool wbFPCloseEnough(const float u, const float v)
 {
     // Note that the tolerance level, e, is still an arbitrarily chosen value. Ideally, this value should scale
     // std::numeric_limits<float>::epsilon() by the number of rounding operations
-    const float e = 0.005f;
+    const float e = 0.0005f;
 
     // For floating point values u and v with tolerance e:
     //   |u - v| / |u| <= e || |u - v| / |v| <= e
