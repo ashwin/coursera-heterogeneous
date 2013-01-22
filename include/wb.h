@@ -183,12 +183,11 @@ float* wbImport(char* fname, int* itemNum)
     }
 
     std::string sval;
-    int idx = 0;
 
-    while (inFile >> sval)
+    for (int idx = 0; idx < *itemNum && inFile >> sval; ++idx)
     {
         std::istringstream iss(sval);
-        iss >> fBuf[ idx++ ];
+        iss >> fBuf[idx];
     }
 
     return fBuf;
