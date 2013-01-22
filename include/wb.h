@@ -453,9 +453,11 @@ void wbTime_stop(wbTimeType timeType, const std::string timeMessage)
     const wbTimerInfo searchInfo = { timeType, timeMessage };
     const wbInternal::wbTimerInfoList::iterator iter = std::find( wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo );
 
-    // Stop timer and print time
-
     wbTimerInfo& timerInfo = *iter;
+
+    assert(searchInfo == timerInfo);
+
+    // Stop timer and print time
 
     timerInfo.timer.stop();
 
