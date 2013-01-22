@@ -409,7 +409,6 @@ const char* wbTimeTypeStr[] =
 
 const char* wbTimeTypeToStr(wbTimeType timeType)
 {
-    assert(timeType >= Generic && timeType < wbTimeTypeNum);
     return wbTimeTypeStr[timeType];
 }
 
@@ -433,6 +432,8 @@ namespace wbInternal
 
 void wbTime_start(wbTimeType timeType, const std::string timeMessage)
 {
+    assert(timeType >= Generic && timeType < wbTimeTypeNum);
+
     CudaTimerNS::CudaTimer timer;
     timer.start();
 
@@ -445,6 +446,8 @@ void wbTime_start(wbTimeType timeType, const std::string timeMessage)
 
 void wbTime_stop(wbTimeType timeType, const std::string timeMessage)
 {
+    assert(timeType >= Generic && timeType < wbTimeTypeNum);
+
     // Find timer
 
     const wbTimerInfo searchInfo = { timeType, timeMessage };
