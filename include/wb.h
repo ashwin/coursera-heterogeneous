@@ -126,13 +126,13 @@ inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 co
 // End: Ugly C++03 hack
 //-----------------------------------------------------------------------------
 
-#define wbLog(level, ...)                                     \
-    do                                                        \
-    {                                                         \
-        std::cout << wbLogLevelToStr(level) << " ";          \
-        std::cout << __FUNCTION__ << "::" << __LINE__ << " "; \
-        _wbLog(__VA_ARGS__);                                  \
-        std::cout << std::endl;                               \
+#define wbLog(level, ...)                                                       \
+    do                                                                          \
+    {                                                                           \
+        std::cout << wbLogLevelToStr(static_cast<wbLogLevel>(level)) << " ";   \
+        std::cout << __FUNCTION__ << "::" << __LINE__ << " ";                   \
+        _wbLog(__VA_ARGS__);                                                    \
+        std::cout << std::endl;                                                 \
     } while (0)
 
 ////
