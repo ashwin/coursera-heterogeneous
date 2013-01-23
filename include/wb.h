@@ -53,7 +53,7 @@ const char* wbLogLevelStr[] =
     "***InvalidLogLevel***", // Keep this at the end
 };
 
-const char* wbLogLevelToStr(wbLogLevel level)
+const char* wbLogLevelToStr(const wbLogLevel level)
 {
     assert(level >= OFF && level <= TRACE);
     return wbLogLevelStr[level];
@@ -145,20 +145,20 @@ struct wbArg_t
     char** argv;
 };
 
-wbArg_t wbArg_read(int argc, char** argv)
+wbArg_t wbArg_read(const int argc, char** argv)
 {
     wbArg_t argInfo = { argc, argv };
     return argInfo;
 }
 
-char* wbArg_getInputFile(wbArg_t argInfo, int argNum)
+char* wbArg_getInputFile(const wbArg_t argInfo, const int argNum)
 {
     assert(argNum >= 0 && argNum < (argInfo.argc - 1));
     return argInfo.argv[argNum + 1];
 }
 
 // For assignments MP1, MP4 & MP5
-float* wbImport(char* fname, int* itemNum)
+float* wbImport(const char* fname, int* itemNum)
 {
     // Open file
 
@@ -194,7 +194,7 @@ float* wbImport(char* fname, int* itemNum)
 }
 
 // For assignments MP2 & MP3
-float* wbImport(char* fname, int* numRows, int* numCols)
+float* wbImport(const char* fname, int* numRows, int* numCols)
 {
     // Open file
 
@@ -407,7 +407,7 @@ const char* wbTimeTypeStr[] =
     "***InvalidTimeType***", // Keep this at the end
 };
 
-const char* wbTimeTypeToStr(wbTimeType timeType)
+const char* wbTimeTypeToStr(const wbTimeType timeType)
 {
     return wbTimeTypeStr[timeType];
 }
@@ -430,7 +430,7 @@ namespace wbInternal
     wbTimerInfoList timerInfoList;
 }
 
-void wbTime_start(wbTimeType timeType, const std::string timeMessage)
+void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
 {
     assert(timeType >= Generic && timeType < wbTimeTypeNum);
 
@@ -444,7 +444,7 @@ void wbTime_start(wbTimeType timeType, const std::string timeMessage)
     return;
 }
 
-void wbTime_stop(wbTimeType timeType, const std::string timeMessage)
+void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 {
     assert(timeType >= Generic && timeType < wbTimeTypeNum);
 
@@ -491,7 +491,7 @@ bool wbFPCloseEnough(const float u, const float v)
 
 // For assignments MP1, MP4 & MP5
 template < typename T, typename S >
-void wbSolution(wbArg_t args, const T& t, const S& s)
+void wbSolution(const wbArg_t args, const T& t, const S& s)
 {
     int solnItems;
     float *soln = (float *) wbImport(wbArg_getInputFile(args, args.argc - 2), &solnItems);
@@ -528,7 +528,7 @@ void wbSolution(wbArg_t args, const T& t, const S& s)
 
 // For assignments MP2 & MP3
 template < typename T, typename S, typename U >
-void wbSolution(wbArg_t args, const T& t, const S& s, const U& u)
+void wbSolution(const wbArg_t args, const T& t, const S& s, const U& u)
 {
     int solnRows, solnColumns;
     float *soln = (float *) wbImport(wbArg_getInputFile(args, 2), &solnRows, &solnColumns);
