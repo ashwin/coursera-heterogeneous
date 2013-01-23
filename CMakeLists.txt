@@ -46,68 +46,61 @@ set_tests_properties (mp0
         PROPERTIES FAIL_REGULAR_EXPRESSION "No CUDA GPU has been detected"
         LABELS mp0)
 
-# sets the number of data sets to test
 set (numtests 6)
 
-# tests for mp1
-set (i 0)
-WHILE (${i} LESS ${numtests})
-      add_test(mp1-${i} mp1 
-        tests/mp1_data/${i}/input0.raw 
-        tests/mp1_data/${i}/input1.raw 
-        tests/mp1_data/${i}/output.raw)
-      set_tests_properties (mp1-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-        LABELS mp1)
-      MATH(EXPR i "${i} + 1")
-ENDWHILE (${i} LESS ${numtests} )
+# tests for mp1 mp2 mp3
+set (tests mp1 mp2 mp3)
+FOREACH (test ${tests})
+    set (path tests/${test}_data)
+    set (i 0)
+    WHILE (${i} LESS ${numtests})
+          set(testname ${test}_data-${i})
+          add_test(${testname} ${test} 
+            ${path}/${i}/input0.raw 
+            ${path}/${i}/input1.raw 
+            ${path}/${i}/output.raw)
+          set_tests_properties (${testname}
+            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
+            LABELS ${testname})
+          MATH(EXPR i "${i} + 1")
+    ENDWHILE (${i} LESS ${numtests} )
+ENDFOREACH(test)
 
-# tests for mp2
+# tests for mp4 mp5
+set (tests mp4 mp5)
 set (i 0)
-WHILE (${i} LESS ${numtests})
-      add_test(mp2-${i} mp2 
-        tests/mp2_data/${i}/input0.raw 
-        tests/mp2_data/${i}/input1.raw 
-        tests/mp2_data/${i}/output.raw)
-      set_tests_properties (mp2-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-        LABELS mp2)
-      MATH(EXPR i "${i} + 1")
-ENDWHILE (${i} LESS ${numtests} )
+FOREACH (test ${tests})
+    set (path tests/${test}_data)
+    set (i 0)
+    WHILE (${i} LESS ${numtests})
+          set(testname ${test}_data-${i})
+          add_test(${testname} ${test} 
+            ${path}/${i}/input.raw
+            ${path}/${i}/output.raw)
+          set_tests_properties (${testname}
+            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
+            LABELS ${testname})
+          MATH(EXPR i "${i} + 1")
+    ENDWHILE (${i} LESS ${numtests})
+ENDFOREACH(test)
 
-# tests for mp3
-set (i 0)
-WHILE (${i} LESS ${numtests})
-      add_test(mp3-${i} mp3 
-        tests/mp3_data/${i}/input0.raw 
-        tests/mp3_data/${i}/input1.raw 
-        tests/mp3_data/${i}/output.raw)
-      set_tests_properties (mp3-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-        LABELS mp3)
-      MATH(EXPR i "${i} + 1")
-ENDWHILE (${i} LESS ${numtests})
+# official graded tests
+set (numtests 10)
 
-# tests for mp4
-set (i 0)
-WHILE (${i} LESS ${numtests})
-      add_test(mp4-${i} mp4 
-        tests/mp4_data/${i}/input.raw
-        tests/mp4_data/${i}/output.raw)
-      set_tests_properties (mp4-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-        LABELS mp4)
-      MATH(EXPR i "${i} + 1")
-ENDWHILE (${i} LESS ${numtests})
-
-# tests for mp5
-set (i 0)
-WHILE (${i} LESS ${numtests})
-      add_test(mp5-${i} mp5 
-        tests/mp5_data/${i}/input.raw
-        tests/mp5_data/${i}/output.raw)
-      set_tests_properties (mp5-${i}
-        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-        LABELS mp5)
-      MATH(EXPR i "${i} + 1")
-ENDWHILE (${i} LESS ${numtests})
+# tests for mp1 mp2 mp3
+set (tests mp1 mp2 mp3)
+FOREACH (test ${tests})
+    set (path tests/${test}_grade)
+    set (i 0)
+    WHILE (${i} LESS ${numtests})
+          set(testname ${test}_grade-${i})
+          add_test(${testname} ${test} 
+            ${path}/${i}/input0.raw 
+            ${path}/${i}/input1.raw 
+            ${path}/${i}/output.raw)
+          set_tests_properties (${testname}
+            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
+            LABELS ${testname})
+          MATH(EXPR i "${i} + 1")
+    ENDWHILE (${i} LESS ${numtests} )
+ENDFOREACH(test)
