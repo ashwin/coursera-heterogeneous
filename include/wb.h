@@ -66,61 +66,61 @@ namespace wbInternal
 // NVCC does not support C++11 variadic template yet
 
     template<typename T1>
-    inline void _wbLog(T1 const& p1)
+    inline void wbLog(T1 const& p1)
     {
         std::cout << p1;
     }
 
     template<typename T1, typename T2>
-    inline void _wbLog(T1 const& p1, T2 const& p2)
+    inline void wbLog(T1 const& p1, T2 const& p2)
     {
         std::cout << p1 << p2;
     }
 
     template<typename T1, typename T2, typename T3>
-    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3)
+    inline void wbLog(T1 const& p1, T2 const& p2, T3 const& p3)
     {
         std::cout << p1 << p2 << p3;
     }
 
     template<typename T1, typename T2, typename T3, typename T4>
-    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4)
+    inline void wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4)
     {
         std::cout << p1 << p2 << p3 << p4;
     }
 
     template<typename T1, typename T2, typename T3, typename T4, typename T5>
-    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5)
+    inline void wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5)
     {
         std::cout << p1 << p2 << p3 << p4 << p5;
     }
 
     template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6)
+    inline void wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6)
     {
         std::cout << p1 << p2 << p3 << p4 << p5 << p6;
     }
 
     template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7)
+    inline void wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7)
     {
         std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7;
     }
 
     template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8)
+    inline void wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8)
     {
         std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8;
     }
 
     template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
-    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9)
+    inline void wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9)
     {
         std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9;
     }
 
     template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10>
-    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9, T10 const& p10)
+    inline void wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9, T10 const& p10)
     {
         std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10;
     }
@@ -134,7 +134,7 @@ namespace wbInternal
     {                                                                                    \
         std::cout << wbInternal::wbLogLevelToStr(static_cast<wbLogLevel>(level)) << " "; \
         std::cout << __FUNCTION__ << "::" << __LINE__ << " ";                            \
-        wbInternal::_wbLog(__VA_ARGS__);                                                  \
+        wbInternal::wbLog(__VA_ARGS__);                                                  \
         std::cout << std::endl;                                                          \
     } while (0)
 
