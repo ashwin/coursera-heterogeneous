@@ -41,98 +41,101 @@ enum wbLogLevel
     wbLogLevelNum, // Keep this at the end
 };
 
-const char* wbLogLevelStr[] =
+namespace wbInternal
 {
-    "Off",
-    "Fatal",
-    "Error",
-    "Warn",
-    "Info",
-    "Debug",
-    "Trace",
-    "***InvalidLogLevel***", // Keep this at the end
-};
+    const char* wbLogLevelStr[] =
+    {
+        "Off",
+        "Fatal",
+        "Error",
+        "Warn",
+        "Info",
+        "Debug",
+        "Trace",
+        "***InvalidLogLevel***", // Keep this at the end
+    };
 
-const char* wbLogLevelToStr(const wbLogLevel level)
-{
-    assert(level >= OFF && level <= TRACE);
-    return wbLogLevelStr[level];
-}
+    const char* wbLogLevelToStr(const wbLogLevel level)
+    {
+        assert(level >= OFF && level <= TRACE);
+        return wbLogLevelStr[level];
+    }
 
 //-----------------------------------------------------------------------------
 // Begin: Ugly C++03 hack
 // NVCC does not support C++11 variadic template yet
 
-template<typename T1>
-inline void _wbLog(T1 const& p1)
-{
-    std::cout << p1;
-}
+    template<typename T1>
+    inline void _wbLog(T1 const& p1)
+    {
+        std::cout << p1;
+    }
 
-template<typename T1, typename T2>
-inline void _wbLog(T1 const& p1, T2 const& p2)
-{
-    std::cout << p1 << p2;
-}
+    template<typename T1, typename T2>
+    inline void _wbLog(T1 const& p1, T2 const& p2)
+    {
+        std::cout << p1 << p2;
+    }
 
-template<typename T1, typename T2, typename T3>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3)
-{
-    std::cout << p1 << p2 << p3;
-}
+    template<typename T1, typename T2, typename T3>
+    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3)
+    {
+        std::cout << p1 << p2 << p3;
+    }
 
-template<typename T1, typename T2, typename T3, typename T4>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4)
-{
-    std::cout << p1 << p2 << p3 << p4;
-}
+    template<typename T1, typename T2, typename T3, typename T4>
+    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4)
+    {
+        std::cout << p1 << p2 << p3 << p4;
+    }
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5;
-}
+    template<typename T1, typename T2, typename T3, typename T4, typename T5>
+    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5)
+    {
+        std::cout << p1 << p2 << p3 << p4 << p5;
+    }
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5 << p6;
-}
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6)
+    {
+        std::cout << p1 << p2 << p3 << p4 << p5 << p6;
+    }
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7;
-}
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7)
+    {
+        std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7;
+    }
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8;
-}
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8)
+    {
+        std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8;
+    }
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9;
-}
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9)
+    {
+        std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9;
+    }
 
-template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10>
-inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9, T10 const& p10)
-{
-    std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10;
+    template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10>
+    inline void _wbLog(T1 const& p1, T2 const& p2, T3 const& p3, T4 const& p4, T5 const& p5, T6 const& p6, T7 const& p7, T8 const& p8, T9 const& p9, T10 const& p10)
+    {
+        std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10;
+    }
 }
 
 // End: Ugly C++03 hack
 //-----------------------------------------------------------------------------
 
-#define wbLog(level, ...)                                                       \
-    do                                                                          \
-    {                                                                           \
-        std::cout << wbLogLevelToStr(static_cast<wbLogLevel>(level)) << " ";   \
-        std::cout << __FUNCTION__ << "::" << __LINE__ << " ";                   \
-        _wbLog(__VA_ARGS__);                                                    \
-        std::cout << std::endl;                                                 \
+#define wbLog(level, ...)                                                                \
+    do                                                                                   \
+    {                                                                                    \
+        std::cout << wbInternal::wbLogLevelToStr(static_cast<wbLogLevel>(level)) << " "; \
+        std::cout << __FUNCTION__ << "::" << __LINE__ << " ";                            \
+        wbInternal::_wbLog(__VA_ARGS__);                                                  \
+        std::cout << std::endl;                                                          \
     } while (0)
 
 ////
@@ -254,8 +257,8 @@ float* wbImport(const char* fname, int* numRows, int* numCols)
 // Timer
 ////
 
-// Namespace because windows.h causes errors
-namespace CudaTimerNS
+// Namespace because Windows.h causes errors
+namespace wbInternal
 {
 #if defined (_WIN32)
     #include <Windows.h>
@@ -398,46 +401,46 @@ enum wbTimeType
     wbTimeTypeNum, // Keep this at the end
 };
 
-const char* wbTimeTypeStr[] =
-{
-    "Generic",
-    "GPU    ",
-    "Compute",
-    "Copy   ",
-    "***InvalidTimeType***", // Keep this at the end
-};
-
-const char* wbTimeTypeToStr(const wbTimeType timeType)
-{
-    return wbTimeTypeStr[timeType];
-}
-
-struct wbTimerInfo
-{
-    wbTimeType             type;
-    std::string            message;
-    CudaTimerNS::CudaTimer timer;
-
-    bool operator==(const wbTimerInfo& t2) const
-    {
-        return (type == t2.type && (0 == message.compare(t2.message)));
-    }
-};
-
 namespace wbInternal
 {
-    typedef std::list<wbTimerInfo> wbTimerInfoList;
-    wbTimerInfoList timerInfoList;
+    const char* wbTimeTypeStr[] =
+    {
+        "Generic",
+        "GPU    ",
+        "Compute",
+        "Copy   ",
+        "***InvalidTimeType***", // Keep this at the end
+    };
+
+    const char* wbTimeTypeToStr(const wbTimeType timeType)
+    {
+        return wbTimeTypeStr[timeType];
+    }
+
+    struct wbTimerInfo
+    {
+        wbTimeType            type;
+        std::string           message;
+        wbInternal::CudaTimer timer;
+
+        bool operator==(const wbTimerInfo& t2) const
+        {
+            return (type == t2.type && (0 == message.compare(t2.message)));
+        }
+    };
+
+        typedef std::list<wbTimerInfo> wbTimerInfoList;
+        wbTimerInfoList timerInfoList;
 }
 
 void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
 {
     assert(timeType >= Generic && timeType < wbTimeTypeNum);
 
-    CudaTimerNS::CudaTimer timer;
+    wbInternal::CudaTimer timer;
     timer.start();
 
-    wbTimerInfo timerInfo = { timeType, timeMessage, timer };
+    wbInternal::wbTimerInfo timerInfo = { timeType, timeMessage, timer };
 
     wbInternal::timerInfoList.push_front(timerInfo);
 
@@ -450,10 +453,10 @@ void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 
     // Find timer
 
-    const wbTimerInfo searchInfo = { timeType, timeMessage };
+    const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage };
     const wbInternal::wbTimerInfoList::iterator iter = std::find( wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo );
 
-    wbTimerInfo& timerInfo = *iter;
+    wbInternal::wbTimerInfo& timerInfo = *iter;
 
     assert(searchInfo == timerInfo);
 
@@ -461,7 +464,7 @@ void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 
     timerInfo.timer.stop();
 
-    std::cout << "[" << wbTimeTypeToStr( timerInfo.type ) << "] ";
+    std::cout << "[" << wbInternal::wbTimeTypeToStr( timerInfo.type ) << "] ";
     std::cout << std::fixed << std::setprecision(9) << timerInfo.timer.value() << " ";
     std::cout << timerInfo.message << std::endl;
 
@@ -476,17 +479,20 @@ void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 // Solutions
 ////
 
-bool wbFPCloseEnough(const float u, const float v)
+namespace wbInternal
 {
-    // Note that the tolerance level, e, is still an arbitrarily chosen value. Ideally, this value should scale
-    // std::numeric_limits<float>::epsilon() by the number of rounding operations
-    const float e = 0.0005f;
+    bool wbFPCloseEnough(const float u, const float v)
+    {
+        // Note that the tolerance level, e, is still an arbitrarily chosen value. Ideally, this value should scale
+        // std::numeric_limits<float>::epsilon() by the number of rounding operations
+        const float e = 0.0005f;
 
-    // For floating point values u and v with tolerance e:
-    //   |u - v| / |u| <= e || |u - v| / |v| <= e
-    // defines a 'close enough' relationship between u and v that scales for magnitude
-    // See Knuth, Seminumerical Algorithms 3e, s. 4.2.4, pp. 213-225
-    return ((fabs(u - v) / fabs(u == 0.0f ? 1.0f : u) <= e) || (fabs(u - v) / fabs(v == 0.0f ? 1.0f : v) <= e));
+        // For floating point values u and v with tolerance e:
+        //   |u - v| / |u| <= e || |u - v| / |v| <= e
+        // defines a 'close enough' relationship between u and v that scales for magnitude
+        // See Knuth, Seminumerical Algorithms 3e, s. 4.2.4, pp. 213-225
+        return ((fabs(u - v) / fabs(u == 0.0f ? 1.0f : u) <= e) || (fabs(u - v) / fabs(v == 0.0f ? 1.0f : v) <= e));
+    }
 }
 
 // For assignments MP1, MP4 & MP5
@@ -507,7 +513,7 @@ void wbSolution(const wbArg_t args, const T& t, const S& s)
 
         for (int item = 0; item < solnItems; item++)
         {
-            if (!wbFPCloseEnough(soln[item], t[item]))
+            if (!wbInternal::wbFPCloseEnough(soln[item], t[item]))
             {
                 std::cout << "The solution did not match the expected result at element " << item << ". ";
                 std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
@@ -549,7 +555,7 @@ void wbSolution(const wbArg_t args, const T& t, const S& s, const U& u)
                 float expected = *(soln + row * solnColumns + col);
                 float result = *(t + row * solnColumns + col);
 
-                if (!wbFPCloseEnough(expected, result))
+                if (!wbInternal::wbFPCloseEnough(expected, result))
                 {
                     std::cout << "The solution did not match the expected results at column " << col << " and row " << row << "). ";
                     std::cout << "Expecting " << expected << " but got " << result << ".\n";
