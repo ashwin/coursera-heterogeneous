@@ -14,6 +14,7 @@ if(UNIX AND NOT APPLE)
 endif(UNIX AND NOT APPLE)
 if(APPLE)
   set(CMAKE_EXE_LINKER_FLAGS "-lm -F/Library/Frameworks -framework CUDA")
+  set(CUDA_HOST_COMPILER "/usr/bin/gcc")
 endif(APPLE)
 
 INCLUDE_DIRECTORIES(./include)
