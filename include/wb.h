@@ -167,7 +167,7 @@ float* wbImport(const char* fname, int* itemNum)
 
     std::ifstream inFile(fname);
 
-    if (!inFile)
+    if (!inFile.is_open())
     {
         std::cout << "Error opening input file: " << fname << " !\n";
         exit(EXIT_FAILURE);
@@ -193,6 +193,8 @@ float* wbImport(const char* fname, int* itemNum)
         iss >> fBuf[idx];
     }
 
+    inFile.close();
+
     return fBuf;
 }
 
@@ -203,7 +205,7 @@ float* wbImport(const char* fname, int* numRows, int* numCols)
 
     std::ifstream inFile(fname);
 
-    if (!inFile)
+    if (!inFile.is_open())
     {
         std::cout << "Error opening input file: " << fname << " !\n";
         exit(EXIT_FAILURE);
@@ -226,6 +228,8 @@ float* wbImport(const char* fname, int* numRows, int* numCols)
         iss >> fval;
         fVec.push_back(fval);
     }
+
+    inFile.close();
 
     int itemNum = *numRows * *numCols;
 
