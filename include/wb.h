@@ -13,6 +13,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -137,6 +138,144 @@ namespace wbInternal
         wbInternal::wbLog(__VA_ARGS__);                                                  \
         std::cout << std::endl;                                                          \
     } while (0)
+
+	
+struct wbImage_t 
+{
+	int width;
+	int height;
+	int channels;
+	float* imageData;
+};
+
+int wbImage_getWidth(wbImage_t image) {
+	 return image.width;
+};
+
+int wbImage_getHeight(wbImage_t image) {
+	 return image.height;
+};
+
+int wbImage_getChannels(wbImage_t image) {
+	 return image.channels;
+};
+
+wbImage_t wbImage_new(int imageWidth, int imageHeight, int imageChannels) {
+	float* imageData = (float*)malloc(imageWidth*imageHeight*imageChannels*sizeof(float));
+	wbImage_t image = { imageWidth,imageHeight,imageChannels,imageData};
+	return image;
+}
+
+void wbImage_delete(wbImage_t image) {
+	free(image.imageData);
+}
+
+float* wbImage_getData(wbImage_t image) {
+	return image.imageData;
+}
+
+// CITE: 
+// Based on a version from http://www.experts-exchange.com/Programming/Languages/CPP/Q_21530644.html
+
+// Use shareware irfanview to create files
+
+wbImage_t wbImport(char* filename)
+{
+	wbImage_t image = { 0,0,0,0};
+	
+	FILE *infile;            // pointer to a file
+     char temp;               // stores temporary characters not needed
+     unsigned char red, green, blue;    // the RGBA values for a pixel
+
+	 // the magic number
+     char header[3];
+     // the maximum number of colors
+     int maxColor;
+     // image width
+     int width;        
+     // image height
+     int height;          
+     // the data information
+     float* data;
+     
+     // open the PPM file for reading
+     infile = fopen(filename,"r");
+     
+     // check if file opened, if not display error
+     if (!infile){
+        std::cerr << "The file, " << filename << ", cannot be opened.";
+        return image;
+     }
+     
+     // read the magic number, if it is read successfully then continue to get
+     // the remaining header information. otherwise display an error
+     if (fscanf(infile, "%2s\n", header)==1)
+     {
+            std::cout << header;            
+            // skip lines of comments beginning with #
+            // get the first character
+            temp = fgetc(infile);
+            // check to see if the character marks the beginning of a comment
+            // if true then continue reading characters until all comments have
+            // been read. Otherwise if the character does not mark the beginning
+            // of a comment, then put it back
+            if (temp == '#')
+               while (temp!='\n')
+                   temp = fgetc(infile);            
+            else
+               ungetc(temp,infile);
+           
+            // Read the width, height and range, if it is read successfully then
+            // continue to get the data information. Otherwise display an error
+            if (fscanf(infile, "%d %d\n%d\n", &width, &height, &maxColor)==3)
+            {
+               std::cout << width << " " << height << " " << maxColor << "\n";
+               
+               // allocate space for the pixmap
+               data = (float*) malloc(width*height*3*sizeof(float));
+			   image.imageData = data;
+			   image.width=width;
+		       image.height=height;
+			   image.channels=3;
+               
+               // get the data
+               for (int y=0; y<height; y++)       // scanline
+               {
+                   for (int x=0; x<width; x++)    // pixel in scanline
+                   {
+                       // get the RGB values
+                       red = fgetc(infile);  
+                       green = fgetc(infile);  
+                       blue = fgetc(infile);
+                       
+                       // save the pixel value
+                       data[0] = (float)red / 255.0f;
+					   data++;
+                       data[0] = (float)green / 255.0f;
+					   data++;
+                       data[0] = (float)blue / 255.0f;
+					   data++;
+                   }            
+               }
+            }
+            else
+            {
+               std::cerr<<"Problem reading PPM header file - width,height,max color."<<std::endl;
+                   std::cin.get(); //to pause console i/o window - press enter to continue
+                   exit(1);
+            }
+    }
+    else
+    {
+        std::cerr<< "Problem reading PPM header file - magic number."<<std::endl;
+            std::cin.get(); //to pause console i/o window - press enter to continue
+            exit(1);
+    }
+    // close the file
+    fclose(infile);
+
+	return image;
+}
 
 ////
 // Input arguments
@@ -571,6 +710,52 @@ void wbSolution(const wbArg_t args, const T& t, const S& s, const U& u)
     }
 
     free(soln);
+// MP6
+
+void wbSolution(wbArg_t args, wbImage_t outputImage)
+{
+
+	wbImage_t solutionImage = wbImport(wbArg_getInputFile(args, 2));
+
+	int height  = solutionImage.height;
+	int width = solutionImage.width;
+	int channels = solutionImage.channels;
+
+    // Check solution
+    int errCnt = 0;
+	int tooManyErrors=0;
+
+	for (int y=0; y<height; y++) {
+		for (int x=0; x<width; x++) {
+			for (int c=0; c<channels; c++) {
+				int index = (y*width + x)*channels + c;
+				float expected = solutionImage.imageData[index];
+				float got = outputImage.imageData[index];
+
+				if (abs(expected - got) > 0.1)
+				{
+					std::cout << "Solution does not match at (" << x << ", " << y << ", " << c << "). ";
+					std::cout << "Expecting " << expected << " but got " << got << ".\n";
+					errCnt++;
+   				    if (errCnt>50) { tooManyErrors=1; goto all_done; }
+				}
+			}
+		}
+	}
+
+	all_done: 
+    if (!errCnt)
+        std::cout << "All tests passed!\n";
+    else
+	{
+        std::cout << errCnt << " tests failed";
+		if (tooManyErrors != 0) std::cout << " with too many errors!";
+        std::cout << "\n";        
+	}
+
+}
+
+
 
     return;
 }
