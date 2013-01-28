@@ -84,6 +84,25 @@ FOREACH (test ${tests})
     ENDWHILE (${i} LESS ${numtests})
 ENDFOREACH(test)
 
+# tests for mp6
+set (tests mp6)
+FOREACH (test ${tests})
+    set (path tests/${test}_data)
+    set (i 0)
+    WHILE (${i} LESS ${numtests})
+          set(testname ${test}_data-${i})
+          add_test(${testname} ${test} 
+            ${path}/${i}/input0.ppm 
+            ${path}/${i}/input1.csv 
+            ${path}/${i}/output.ppm)
+          set_tests_properties (${testname}
+            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
+            LABELS ${testname})
+          MATH(EXPR i "${i} + 1")
+    ENDWHILE (${i} LESS ${numtests} )
+ENDFOREACH(test)
+
+
 # official graded tests
 set (numtests 10)
 
