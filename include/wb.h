@@ -265,11 +265,13 @@ struct wbImage_t
     int  _imageHeight;
     int  _imageChannels;
     float* _data;
+    unsigned char* _rawData;
     
     wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = 0) :_imageWidth(imageWidth), _imageHeight(imageHeight), _imageChannels(imageChannels)
     {
         int dataSize = _imageWidth * _imageHeight * _imageChannels;
         _data = new float[dataSize];
+	_rawData = new unsigned char[dataSize];
     }
 };
 
@@ -345,9 +347,9 @@ wbImage_t wbImport(char* inputFile)
         fileInput.read((char*)data, dataSize);
         float* floatData = new float[dataSize];
         for (int i = 0; i < dataSize; i++) {
-            floatData[i] = 1.0*data[i]/255;
+            floatData[i] = 1.0*data[i]/255.0f;
         }
-        delete[] data;
+        image._rawData = data;
         image._data = floatData;
         fileInput.close();
     } else  {
@@ -386,6 +388,7 @@ wbImage_t wbImage_new(int imageWidth, int imageHeight, int imageChannels)
 void wbImage_delete(wbImage_t& image)
 {
     delete[] image._data;
+    delete[] image._rawData;
 }
 
 void wbImage_save(wbImage_t& image, char* outputfile) {
@@ -417,8 +420,6 @@ void wbImage_save(wbImage_t& image, char* outputfile) {
     outputFile.close(); 
 }  
 
-bool wbFPCloseEnough(const float u, const float v);
-
 void wbSolution(wbArg_t arg, wbImage_t image) {
     wbImage_save(image, "convoluted.ppm");  
     char* solutionFile = wbArg_getInputFile(arg, 2);
@@ -436,8 +437,9 @@ void wbSolution(wbArg_t arg, wbImage_t image) {
         for (int j = 0; j < image._imageHeight; ++j)
             for (int k = 0; k < 3; ++k) {
                 int index = ( j*image._imageWidth + i )*channels + k; 
-                if (!wbFPCloseEnough(image._data[index], solutionImage._data[index])) {
-                    std::cout << "data in position [" << i << " " << j << " " << k << "  (array index: " << index << ") is wrong, expected " <<  solutionImage._data[index] << " but got " << image._data[index] << std::endl;
+		 double tmp = ((double)image._data[index])*255.0f +0.5;
+		 if (abs(int(tmp) - solutionImage._rawData[index]) > 1) { 
+                    std::cout << "data in position [" << i << " " << j << " " << k << "]  (array index: " << index << ") is wrong, expected " <<  (int)solutionImage._rawData[index] << " but got " << int(tmp) << "  (float value is " << image._data[index] << ")" <<std::endl;
                     exit(1);
                 }
             }
@@ -684,7 +686,6 @@ namespace wbInternal
         // Note that the tolerance level, e, is still an arbitrarily chosen value. Ideally, this value should scale
         // std::numeric_limits<float>::epsilon() by the number of rounding operations
         const float e = 0.0005f;
-
         // For floating point values u and v with tolerance e:
         //   |u - v| / |u| <= e || |u - v| / |v| <= e
         // defines a 'close enough' relationship between u and v that scales for magnitude
