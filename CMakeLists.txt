@@ -37,6 +37,9 @@ CUDA_ADD_EXECUTABLE(mp4
 CUDA_ADD_EXECUTABLE(mp5
     src/mp5.cu)
 
+CUDA_ADD_EXECUTABLE(mp6
+    src/mp6.cu)
+
 # Added tests, to execute use 'ctest'
 enable_testing()
 
@@ -93,7 +96,7 @@ FOREACH (test ${tests})
           set(testname ${test}_data-${i})
           add_test(${testname} ${test} 
             ${path}/${i}/input0.ppm 
-            ${path}/${i}/input1.csv 
+            ${path}/${i}/input1.raw 
             ${path}/${i}/output.ppm)
           set_tests_properties (${testname}
             PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
