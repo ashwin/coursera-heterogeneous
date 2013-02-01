@@ -196,9 +196,43 @@ float* wbImport(const char* fname, int* itemNum)
     return fBuf;
 }
 
+//MP6
+float* parseCsv(const char* inputFile, int* numRows, int* numCols)
+{
+    std::ifstream fileInput;
+    std::vector<float>* cells = new std::vector<float>();
+    fileInput.open(inputFile);
+    if (fileInput.is_open()) {
+        std::string rowStr;
+        (*numRows) = 0;
+        while(getline(fileInput, rowStr, '\n'))
+        {
+           (*numRows)++;
+           std::istringstream rowStream(rowStr);
+           std::string cellStr;
+           (*numCols) = 0;
+           while(getline(rowStream, cellStr, ','))
+           {
+               (*numCols)++;
+               cells->push_back(atof(cellStr.c_str()));
+           }
+        }
+    } else {
+        std::cout << "cannot open file " << inputFile;
+        exit(1);
+    }
+    fileInput.close();
+    return &((*cells)[0]);
+}
+
 // For assignments MP2 & MP3
 float* wbImport(const char* fname, int* numRows, int* numCols)
 {
+     //MP6 csv files
+     std::string fnameStr = fname;
+     if(fnameStr.substr(fnameStr.find_last_of(".") + 1) == "csv") {
+         return parseCsv(fname, numRows, numCols);
+     }  
     // Open file
 
     std::ifstream inFile(fname);
@@ -335,7 +369,7 @@ wbImage_t wbImport(char* inputFile)
             int numColors = atoi(numColorsStr);
             std::cout << "Num colors: " << numColors << std::endl;
             if (numColors != 255) {
-                std::cout << "the number of colors should 255, but got " << numColors << std::endl;
+                std::cout << "the number of colors should be 255, but got " << numColors << std::endl;
                 exit(1);
             }    
         } else  {
@@ -437,9 +471,17 @@ void wbSolution(wbArg_t arg, wbImage_t image) {
         for (int j = 0; j < image._imageHeight; ++j)
             for (int k = 0; k < 3; ++k) {
                 int index = ( j*image._imageWidth + i )*channels + k; 
-		 double tmp = ((double)image._data[index])*255.0f +0.5;
-		 if (abs(int(tmp) - solutionImage._rawData[index]) > 1) { 
-                    std::cout << "data in position [" << i << " " << j << " " << k << "]  (array index: " << index << ") is wrong, expected " <<  (int)solutionImage._rawData[index] << " but got " << int(tmp) << "  (float value is " << image._data[index] << ")" <<std::endl;
+		
+		 double scaled = ((double)image._data[index])*255.0f;
+		 double decimalPart = scaled - floor(scaled);
+		 //if true, don't know how to round, too close to xxx.5 
+		 bool ambiguous = fabs(decimalPart - 0.5) < 0.0001;
+		
+		 int colorValue = int(((double)image._data[index])*255.0f +0.5);
+		 double error = abs(colorValue - solutionImage._rawData[index]);
+		 if (!(error == 0) && !(ambiguous && error <= 1) ) { 
+                    std::cout << "data in position [" << i << " " << j << " " << k << "]  (array index: " << index << ") is wrong, expected " <<  (int)solutionImage._rawData[index] << " but got " << colorValue << "  (float value is " << image._data[index] << ")" <<std::endl;
+		     std::cout << "decimalPart: " << decimalPart << ", ambiguous: " << ambiguous << std::endl; 
                     exit(1);
                 }
             }
