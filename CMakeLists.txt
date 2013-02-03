@@ -96,7 +96,7 @@ FOREACH (test ${tests})
           set(testname ${test}_data-${i})
           add_test(${testname} ${test} 
             ${path}/${i}/input0.ppm 
-            ${path}/${i}/input1.raw 
+            ${path}/${i}/input1.csv 
             ${path}/${i}/output.ppm)
           set_tests_properties (${testname}
             PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
