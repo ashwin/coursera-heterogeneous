@@ -124,7 +124,7 @@ namespace wbInternal
     {
         std::cout << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10;
     }
-}
+} // namespace wbInternal
 
 // End: Ugly C++03 hack
 //-----------------------------------------------------------------------------
@@ -198,50 +198,59 @@ float* wbImport(const char* fname, int* itemNum)
     return fBuf;
 }
 
-//MP6
 float* parseCsv(const char* inputFile, int* numRows, int* numCols)
 {
     std::ifstream fileInput;
     std::vector<float>* cells = new std::vector<float>();
     fileInput.open(inputFile);
-    if (fileInput.is_open()) {
+    if (fileInput.is_open())
+    {
         std::string rowStr;
         (*numRows) = 0;
+
         while(getline(fileInput, rowStr, '\n'))
         {
            (*numRows)++;
            std::istringstream rowStream(rowStr);
            std::string cellStr;
            (*numCols) = 0;
+
            while(getline(rowStream, cellStr, ','))
            {
                (*numCols)++;
                cells->push_back(atof(cellStr.c_str()));
            }
         }
-    } else {
-        std::cout << "cannot open file " << inputFile;
-        exit(1);
     }
+    else
+    {
+        std::cout << "cannot open file " << inputFile;
+        exit(EXIT_FAILURE);
+    }
+
     fileInput.close();
     return &((*cells)[0]);
 }
 
-// For assignments MP2 & MP3
+// For assignments MP2, MP3 & MP6
 float* wbImport(const char* fname, int* numRows, int* numCols)
 {
-     //MP6 csv files
+     // Read CSV file for MP6
+     
      std::string fnameStr = fname;
-     if(fnameStr.substr(fnameStr.find_last_of(".") + 1) == "csv") {
+
+     if(fnameStr.substr(fnameStr.find_last_of(".") + 1) == "csv")
+     {
          return parseCsv(fname, numRows, numCols);
-     }  
+     }
+
     // Open file
 
     std::ifstream inFile(fname);
 
     if (!inFile.is_open())
     {
-        std::cout << "Error opening input file: " << fname << " !\n";
+        std::cout << "Error opening input file: " << fname << "!\n";
         exit(EXIT_FAILURE);
     }
 
@@ -291,15 +300,9 @@ float* wbImport(const char* fname, int* numRows, int* numCols)
     return fBuf;
 }
 
-//
-//
-//  For MP6
-//
-//
-
-struct wbImage_t 
+struct wbImage_t
 {
-    int  _imageWidth;  
+    int  _imageWidth;
     int  _imageHeight;
     int  _imageChannels;
     float* _data;
@@ -309,93 +312,114 @@ struct wbImage_t
     {
         int dataSize = _imageWidth * _imageHeight * _imageChannels;
         _data = new float[dataSize];
-	_rawData = new unsigned char[dataSize];
+        _rawData = new unsigned char[dataSize];
     }
 };
 
-
-wbImage_t wbImport(char* inputFile) 
-{     
+// For assignment MP6
+wbImage_t wbImport(char* inputFile)
+{
     wbImage_t image;
-    image._imageChannels = 3;  
-    
+    image._imageChannels = 3;
+
     std::ifstream fileInput;
     fileInput.open(inputFile, std::ios::binary);
-    if (fileInput.is_open()) {
+    if (fileInput.is_open())
+    {
         char magic[2];
         fileInput.read(magic, 2);
-        if (magic[0] != 'P' || magic[1] !='6') {
+
+        if (magic[0] != 'P' || magic[1] !='6')
+        {
             std::cout << "expected 'P6' but got " << magic[0] << magic[1] << std::endl;
-            exit(1);
+            exit(EXIT_FAILURE);
         }
+
         char tmp = fileInput.peek();
-        while (isspace(tmp)) {
+        while (isspace(tmp))
+        {
             fileInput.read(&tmp, 1);
             tmp = fileInput.peek();
         }
-        // filter image comments
-        if (tmp == '#') {
+
+        // Filter image comments
+        if (tmp == '#')
+        {
             fileInput.read(&tmp, 1);
             tmp = fileInput.peek();
-            while (tmp != '\n') {
+            while (tmp != '\n')
+            {
                 fileInput.read(&tmp, 1);
                 tmp = fileInput.peek();
             }
-        } 
-        // get rid of whitespaces
-        while (isspace(tmp)) {
+        }
+
+        // Get rid of whitespaces
+        while (isspace(tmp))
+        {
             fileInput.read(&tmp, 1);
             tmp = fileInput.peek();
         }
-        
-        //read dimensions (TODO add error checking)
-        char widthStr[64], heightStr[64], numColorsStr[64], *p; 
-        p = widthStr;                    
-        if(isdigit(tmp)) {
-            while(isdigit(*p = fileInput.get())) { 
-                p++;   
-            }       
-            *p = '\0';           
+
+        // Read dimensions (TODO add error checking)
+        char widthStr[64], heightStr[64], numColorsStr[64], *p;
+        p = widthStr;
+        if(isdigit(tmp))
+        {
+            while(isdigit(*p = fileInput.get()))
+            {
+                p++;
+            }
+            *p = '\0';
             image._imageWidth = atoi(widthStr);
             std::cout << "Width: " << image._imageWidth << std::endl;
             p = heightStr;
-            while(isdigit(*p = fileInput.get())) { 
-                p++;   
-            }      
+            while(isdigit(*p = fileInput.get()))
+            {
+                p++;
+            }
             *p = '\0';
             image._imageHeight = atoi(heightStr);
             std::cout << "Height: " << image._imageHeight << std::endl;
             p = numColorsStr;
-            while(isdigit(*p = fileInput.get())) { 
-                p++; 
+            while(isdigit(*p = fileInput.get()))
+            { 
+                p++;
             }
             *p = '\0';
             int numColors = atoi(numColorsStr);
             std::cout << "Num colors: " << numColors << std::endl;
-            if (numColors != 255) {
+            if (numColors != 255)
+            {
                 std::cout << "the number of colors should be 255, but got " << numColors << std::endl;
-                exit(1);
-            }    
-        } else  {
+                exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
             std::cout << "error - cannot read dimensions" << std::endl;
         }
-            
+
         int dataSize = image._imageWidth*image._imageHeight*image._imageChannels;
         unsigned char* data = new unsigned char[dataSize];
         fileInput.read((char*)data, dataSize);
         float* floatData = new float[dataSize];
-        for (int i = 0; i < dataSize; i++) {
+        for (int i = 0; i < dataSize; i++)
+        {
             floatData[i] = 1.0*data[i]/255.0f;
         }
         image._rawData = data;
         image._data = floatData;
         fileInput.close();
-    } else  {
+    }
+    else
+    {
          std::cout << "cannot open file " << inputFile;
-         exit(1);
-    } 
+         exit(EXIT_FAILURE);
+    }
+
     return image;
-}  
+}
 
 int wbImage_getWidth(const wbImage_t& image)
 {
@@ -421,83 +445,13 @@ wbImage_t wbImage_new(int imageWidth, int imageHeight, int imageChannels)
 {
     wbImage_t image(imageWidth, imageHeight, imageChannels);
     return image;
-}  
+}
 
 void wbImage_delete(wbImage_t& image)
 {
     delete[] image._data;
     delete[] image._rawData;
 }
-
-void wbImage_save(wbImage_t& image, char* outputfile) {
-    std::ofstream outputFile(outputfile, std::ios::binary);
-    char buffer[64];
-    std::string magic = "P6\n";
-    outputFile.write(magic.c_str(), magic.size());
-    std::string comment  =  "# image generated by applying convolution\n";
-    outputFile.write(comment.c_str(), comment.size());
-    //write dimensions
-    sprintf(buffer,"%d", image._imageWidth);
-    outputFile.write(buffer, strlen(buffer));
-    buffer[0] = ' ';
-    outputFile.write(buffer, 1);
-    sprintf(buffer,"%d", image._imageHeight);
-    outputFile.write(buffer, strlen(buffer));
-    buffer[0] = '\n';
-    outputFile.write(buffer, 1);
-    std::string colors = "255\n";
-    outputFile.write(colors.c_str(), colors.size());
-    
-    int dataSize = image._imageWidth*image._imageHeight*image._imageChannels;
-    unsigned char* rgbData = new unsigned char[dataSize];
-    for (int i = 0; i < dataSize; i++) {
-        rgbData[i] =  ceil(image._data[i] * 255);
-    }
-    outputFile.write((char*)rgbData, dataSize); 
-    delete[] rgbData;         
-    outputFile.close(); 
-}  
-
-void wbSolution(wbArg_t arg, wbImage_t image) {
-    wbImage_save(image, "convoluted.ppm");  
-    char* solutionFile = wbArg_getInputFile(arg, 2);
-    wbImage_t solutionImage = wbImport(solutionFile);
-    if (image._imageWidth != solutionImage._imageWidth) {
-        std::cout << "width is incorrect: expected " << solutionImage._imageWidth << " but got " << image._imageWidth << std::endl;
-        exit(1);
-    } 
-    if (image._imageHeight != solutionImage._imageHeight) {
-       std::cout << "height is incorrect: expected " << solutionImage._imageHeight << " but got " << image._imageHeight << std::endl;
-       exit(1);
-    }
-    int channels = 3;
-    for (int i = 0; i < image._imageWidth; ++i)
-        for (int j = 0; j < image._imageHeight; ++j)
-            for (int k = 0; k < 3; ++k) {
-                int index = ( j*image._imageWidth + i )*channels + k; 
-		
-		 double scaled = ((double)image._data[index])*255.0f;
-		 double decimalPart = scaled - floor(scaled);
-		 //if true, don't know how to round, too close to xxx.5 
-		 bool ambiguous = fabs(decimalPart - 0.5) < 0.0001;
-		
-		 int colorValue = int(((double)image._data[index])*255.0f +0.5);
-		 double error = abs(colorValue - solutionImage._rawData[index]);
-		 if (!(error == 0) && !(ambiguous && error <= 1) ) { 
-                    std::cout << "data in position [" << i << " " << j << " " << k << "]  (array index: " << index << ") is wrong, expected " <<  (int)solutionImage._rawData[index] << " but got " << colorValue << "  (float value is " << image._data[index] << ")" <<std::endl;
-		     std::cout << "decimalPart: " << decimalPart << ", ambiguous: " << ambiguous << std::endl; 
-                    exit(1);
-                }
-            }
-    std::cout << "Solution is correct!" << std::endl;  
-}   
-
-//
-//
-//  MP6 End
-//
-//
-
 
 ////
 // Timer
@@ -523,21 +477,18 @@ namespace wbInternal
             LARGE_INTEGER freq;
             QueryPerformanceFrequency(&freq);
             timerResolution = 1.0 / freq.QuadPart;
-            return;
         }
 
         void start()
         {
             cudaDeviceSynchronize();
             QueryPerformanceCounter(&startTime);
-            return;
         }
 
         void stop()
         {
             cudaDeviceSynchronize();
             QueryPerformanceCounter(&endTime);
-            return;
         }
 
         double value()
@@ -636,7 +587,7 @@ namespace wbInternal
         }
     };
 #endif
-}
+} // namespace wbInternal
 
 enum wbTimeType
 {
@@ -675,9 +626,9 @@ namespace wbInternal
         }
     };
 
-        typedef std::list<wbTimerInfo> wbTimerInfoList;
-        wbTimerInfoList timerInfoList;
-}
+    typedef std::list<wbTimerInfo> wbTimerInfoList;
+    wbTimerInfoList timerInfoList;
+} // namespace wbInternal
 
 void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
 {
@@ -689,8 +640,6 @@ void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
     wbInternal::wbTimerInfo timerInfo = { timeType, timeMessage, timer };
 
     wbInternal::timerInfoList.push_front(timerInfo);
-
-    return;
 }
 
 void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
@@ -717,8 +666,6 @@ void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
     // Delete timer from list
 
     wbInternal::timerInfoList.erase(iter);
-
-    return;
 }
 
 ////
@@ -732,13 +679,14 @@ namespace wbInternal
         // Note that the tolerance level, e, is still an arbitrarily chosen value. Ideally, this value should scale
         // std::numeric_limits<float>::epsilon() by the number of rounding operations
         const float e = 0.0005f;
+
         // For floating point values u and v with tolerance e:
         //   |u - v| / |u| <= e || |u - v| / |v| <= e
         // defines a 'close enough' relationship between u and v that scales for magnitude
         // See Knuth, Seminumerical Algorithms 3e, s. 4.2.4, pp. 213-225
         return ((fabs(u - v) / fabs(u == 0.0f ? 1.0f : u) <= e) || (fabs(u - v) / fabs(v == 0.0f ? 1.0f : v) <= e));
     }
-}
+} // namespace wbInternal
 
 // For assignments MP1, MP4 & MP5
 template < typename T, typename S >
@@ -773,8 +721,6 @@ void wbSolution(const wbArg_t args, const T& t, const S& s)
     }
 
     free(soln);
-
-    return;
 }
 
 // For assignments MP2 & MP3
@@ -816,6 +762,81 @@ void wbSolution(const wbArg_t args, const T& t, const S& s, const U& u)
     }
 
     free(soln);
+}
 
-    return;
+void wbImage_save(wbImage_t& image, char* outputfile)
+{
+    std::ofstream outputFile(outputfile, std::ios::binary);
+    char buffer[64];
+    std::string magic = "P6\n";
+    outputFile.write(magic.c_str(), magic.size());
+    std::string comment  =  "# image generated by applying convolution\n";
+    outputFile.write(comment.c_str(), comment.size());
+    sprintf(buffer,"%d", image._imageWidth);
+    outputFile.write(buffer, strlen(buffer));
+    buffer[0] = ' ';
+    outputFile.write(buffer, 1);
+    sprintf(buffer,"%d", image._imageHeight);
+    outputFile.write(buffer, strlen(buffer));
+    buffer[0] = '\n';
+    outputFile.write(buffer, 1);
+    std::string colors = "255\n";
+    outputFile.write(colors.c_str(), colors.size());
+    
+    int dataSize = image._imageWidth * image._imageHeight * image._imageChannels;
+    unsigned char* rgbData = new unsigned char[dataSize];
+    for (int i = 0; i < dataSize; i++)
+    {
+        rgbData[i] =  ceil(image._data[i] * 255);
+    }
+
+    outputFile.write((char*)rgbData, dataSize);
+    delete[] rgbData;
+    outputFile.close();
+}
+
+// For assignment MP6
+void wbSolution(wbArg_t arg, wbImage_t image)
+{
+    wbImage_save(image, "convoluted.ppm");
+    char* solutionFile = wbArg_getInputFile(arg, 2);
+    wbImage_t solutionImage = wbImport(solutionFile);
+    if (image._imageWidth != solutionImage._imageWidth)
+    {
+        std::cout << "width is incorrect: expected " << solutionImage._imageWidth << " but got " << image._imageWidth << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (image._imageHeight != solutionImage._imageHeight)
+    {
+       std::cout << "height is incorrect: expected " << solutionImage._imageHeight << " but got " << image._imageHeight << std::endl;
+       exit(EXIT_FAILURE);
+    }
+
+    int channels = 3;
+    for (int i = 0; i < image._imageWidth; ++i)
+    {
+        for (int j = 0; j < image._imageHeight; ++j)
+        {
+            for (int k = 0; k < 3; ++k)
+            {
+                int index = (j * image._imageWidth + i) * channels + k;
+                double scaled = ((double)image._data[index]) * 255.0f;
+                double decimalPart = scaled - floor(scaled);
+                // If true, don't know how to round, too close to xxx.5
+                bool ambiguous = fabs(decimalPart - 0.5) < 0.0001;
+
+                int colorValue = int(((double)image._data[index]) * 255.0f + 0.5);
+                double error = abs(colorValue - solutionImage._rawData[index]);
+                if ( !(error == 0) && !(ambiguous && error <= 1) )
+                {
+                    std::cout << "data in position [" << i << " " << j << " " << k << "]  (array index: " << index << ") is wrong, expected " <<  (int)solutionImage._rawData[index] << " but got " << colorValue << "  (float value is " << image._data[index] << ")" <<std::endl;
+                    std::cout << "decimalPart: " << decimalPart << ", ambiguous: " << ambiguous << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }
+        }
+    }
+    
+    std::cout << "Solution is correct!" << std::endl;  
 }
