@@ -200,38 +200,37 @@ float* wbImport(const char* fname, int* itemNum)
 
 namespace wbInternal
 {
-    float* wbParseCSV(const char* inputFile, int* numRows, int* numCols)
+    float* wbParseCSV(const char* fname, int* numRows, int* numCols)
     {
-        std::ifstream fileInput;
-        std::vector<float>* cells = new std::vector<float>();
-        fileInput.open(inputFile);
-        if (fileInput.is_open())
-        {
-            std::string rowStr;
-            (*numRows) = 0;
+        std::ifstream inFile(fname);
 
-            while(getline(fileInput, rowStr, '\n'))
-            {
-                (*numRows)++;
-                std::istringstream rowStream(rowStr);
-                std::string cellStr;
-                (*numCols) = 0;
-
-                while(getline(rowStream, cellStr, ','))
-                {
-                    (*numCols)++;
-                    cells->push_back(atof(cellStr.c_str()));
-                }
-            }
-        }
-        else
+        if (!inFile.is_open())
         {
-            std::cout << "cannot open file " << inputFile;
+            std::cout << "Error opening input file: " << fname << "!\n";
             exit(EXIT_FAILURE);
         }
 
-        fileInput.close();
-        return &((*cells)[0]);
+        std::vector<float>* cells = new std::vector<float>();
+        std::string rowStr;
+        (*numRows) = 0;
+
+        while(getline(inFile, rowStr, '\n'))
+        {
+            (*numRows)++;
+            std::istringstream rowStream(rowStr);
+            std::string cellStr;
+            (*numCols) = 0;
+
+            while(getline(rowStream, cellStr, ','))
+            {
+                (*numCols)++;
+                cells->push_back(atof(cellStr.c_str()));
+            }
+        }
+
+        inFile.close();
+
+        return &*cells->begin();
     }
 } // namespace wbInternal
 
