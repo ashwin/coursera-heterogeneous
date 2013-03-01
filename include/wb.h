@@ -163,8 +163,6 @@ char* wbArg_getInputFile(const wbArg_t argInfo, const int argNum)
 // For assignments MP1, MP4 & MP5
 float* wbImport(const char* fName, int* numElements)
 {
-    // Open file
-
     std::ifstream inFile(fName);
 
     if (!inFile.is_open())
@@ -172,8 +170,6 @@ float* wbImport(const char* fName, int* numElements)
         std::cout << "Error opening input file: " << fName << " !\n";
         exit(EXIT_FAILURE);
     }
-
-    // Read from file
 
     inFile >> *numElements;
 
@@ -236,17 +232,13 @@ namespace wbInternal
 
 // For assignments MP2, MP3 & MP6
 float* wbImport(const char* fName, int* numRows, int* numCols)
-{
-    // Read CSV file for MP6
-     
+{     
     std::string fNameStr = fName;
 
     if(fNameStr.substr(fNameStr.find_last_of(".") + 1) == "csv")
     {
         return wbInternal::wbParseCSV(fName, numRows, numCols);
     }
-
-    // Open file
 
     std::ifstream inFile(fName);
 
@@ -256,16 +248,12 @@ float* wbImport(const char* fName, int* numRows, int* numCols)
         exit(EXIT_FAILURE);
     }
 
-    // Read in matrix dimensions
-
     inFile >> *numRows;
     inFile >> *numCols;
 
     std::string sVal;
     float fVal;
     std::vector<float> fVec;
-
-    // Read file to vector
     
     while (inFile >> sVal)
     {
@@ -283,8 +271,6 @@ float* wbImport(const char* fName, int* numRows, int* numCols)
         std::cout << "Error reading matrix content for a " << *numRows << " * " << *numCols << "matrix!\n";
         exit(EXIT_FAILURE);
     }
-
-    // Vector to malloc memory
 
     float* fBuf = (float*) malloc(numElements * sizeof(float));
 
@@ -648,8 +634,6 @@ void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 {
     assert(timeType >= Generic && timeType < wbTimeTypeNum);
 
-    // Find timer
-
     const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage };
     const wbInternal::wbTimerInfoList::iterator iter = std::find( wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo );
 
@@ -657,15 +641,11 @@ void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 
     assert(searchInfo == timerInfo);
 
-    // Stop timer and print time
-
     timerInfo.timer.stop();
 
     std::cout << "[" << wbInternal::wbTimeTypeToStr( timerInfo.type ) << "] ";
     std::cout << std::fixed << std::setprecision(9) << timerInfo.timer.value() << " ";
     std::cout << timerInfo.message << std::endl;
-
-    // Delete timer from list
 
     wbInternal::timerInfoList.erase(iter);
 }
