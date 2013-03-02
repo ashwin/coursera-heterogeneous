@@ -448,7 +448,7 @@ void wbImage_delete(wbImage_t& image)
 // Namespace because Windows.h causes errors
 namespace wbInternal
 {
-#if defined (_WIN32)
+#if defined(_WIN32)
     #include <Windows.h>
 
     // CudaTimer class from: https://bitbucket.org/ashwin/cudatimer
@@ -484,7 +484,7 @@ namespace wbInternal
             return (endTime.QuadPart - startTime.QuadPart) * timerResolution * 1000;
         }
     };
-#elif defined (__APPLE__)
+#elif defined(__APPLE__)
     #include <mach/mach_time.h>
 
     class CudaTimer
@@ -513,14 +513,22 @@ namespace wbInternal
             if (0 == tb.denom)
                 (void) mach_timebase_info(&tb); // Calculate ratio of mach_absolute_time ticks to nanoseconds
 
-            return ((double) endTime - startTime) * (tb.numer / tb.denom) / 1000000000ULL;
+            return ((double) endTime - startTime) * (tb.numer / tb.denom) / NSEC_PER_SEC;
         }
     };
 #else
     #if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
-        #include<time.h>
+        #include <time.h>
     #else
-        #include<sys/time.h>
+        #include <sys/time.h>
+
+        #if !defined(MSEC_PER_SEC)
+            #define MSEC_PER_SEC 1000L;
+        #endif
+        #if !defined(NSEC_PER_SEC)
+            #define NSEC_PER_SEC 1000000000L;
+        #endif
+
     #endif
 
     class CudaTimer
@@ -536,20 +544,20 @@ namespace wbInternal
 
             struct timespec ts;
 
-            if ( 0 == clock_gettime(CLOCK_REALTIME, &ts) )
+            if (0 == clock_gettime(CLOCK_REALTIME, &ts))
             {
-                time  = 1000000000LL; // seconds->nanonseconds
+                time  = NSEC_PER_SEC;
                 time *= ts.tv_sec;
                 time += ts.tv_nsec;
             }
         #else
             struct timeval tv;
 
-            if ( 0 == gettimeofday(&tv, NULL) )
+            if (0 == gettimeofday(&tv, NULL))
             {
-                time  = 1000000000LL; // seconds->nanonseconds
+                time  = NSEC_PER_SEC;
                 time *= tv.tv_sec;
-                time += tv.tv_usec * 1000; // ms->ns
+                time += tv.tv_usec * MSEC_PER_SEC;
             }
         #endif
 
@@ -571,7 +579,7 @@ namespace wbInternal
 
         double value()
         {
-            return ((double) endTime - startTime) / 1000000000LL;
+            return ((double) endTime - startTime) / NSEC_PER_SEC;
         }
     };
 #endif
@@ -615,6 +623,7 @@ namespace wbInternal
     };
 
     typedef std::list<wbTimerInfo> wbTimerInfoList;
+
     wbTimerInfoList timerInfoList;
 } // namespace wbInternal
 
