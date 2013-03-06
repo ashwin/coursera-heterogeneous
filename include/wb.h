@@ -11,6 +11,7 @@
 // C++
 #include <algorithm>
 #include <cassert>
+#include <cerrno>
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -167,29 +168,46 @@ float* wbImport(const char* fName, int* numElements)
 
     if (!inFile.is_open())
     {
-        std::cout << "Error opening input file: " << fName << " !\n";
-        exit(EXIT_FAILURE);
+        std::cerr << "Error opening input file " << fName << ". " << std::strerror(errno) << std::endl;
+        std::exit(EXIT_FAILURE);
     }
 
     inFile >> *numElements;
+
+    std::string sVal;
+    std::vector<float> fVec;
+
+    fVec.reserve(*numElements);
+    
+    while (inFile >> sVal)
+    {
+        std::istringstream iss(sVal);
+        float fVal;
+        iss >> fVal;
+        fVec.push_back(fVal);
+    }
+
+    inFile.close();
+
+    if (*numElements != static_cast<int>(fVec.size()))
+    {
+        std::cerr << "Error reading contents of file " << fName << ". Expecting " << *numElements << " elements but got " << fVec.size() << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
 
     float* fBuf = (float*) malloc(*numElements * sizeof(float));
 
     if (!fBuf)
     {
-        std::cout << "Unable to allocate memory for array of size " << *numElements * sizeof(float) <<" bytes";
-        exit(EXIT_FAILURE);
+        std::cerr << "Unable to allocate memory for an array of size " << *numElements * sizeof(float) << " bytes" << std::endl;
+        inFile.close();
+        std::exit(EXIT_FAILURE);
     }
 
-    std::string sVal;
-
-    for (int i = 0; i < *numElements && inFile >> sVal; ++i)
+    for (int i = 0; i < *numElements; ++i)
     {
-        std::istringstream iss(sVal);
-        iss >> fBuf[i];
+        fBuf[i] = fVec[i];
     }
-
-    inFile.close();
 
     return fBuf;
 }
