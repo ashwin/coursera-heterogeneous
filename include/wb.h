@@ -220,25 +220,34 @@ namespace wbInternal
 
         if (!inFile.is_open())
         {
-            std::cout << "Error opening input file: " << fName << "!\n";
-            exit(EXIT_FAILURE);
+            std::cerr << "Error opening input file " << fName << ". " << std::strerror(errno) << std::endl;
+            std::exit(EXIT_FAILURE);
         }
 
         std::vector<float>* fVec = new std::vector<float>();
         std::string rowStr;
-        (*numRows) = 0;
+        *numRows = *numCols = 0;
 
-        while(getline(inFile, rowStr, '\n'))
+        while (std::getline(inFile, rowStr))
         {
-            (*numRows)++;
             std::istringstream rowStream(rowStr);
             std::string cellStr;
-            (*numCols) = 0;
+            ++(*numRows);
+            *numCols = 0;
 
-            while(getline(rowStream, cellStr, ','))
+            while (std::getline(rowStream, cellStr, ','))
             {
-                (*numCols)++;
-                fVec->push_back(atof(cellStr.c_str()));
+                float fVal;
+                ++(*numCols);
+                
+                if (!(std::istringstream(cellStr) >> fVal))
+                {
+                    std::cerr << "Error reading element (" << *numRows << ", " << *numCols << ") in file " << fName << std::endl;
+                    inFile.close();
+                    std::exit(EXIT_FAILURE);
+                }
+                
+                fVec->push_back(fVal);
             }
         }
 
