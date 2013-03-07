@@ -250,8 +250,8 @@ namespace wbInternal
 
 // For assignments MP2, MP3 & MP6
 float* wbImport(const char* fName, int* numRows, int* numCols)
-{     
-    std::string fNameStr = fName;
+{
+    std::string fNameStr(fName);
 
     if(fNameStr.substr(fNameStr.find_last_of(".") + 1) == "csv")
     {
@@ -262,40 +262,42 @@ float* wbImport(const char* fName, int* numRows, int* numCols)
 
     if (!inFile.is_open())
     {
-        std::cout << "Error opening input file: " << fName << "!\n";
-        exit(EXIT_FAILURE);
+        std::cerr << "Error opening input file " << fName << ". " << std::strerror(errno) << std::endl;
+        std::exit(EXIT_FAILURE);
     }
 
     inFile >> *numRows;
     inFile >> *numCols;
 
+    const int numElements = *numRows * *numCols;
+
     std::string sVal;
-    float fVal;
     std::vector<float> fVec;
+
+    fVec.reserve(numElements);
     
     while (inFile >> sVal)
     {
         std::istringstream iss(sVal);
+        float fVal;
         iss >> fVal;
         fVec.push_back(fVal);
     }
 
     inFile.close();
 
-    int numElements = *numRows * *numCols;
-
-    if (static_cast<int>(fVec.size()) != numElements)
+    if (numElements != static_cast<int>(fVec.size()))
     {
-        std::cout << "Error reading matrix content for a " << *numRows << " * " << *numCols << "matrix!\n";
-        exit(EXIT_FAILURE);
+        std::cerr << "Error reading contents of file " << fName << ". Expecting " << numElements << " elements but got " << fVec.size() << std::endl;
+        std::exit(EXIT_FAILURE);
     }
 
     float* fBuf = (float*) malloc(numElements * sizeof(float));
 
     if (!fBuf)
     {
-        std::cout << "Unable to allocate memory for array of size " << numElements * sizeof(float) <<" bytes";
-        exit(EXIT_FAILURE);
+        std::cerr << "Unable to allocate memory for an array of size " << numElements * sizeof(float) << " bytes" << std::endl;
+        std::exit(EXIT_FAILURE);
     }
 
     for (int i = 0; i < numElements; ++i)
