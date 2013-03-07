@@ -704,7 +704,7 @@ template < typename T, typename S >
 void wbSolution(const wbArg_t args, const T& t, const S& s)
 {
     int solnItems;
-    float *soln = (float *) wbImport(wbArg_getInputFile(args, args.argc - 2), &solnItems);
+    float* soln = wbImport(wbArg_getInputFile(args, args.argc - 2), &solnItems);
 
     if (solnItems != s)
     {
@@ -739,7 +739,7 @@ template < typename T, typename S, typename U >
 void wbSolution(const wbArg_t args, const T& t, const S& s, const U& u)
 {
     int solnRows, solnColumns;
-    float *soln = (float *) wbImport(wbArg_getInputFile(args, 2), &solnRows, &solnColumns);
+    float* soln = wbImport(wbArg_getInputFile(args, 2), &solnRows, &solnColumns);
 
     if (solnRows != s || solnColumns != u)
     {
