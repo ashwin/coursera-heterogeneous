@@ -224,7 +224,7 @@ namespace wbInternal
             std::exit(EXIT_FAILURE);
         }
 
-        std::vector<float>* fVec = new std::vector<float>();
+        std::vector<float> fVec;
         std::string rowStr;
         *numRows = *numCols = 0;
 
@@ -247,13 +247,34 @@ namespace wbInternal
                     std::exit(EXIT_FAILURE);
                 }
                 
-                fVec->push_back(fVal);
+                fVec.push_back(fVal);
             }
         }
 
         inFile.close();
 
-        return &*fVec->begin();
+        const int numElements = *numRows * *numCols;
+
+        if ((*numRows != *numCols) || (0 == numElements))
+        {
+            std::cerr << "Error reading contents of file " << fName << ". Last element read (" << *numRows << ", " << *numCols << ")" << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+
+        float* fBuf = (float*) malloc(numElements * sizeof(float));
+
+        if (!fBuf)
+        {
+            std::cerr << "Unable to allocate memory for an array of size " << numElements * sizeof(float) << " bytes" << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+
+        for (int i = 0; i < numElements; ++i)
+        {
+            fBuf[i] = fVec[i];
+        }
+
+        return fBuf;
     }
 } // namespace wbInternal
 
