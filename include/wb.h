@@ -345,12 +345,17 @@ struct wbImage_t
     int channels;
     float* data;
     unsigned char* rawData;
-    
-    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = 0) : width(imageWidth), height(imageHeight), channels(imageChannels)
+
+    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = 0) : width(imageWidth), height(imageHeight), channels(imageChannels), data(NULL), rawData(NULL)
     {
-        int numElements = width * height * channels;
-        data = new float[numElements];
-        rawData = new unsigned char[numElements];
+        const int numElements = width * height * channels;
+
+        // Prevent zero-length memory allocation
+        if (numElements > 0)
+        {
+            data = new float[numElements];
+            rawData = new unsigned char[numElements];
+        }
     }
 };
 
