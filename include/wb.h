@@ -365,101 +365,99 @@ wbImage_t wbImport(char* fName)
     wbImage_t image;
     image.channels = 3;
 
-    std::ifstream inFile;
-    inFile.open(fName, std::ios::binary);
-    if (inFile.is_open())
-    {
-        char magic[2];
-        inFile.read(magic, 2);
+    std::ifstream inFile(fName, std::ios::binary);
 
-        if (magic[0] != 'P' || magic[1] !='6')
+    if (!inFile.is_open())
+    {
+        std::cerr << "Error opening image file " << fName << ". " << std::strerror(errno) << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+
+    char magic[2];
+    inFile.read(magic, 2);
+
+    if (magic[0] != 'P' || magic[1] !='6')
+    {
+        std::cout << "expected 'P6' but got " << magic[0] << magic[1] << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    char tmp = inFile.peek();
+    while (isspace(tmp))
+    {
+        inFile.read(&tmp, 1);
+        tmp = inFile.peek();
+    }
+
+    // Filter image comments
+    if (tmp == '#')
+    {
+        inFile.read(&tmp, 1);
+        tmp = inFile.peek();
+        while (tmp != '\n')
         {
-            std::cout << "expected 'P6' but got " << magic[0] << magic[1] << std::endl;
+            inFile.read(&tmp, 1);
+            tmp = inFile.peek();
+        }
+    }
+
+    // Get rid of whitespaces
+    while (isspace(tmp))
+    {
+        inFile.read(&tmp, 1);
+        tmp = inFile.peek();
+    }
+
+    // Read dimensions (TODO add error checking)
+    char widthStr[64], heightStr[64], numColorsStr[64], *p;
+    p = widthStr;
+    if(isdigit(tmp))
+    {
+        while(isdigit(*p = inFile.get()))
+        {
+            p++;
+        }
+        *p = '\0';
+        image.width = atoi(widthStr);
+        std::cout << "Width: " << image.width << std::endl;
+        p = heightStr;
+        while(isdigit(*p = inFile.get()))
+        {
+            p++;
+        }
+        *p = '\0';
+        image.height = atoi(heightStr);
+        std::cout << "Height: " << image.height << std::endl;
+        p = numColorsStr;
+        while(isdigit(*p = inFile.get()))
+        { 
+            p++;
+        }
+        *p = '\0';
+        int numColors = atoi(numColorsStr);
+        std::cout << "Num colors: " << numColors << std::endl;
+        if (numColors != 255)
+        {
+            std::cout << "the number of colors should be 255, but got " << numColors << std::endl;
             exit(EXIT_FAILURE);
         }
-
-        char tmp = inFile.peek();
-        while (isspace(tmp))
-        {
-            inFile.read(&tmp, 1);
-            tmp = inFile.peek();
-        }
-
-        // Filter image comments
-        if (tmp == '#')
-        {
-            inFile.read(&tmp, 1);
-            tmp = inFile.peek();
-            while (tmp != '\n')
-            {
-                inFile.read(&tmp, 1);
-                tmp = inFile.peek();
-            }
-        }
-
-        // Get rid of whitespaces
-        while (isspace(tmp))
-        {
-            inFile.read(&tmp, 1);
-            tmp = inFile.peek();
-        }
-
-        // Read dimensions (TODO add error checking)
-        char widthStr[64], heightStr[64], numColorsStr[64], *p;
-        p = widthStr;
-        if(isdigit(tmp))
-        {
-            while(isdigit(*p = inFile.get()))
-            {
-                p++;
-            }
-            *p = '\0';
-            image.width = atoi(widthStr);
-            std::cout << "Width: " << image.width << std::endl;
-            p = heightStr;
-            while(isdigit(*p = inFile.get()))
-            {
-                p++;
-            }
-            *p = '\0';
-            image.height = atoi(heightStr);
-            std::cout << "Height: " << image.height << std::endl;
-            p = numColorsStr;
-            while(isdigit(*p = inFile.get()))
-            { 
-                p++;
-            }
-            *p = '\0';
-            int numColors = atoi(numColorsStr);
-            std::cout << "Num colors: " << numColors << std::endl;
-            if (numColors != 255)
-            {
-                std::cout << "the number of colors should be 255, but got " << numColors << std::endl;
-                exit(EXIT_FAILURE);
-            }
-        }
-        else
-        {
-            std::cout << "error - cannot read dimensions" << std::endl;
-        }
-
-        int numElements = image.width * image.height * image.channels;
-        unsigned char* rawData = new unsigned char[numElements];
-        inFile.read((char*)rawData, numElements);
-        float* data = new float[numElements];
-        for (int i = 0; i < numElements; i++)
-        {
-            data[i] = 1.0 * rawData[i] / 255.0f;
-        }
-        image.rawData = rawData;
-        image.data = data;
-        inFile.close();
     }
     else
     {
-         std::cout << "cannot open file " << fName;
-         exit(EXIT_FAILURE);
+        std::cout << "error - cannot read dimensions" << std::endl;
     }
+
+    int numElements = image.width * image.height * image.channels;
+    unsigned char* rawData = new unsigned char[numElements];
+    inFile.read((char*)rawData, numElements);
+    float* data = new float[numElements];
+    for (int i = 0; i < numElements; i++)
+    {
+        data[i] = 1.0 * rawData[i] / 255.0f;
+    }
+    image.rawData = rawData;
+    image.data = data;
+    inFile.close();
 
     return image;
 }
