@@ -27,6 +27,16 @@
 #include <cuda_runtime.h>
 
 ////
+// Constants
+////
+
+namespace wbInternal
+{
+    // For further information, see the PPM image format documentation at http://netpbm.sourceforge.net
+    const int kImageChannels = 3;
+} // namespace wbInternal
+
+////
 // Logging
 ////
 
@@ -346,7 +356,7 @@ struct wbImage_t
     float* data;
     unsigned char* rawData;
 
-    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = 0) : width(imageWidth), height(imageHeight), channels(imageChannels), data(NULL), rawData(NULL)
+    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = wbInternal::kImageChannels) : width(imageWidth), height(imageHeight), channels(imageChannels), data(NULL), rawData(NULL)
     {
         const int numElements = width * height * channels;
 
@@ -363,7 +373,6 @@ struct wbImage_t
 wbImage_t wbImport(char* fName)
 {
     wbImage_t image;
-    image.channels = 3;
 
     std::ifstream inFile(fName, std::ios::binary);
 
@@ -860,14 +869,13 @@ void wbSolution(wbArg_t args, wbImage_t image)
        exit(EXIT_FAILURE);
     }
 
-    int channels = 3;
     for (int i = 0; i < image.width; ++i)
     {
         for (int j = 0; j < image.height; ++j)
         {
-            for (int k = 0; k < 3; ++k)
+            for (int k = 0; k < image.channels; ++k)
             {
-                int index = (j * image.width + i) * channels + k;
+                int index = (j * image.width + i) * image.channels + k;
                 double scaled = ((double)image.data[index]) * 255.0f;
                 double decimalPart = scaled - floor(scaled);
                 // If true, don't know how to round, too close to xxx.5
