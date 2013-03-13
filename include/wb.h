@@ -372,7 +372,7 @@ struct wbImage_t
 };
 
 // For assignment MP6
-wbImage_t wbImport(char* fName)
+wbImage_t wbImport(const char* fName)
 {
     wbImage_t image;
 
@@ -384,35 +384,26 @@ wbImage_t wbImport(char* fName)
         std::exit(EXIT_FAILURE);
     }
 
-    char magic[2];
-    inFile.read(magic, 2);
+    // Read PPM image header
+    std::string magic;
+    std::getline(inFile, magic);
 
-    if (magic[0] != 'P' || magic[1] !='6')
+    if (magic != "P6")
     {
-        std::cout << "expected 'P6' but got " << magic[0] << magic[1] << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    char tmp = inFile.peek();
-    while (isspace(tmp))
-    {
-        inFile.read(&tmp, 1);
-        tmp = inFile.peek();
+        std::cerr << "Error reading image file " << fName << ". " << "Expecting 'P6' image format but got '" << magic << "'" << std::endl;
+        inFile.close();
+        std::exit(EXIT_FAILURE);
     }
 
     // Filter image comments
-    if (tmp == '#')
+    if (inFile.peek() == '#')
     {
-        inFile.read(&tmp, 1);
-        tmp = inFile.peek();
-        while (tmp != '\n')
-        {
-            inFile.read(&tmp, 1);
-            tmp = inFile.peek();
-        }
+        std::string commentStr;
+        std::getline(inFile, commentStr);
     }
 
     // Get rid of whitespaces
+    char tmp = inFile.peek();
     while (isspace(tmp))
     {
         inFile.read(&tmp, 1);
