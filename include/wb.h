@@ -34,6 +34,7 @@ namespace wbInternal
 {
     // For further information, see the PPM image format documentation at http://netpbm.sourceforge.net
     const int kImageChannels = 3;
+    const int kImageMaxval   = 255;
 } // namespace wbInternal
 
 ////
@@ -353,10 +354,11 @@ struct wbImage_t
     int width;
     int height;
     int channels;
+    int colors;
     float* data;
     unsigned char* rawData;
 
-    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = wbInternal::kImageChannels) : width(imageWidth), height(imageHeight), channels(imageChannels), data(NULL), rawData(NULL)
+    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = wbInternal::kImageChannels) : width(imageWidth), height(imageHeight), channels(imageChannels), colors(0), data(NULL), rawData(NULL)
     {
         const int numElements = width * height * channels;
 
@@ -443,11 +445,11 @@ wbImage_t wbImport(char* fName)
             p++;
         }
         *p = '\0';
-        int numColors = atoi(numColorsStr);
-        std::cout << "Num colors: " << numColors << std::endl;
-        if (numColors != 255)
+        image.colors = atoi(numColorsStr);
+        std::cout << "Num colors: " << image.colors << std::endl;
+        if (image.colors != wbInternal::kImageMaxval)
         {
-            std::cout << "the number of colors should be 255, but got " << numColors << std::endl;
+            std::cout << "the number of colors should be " << wbInternal::kImageMaxval << ", but got " << image.colors << std::endl;
             exit(EXIT_FAILURE);
         }
     }
@@ -462,7 +464,7 @@ wbImage_t wbImport(char* fName)
     float* data = new float[numElements];
     for (int i = 0; i < numElements; i++)
     {
-        data[i] = 1.0 * rawData[i] / 255.0f;
+        data[i] = 1.0 * rawData[i] / wbInternal::kImageMaxval;
     }
     image.rawData = rawData;
     image.data = data;
@@ -835,14 +837,16 @@ namespace wbInternal
         outFile.write(buffer, strlen(buffer));
         buffer[0] = '\n';
         outFile.write(buffer, 1);
-        std::string colors = "255\n";
-        outFile.write(colors.c_str(), colors.size());
+        sprintf(buffer,"%d", image.colors);
+        outFile.write(buffer, strlen(buffer));
+        buffer[0] = '\n';
+        outFile.write(buffer, 1);
 
         int numElements = image.width * image.height * image.channels;
         unsigned char* rawData = new unsigned char[numElements];
         for (int i = 0; i < numElements; i++)
         {
-            rawData[i] =  ceil(image.data[i] * 255);
+            rawData[i] =  ceil(image.data[i] * wbInternal::kImageMaxval);
         }
 
         outFile.write((char*)rawData, numElements);
@@ -876,12 +880,12 @@ void wbSolution(wbArg_t args, wbImage_t image)
             for (int k = 0; k < image.channels; ++k)
             {
                 int index = (j * image.width + i) * image.channels + k;
-                double scaled = ((double)image.data[index]) * 255.0f;
+                double scaled = ((double)image.data[index]) * wbInternal::kImageMaxval;
                 double decimalPart = scaled - floor(scaled);
                 // If true, don't know how to round, too close to xxx.5
                 bool ambiguous = fabs(decimalPart - 0.5) < 0.0001;
 
-                int colorValue = int(((double)image.data[index]) * 255.0f + 0.5);
+                int colorValue = int(((double)image.data[index]) * wbInternal::kImageMaxval + 0.5);
                 double error = abs(colorValue - solnImage.rawData[index]);
                 if ( !(error == 0) && !(ambiguous && error <= 1) )
                 {
