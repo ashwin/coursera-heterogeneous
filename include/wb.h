@@ -403,8 +403,31 @@ wbImage_t wbImport(const char* fName)
     wbImage_t image;
 
     inFile >> image.width;
+
+    if (inFile.fail() || 0 >= image.width)
+    {
+        std::cerr << "Error reading width of image in file " << fName << std::endl;
+        inFile.close();
+        std::exit(EXIT_FAILURE);
+    }
+
     inFile >> image.height;
+
+    if (inFile.fail() || 0 >= image.height)
+    {
+        std::cerr << "Error reading height of image in file " << fName << std::endl;
+        inFile.close();
+        std::exit(EXIT_FAILURE);
+    }
+
     inFile >> image.colors;
+
+    if (inFile.fail() || image.colors != wbInternal::kImageMaxval)
+    {
+        std::cerr << "Error reading colors value of image in file " << fName << std::endl;
+        inFile.close();
+        std::exit(EXIT_FAILURE);
+    }
 
     while (isspace(inFile.peek()))
     {
@@ -417,7 +440,16 @@ wbImage_t wbImport(const char* fName)
 
     inFile.read(reinterpret_cast<char*>(rawData), numElements);
 
+    const int elementsRead = static_cast<int>(inFile.gcount());
+
     inFile.close();
+
+    if (elementsRead != numElements)
+    {
+        std::cerr << "Size of image in file " << fName << " does not match its header. Expecting " << numElements << " bytes, but got " << elementsRead << std::endl;
+        delete [] rawData;
+        std::exit(EXIT_FAILURE);
+    }
 
     float* data = new float[numElements];
 
