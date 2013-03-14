@@ -374,8 +374,6 @@ struct wbImage_t
 // For assignment MP6
 wbImage_t wbImport(const char* fName)
 {
-    wbImage_t image;
-
     std::ifstream inFile(fName, std::ios::binary);
 
     if (!inFile.is_open())
@@ -402,64 +400,34 @@ wbImage_t wbImport(const char* fName)
         std::getline(inFile, commentStr);
     }
 
-    // Get rid of whitespaces
-    char tmp = inFile.peek();
-    while (isspace(tmp))
-    {
-        inFile.read(&tmp, 1);
-        tmp = inFile.peek();
-    }
+    wbImage_t image;
 
-    // Read dimensions (TODO add error checking)
-    char widthStr[64], heightStr[64], numColorsStr[64], *p;
-    p = widthStr;
-    if(isdigit(tmp))
-    {
-        while(isdigit(*p = inFile.get()))
-        {
-            p++;
-        }
-        *p = '\0';
-        image.width = atoi(widthStr);
-        std::cout << "Width: " << image.width << std::endl;
-        p = heightStr;
-        while(isdigit(*p = inFile.get()))
-        {
-            p++;
-        }
-        *p = '\0';
-        image.height = atoi(heightStr);
-        std::cout << "Height: " << image.height << std::endl;
-        p = numColorsStr;
-        while(isdigit(*p = inFile.get()))
-        { 
-            p++;
-        }
-        *p = '\0';
-        image.colors = atoi(numColorsStr);
-        std::cout << "Num colors: " << image.colors << std::endl;
-        if (image.colors != wbInternal::kImageMaxval)
-        {
-            std::cout << "the number of colors should be " << wbInternal::kImageMaxval << ", but got " << image.colors << std::endl;
-            exit(EXIT_FAILURE);
-        }
-    }
-    else
-    {
-        std::cout << "error - cannot read dimensions" << std::endl;
-    }
+    inFile >> image.width;
+    inFile >> image.height;
+    inFile >> image.colors;
 
-    int numElements = image.width * image.height * image.channels;
+    while (isspace(inFile.peek()))
+    {
+        inFile.get();
+    }
+    
+    const int numElements = image.width * image.height * image.channels;
+
     unsigned char* rawData = new unsigned char[numElements];
-    inFile.read((char*)rawData, numElements);
-    float* data = new float[numElements];
-    for (int i = 0; i < numElements; i++)
-    {
-        data[i] = 1.0 * rawData[i] / wbInternal::kImageMaxval;
-    }
-    image.rawData = rawData;
-    image.data = data;
+
+    inFile.read(reinterpret_cast<char*>(rawData), numElements);
+
     inFile.close();
+
+    float* data = new float[numElements];
+
+    for (int i = 0; i < numElements; ++i)
+    {
+        data[i] = rawData[i] * (1.0f / wbInternal::kImageMaxval);
+    }
+
+    image.data = data;
+    image.rawData = rawData;
 
     return image;
 }
