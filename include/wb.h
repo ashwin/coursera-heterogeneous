@@ -484,7 +484,7 @@ float* wbImage_getData(const wbImage_t& image)
      return image.data;
 }
 
-wbImage_t wbImage_new(int imageWidth, int imageHeight, int imageChannels)
+wbImage_t wbImage_new(const int imageWidth, const int imageHeight, const int imageChannels)
 {
     wbImage_t image(imageWidth, imageHeight, imageChannels);
     return image;
@@ -492,8 +492,8 @@ wbImage_t wbImage_new(int imageWidth, int imageHeight, int imageChannels)
 
 void wbImage_delete(wbImage_t& image)
 {
-    delete[] image.data;
-    delete[] image.rawData;
+    delete [] image.data;
+    delete [] image.rawData;
 }
 
 ////
@@ -699,7 +699,7 @@ void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
     assert(timeType >= Generic && timeType < wbTimeTypeNum && "Unrecognized wbTimeType value");
 
     const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage };
-    const wbInternal::wbTimerInfoList::iterator iter = std::find( wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo );
+    const wbInternal::wbTimerInfoList::iterator iter = std::find(wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo);
 
     wbInternal::wbTimerInfo& timerInfo = *iter;
 
@@ -750,7 +750,7 @@ void wbSolution(const wbArg_t args, const T& t, const S& s)
     {
         int errCnt = 0;
 
-        for (int item = 0; item < solnItems; item++)
+        for (int item = 0; item < solnItems; ++item)
         {
             if (!wbInternal::wbFPCloseEnough(soln[item], t[item]))
             {
@@ -771,7 +771,7 @@ void wbSolution(const wbArg_t args, const T& t, const S& s)
 
 // For assignments MP2 & MP3
 template < typename T, typename S, typename U >
-void wbSolution(const wbArg_t args, const T& t, const S& s, const U& u)
+void wbSolution(const wbArg_t& args, const T& t, const S& s, const U& u)
 {
     int solnRows, solnColumns;
     float* soln = wbImport(wbArg_getInputFile(args, 2), &solnRows, &solnColumns);
@@ -785,12 +785,12 @@ void wbSolution(const wbArg_t args, const T& t, const S& s, const U& u)
     {
         int errCnt = 0;
 
-        for (int row = 0; row < solnRows; row++)
+        for (int row = 0; row < solnRows; ++row)
         {
-            for (int col = 0; col < solnColumns; col++)
+            for (int col = 0; col < solnColumns; ++col)
             {
-                float expected = *(soln + row * solnColumns + col);
-                float result = *(t + row * solnColumns + col);
+                const float expected = row * solnColumns + col + *soln;
+                const float result   = row * solnColumns + col + *t;
 
                 if (!wbInternal::wbFPCloseEnough(expected, result))
                 {
@@ -838,7 +838,7 @@ namespace wbInternal
 } // namespace wbInternal
 
 // For assignment MP6
-void wbSolution(wbArg_t args, wbImage_t image)
+void wbSolution(const wbArg_t& args, const wbImage_t& image)
 {
     wbInternal::wbImage_save(image, args, "convolved_image.ppm");
     char* solutionFile = wbArg_getInputFile(args, 2);
