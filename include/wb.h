@@ -840,49 +840,48 @@ namespace wbInternal
 // For assignment MP6
 void wbSolution(const wbArg_t& args, const wbImage_t& image)
 {
-    wbInternal::wbImage_save(image, args, "convolved_image.ppm");
-    char* solutionFile = wbArg_getInputFile(args, 2);
-    wbImage_t solnImage = wbImport(solutionFile);
-    if (image.width != solnImage.width)
-    {
-        std::cout << "width is incorrect: expected " << solnImage.width << " but got " << image.width << std::endl;
-        wbImage_delete(solnImage);
-        exit(EXIT_FAILURE);
-    }
+    wbImage_t solnImage = wbImport(wbArg_getInputFile(args, 2));
 
-    if (image.height != solnImage.height)
+    if (solnImage.width != image.width || solnImage.height != image.height)
     {
-       std::cout << "height is incorrect: expected " << solnImage.height << " but got " << image.height << std::endl;
-       wbImage_delete(solnImage);
-       exit(EXIT_FAILURE);
+        std::cout << "Size of the image in file " << wbArg_getInputFile(args, 2) << " does not match. ";
+        std::cout << "Expecting " << image.width << " x " << image.height << " but got " << solnImage.width << " x " << solnImage.height << ".\n";
     }
-
-    for (int i = 0; i < image.width; ++i)
+    else // Check solution
     {
-        for (int j = 0; j < image.height; ++j)
+        wbInternal::wbImage_save(image, args, "convolved_image.ppm");
+
+        int errCnt = 0;
+
+        for (int i = 0; i < image.width; ++i)
         {
-            for (int k = 0; k < image.channels; ++k)
+            for (int j = 0; j < image.height; ++j)
             {
-                int index = (j * image.width + i) * image.channels + k;
-                double scaled = ((double)image.data[index]) * wbInternal::kImageMaxval;
-                double decimalPart = scaled - floor(scaled);
-                // If true, don't know how to round, too close to xxx.5
-                bool ambiguous = fabs(decimalPart - 0.5) < 0.0001;
-
-                int colorValue = int(((double)image.data[index]) * wbInternal::kImageMaxval + 0.5);
-                double error = abs(colorValue - solnImage.rawData[index]);
-                if ( !(error == 0) && !(ambiguous && error <= 1) )
+                for (int k = 0; k < image.channels; ++k)
                 {
-                    std::cout << "data in position [" << i << " " << j << " " << k << "]  (array index: " << index << ") is wrong, expected " <<  (int)solnImage.rawData[index] << " but got " << colorValue << "  (float value is " << image.data[index] << ")" <<std::endl;
-                    std::cout << "decimalPart: " << decimalPart << ", ambiguous: " << ambiguous << std::endl;
-                    wbImage_delete(solnImage);
-                    exit(EXIT_FAILURE);
+                    int index = (j * image.width + i) * image.channels + k;
+                    double scaled = ((double)image.data[index]) * wbInternal::kImageMaxval;
+                    double decimalPart = scaled - floor(scaled);
+                    // If true, don't know how to round, too close to xxx.5
+                    bool ambiguous = fabs(decimalPart - 0.5) < 0.0001;
+
+                    int colorValue = int(((double)image.data[index]) * wbInternal::kImageMaxval + 0.5);
+                    double error = abs(colorValue - solnImage.rawData[index]);
+                    if ( !(error == 0) && !(ambiguous && error <= 1) )
+                    {
+                        std::cout << "data in position [" << i << " " << j << " " << k << "]  (array index: " << index << ") is wrong, expected " <<  (int)solnImage.rawData[index] << " but got " << colorValue << "  (float value is " << image.data[index] << ")" <<std::endl;
+                        std::cout << "decimalPart: " << decimalPart << ", ambiguous: " << ambiguous << std::endl;
+                        ++errCnt;
+                    }
                 }
             }
         }
+
+        if (!errCnt)
+            std::cout << "Solution is correct." << std::endl;
+        else
+            std::cout << errCnt << " tests failed!" << std::endl;
     }
-    
-    std::cout << "Solution is correct!" << std::endl;
 
     wbImage_delete(solnImage);
 }
