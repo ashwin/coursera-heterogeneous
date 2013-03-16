@@ -743,7 +743,7 @@ void wbSolution(const wbArg_t args, const T& t, const S& s)
 
     if (solnItems != s)
     {
-        std::cout << "Number of elements in solution file does not match. ";
+        std::cout << "Number of elements in solution file " << wbArg_getInputFile(args, args.argc - 2) << " does not match. ";
         std::cout << "Expecting " << s << " but got " << solnItems << ".\n";
     }
     else // Check solution
@@ -778,7 +778,7 @@ void wbSolution(const wbArg_t& args, const T& t, const S& s, const U& u)
 
     if (solnRows != s || solnColumns != u)
     {
-        std::cout << "Size of solution file does not match. ";
+        std::cout << "Size of the matrix in solution file " << wbArg_getInputFile(args, 2) << " does not match. ";
         std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
     }
     else // Check solution
