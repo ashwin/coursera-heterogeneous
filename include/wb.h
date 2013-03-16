@@ -32,6 +32,9 @@
 
 namespace wbInternal
 {
+    // Maximum number of errors to display in wbSolution()
+    const int kErrorReportLimit = 10;
+
     // For further information, see the PPM image format documentation at http://netpbm.sourceforge.net
     const int kImageChannels = 3;
     const int kImageMaxval   = 255;
@@ -754,9 +757,13 @@ void wbSolution(const wbArg_t args, const T& t, const S& s)
         {
             if (!wbInternal::wbFPCloseEnough(soln[item], t[item]))
             {
-                std::cout << "The solution did not match the expected result at element " << item << ". ";
-                std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
-                errCnt++;
+                if (errCnt < wbInternal::kErrorReportLimit)
+                {
+                    std::cout << "The solution did not match the expected result at element " << item << ". ";
+                    std::cout << "Expecting " << soln[item] << " but got " << t[item] << ".\n";
+                }
+
+                ++errCnt;
             }
         }
 
@@ -794,9 +801,13 @@ void wbSolution(const wbArg_t& args, const T& t, const S& s, const U& u)
 
                 if (!wbInternal::wbFPCloseEnough(expected, result))
                 {
-                    std::cout << "The solution did not match the expected results at column " << col << " and row " << row << "). ";
-                    std::cout << "Expecting " << expected << " but got " << result << ".\n";
-                    errCnt++;
+                    if (errCnt < wbInternal::kErrorReportLimit)
+                    {
+                        std::cout << "The solution did not match the expected results at column " << col << " and row " << row << "). ";
+                        std::cout << "Expecting " << expected << " but got " << result << ".\n";
+                    }
+
+                    ++errCnt;
                 }
             }
         }
@@ -863,7 +874,9 @@ void wbSolution(const wbArg_t& args, const wbImage_t& image)
 
                     if (fabs(solnImage.data[index] - image.data[index]) >= (1.0f / wbInternal::kImageMaxval))
                     {
-                        std::cout << "Image pixels do not match at position (" << j << ", " << i << ", " << k << "). [" << image.data[index] << ", " <<  solnImage.data[index] << "]\n";
+                        if (errCnt < wbInternal::kErrorReportLimit)
+                            std::cout << "Image pixels do not match at position (" << j << ", " << i << ", " << k << "). [" << image.data[index] << ", " <<  solnImage.data[index] << "]\n";
+
                         ++errCnt;
                     }
                 }
