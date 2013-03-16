@@ -859,18 +859,11 @@ void wbSolution(const wbArg_t& args, const wbImage_t& image)
             {
                 for (int k = 0; k < image.channels; ++k)
                 {
-                    int index = (j * image.width + i) * image.channels + k;
-                    double scaled = ((double)image.data[index]) * wbInternal::kImageMaxval;
-                    double decimalPart = scaled - floor(scaled);
-                    // If true, don't know how to round, too close to xxx.5
-                    bool ambiguous = fabs(decimalPart - 0.5) < 0.0001;
+                    const int index = (j * image.width + i) * image.channels + k;
 
-                    int colorValue = int(((double)image.data[index]) * wbInternal::kImageMaxval + 0.5);
-                    double error = abs(colorValue - solnImage.rawData[index]);
-                    if ( !(error == 0) && !(ambiguous && error <= 1) )
+                    if (fabs(solnImage.data[index] - image.data[index]) >= (1.0f / wbInternal::kImageMaxval))
                     {
-                        std::cout << "data in position [" << i << " " << j << " " << k << "]  (array index: " << index << ") is wrong, expected " <<  (int)solnImage.rawData[index] << " but got " << colorValue << "  (float value is " << image.data[index] << ")" <<std::endl;
-                        std::cout << "decimalPart: " << decimalPart << ", ambiguous: " << ambiguous << std::endl;
+                        std::cout << "Image pixels do not match at position (" << j << ", " << i << ", " << k << "). [" << image.data[index] << ", " <<  solnImage.data[index] << "]\n";
                         ++errCnt;
                     }
                 }
