@@ -846,12 +846,14 @@ void wbSolution(const wbArg_t& args, const wbImage_t& image)
     if (image.width != solnImage.width)
     {
         std::cout << "width is incorrect: expected " << solnImage.width << " but got " << image.width << std::endl;
+        wbImage_delete(solnImage);
         exit(EXIT_FAILURE);
     }
 
     if (image.height != solnImage.height)
     {
        std::cout << "height is incorrect: expected " << solnImage.height << " but got " << image.height << std::endl;
+       wbImage_delete(solnImage);
        exit(EXIT_FAILURE);
     }
 
@@ -873,11 +875,14 @@ void wbSolution(const wbArg_t& args, const wbImage_t& image)
                 {
                     std::cout << "data in position [" << i << " " << j << " " << k << "]  (array index: " << index << ") is wrong, expected " <<  (int)solnImage.rawData[index] << " but got " << colorValue << "  (float value is " << image.data[index] << ")" <<std::endl;
                     std::cout << "decimalPart: " << decimalPart << ", ambiguous: " << ambiguous << std::endl;
+                    wbImage_delete(solnImage);
                     exit(EXIT_FAILURE);
                 }
             }
         }
     }
     
-    std::cout << "Solution is correct!" << std::endl;  
+    std::cout << "Solution is correct!" << std::endl;
+
+    wbImage_delete(solnImage);
 }
