@@ -26,6 +26,21 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#ifndef NDEBUG
+    #define wbAssert(condition, message)                                                                  \
+        do                                                                                                \
+        {                                                                                                 \
+            if (!(condition))                                                                             \
+            {                                                                                             \
+                std::cerr << "Assertion failed: (" #condition "), function " << __FUNCTION__ << ", file " \
+                          << __FILE__  << ", line " << __LINE__ << ": " << message << std::endl;          \
+                std::exit(EXIT_FAILURE);                                                                  \
+            }                                                                                             \
+        } while (0)
+#else
+    #define wbAssert(condition, message) do { } while (0)
+#endif
+
 ////
 // Constants
 ////
@@ -72,7 +87,7 @@ namespace wbInternal
 
     const char* wbLogLevelToStr(const wbLogLevel level)
     {
-        assert(level >= OFF && level <= TRACE && "Unrecognized wbLogLevel value");
+        wbAssert(level >= OFF && level <= TRACE, "Unrecognized wbLogLevel value");
         return wbLogLevelStr[level];
     }
 
@@ -171,7 +186,7 @@ wbArg_t wbArg_read(const int argc, char** argv)
 
 char* wbArg_getInputFile(const wbArg_t argInfo, const int argNum)
 {
-    assert(argNum >= 0 && argNum < (argInfo.argc - 1) && "Unrecognized command line argument requested");
+    wbAssert(argNum >= 0 && argNum < (argInfo.argc - 1), "Unrecognized command line argument requested");
     return argInfo.argv[argNum + 1];
 }
 
@@ -687,7 +702,7 @@ namespace wbInternal
 
 void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
 {
-    assert(timeType >= Generic && timeType < wbTimeTypeNum && "Unrecognized wbTimeType value");
+    wbAssert(timeType >= Generic && timeType < wbTimeTypeNum, "Unrecognized wbTimeType value");
 
     wbInternal::CudaTimer timer;
     timer.start();
@@ -699,14 +714,14 @@ void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
 
 void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 {
-    assert(timeType >= Generic && timeType < wbTimeTypeNum && "Unrecognized wbTimeType value");
+    wbAssert(timeType >= Generic && timeType < wbTimeTypeNum, "Unrecognized wbTimeType value");
 
     const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage };
     const wbInternal::wbTimerInfoList::iterator iter = std::find(wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo);
 
     wbInternal::wbTimerInfo& timerInfo = *iter;
 
-    assert(searchInfo == timerInfo && "Could not find a corresponding wbTimerInfo struct registered by wbTime_start()");
+    wbAssert(searchInfo == timerInfo, "Could not find a corresponding wbTimerInfo struct registered by wbTime_start()");
 
     timerInfo.timer.stop();
 
