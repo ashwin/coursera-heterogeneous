@@ -374,18 +374,14 @@ struct wbImage_t
     int channels;
     int colors;
     float* data;
-    unsigned char* rawData;
 
-    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = wbInternal::kImageChannels) : width(imageWidth), height(imageHeight), channels(imageChannels), colors(0), data(NULL), rawData(NULL)
+    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = wbInternal::kImageChannels) : width(imageWidth), height(imageHeight), channels(imageChannels), colors(0), data(NULL)
     {
         const int numElements = width * height * channels;
 
         // Prevent zero-length memory allocation
         if (numElements > 0)
-        {
             data = new float[numElements];
-            rawData = new unsigned char[numElements];
-        }
     }
 };
 
@@ -477,7 +473,7 @@ wbImage_t wbImport(const char* fName)
     }
 
     image.data = data;
-    image.rawData = rawData;
+    delete [] rawData;
 
     return image;
 }
@@ -511,7 +507,6 @@ wbImage_t wbImage_new(const int imageWidth, const int imageHeight, const int ima
 void wbImage_delete(wbImage_t& image)
 {
     delete [] image.data;
-    delete [] image.rawData;
 }
 
 ////
