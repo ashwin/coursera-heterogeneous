@@ -549,7 +549,7 @@ namespace wbInternal
 
         double value()
         {
-            return (endTime.QuadPart - startTime.QuadPart) * timerResolution * 1000;
+            return (endTime.QuadPart - startTime.QuadPart) * timerResolution;
         }
     };
 #elif defined(__APPLE__)
@@ -589,14 +589,13 @@ namespace wbInternal
         #include <time.h>
     #else
         #include <sys/time.h>
+    #endif
 
-        #if !defined(MSEC_PER_SEC)
-            #define MSEC_PER_SEC 1000L;
-        #endif
-        #if !defined(NSEC_PER_SEC)
-            #define NSEC_PER_SEC 1000000000L;
-        #endif
-
+    #if !defined(MSEC_PER_SEC)
+        #define MSEC_PER_SEC 1000L;
+    #endif
+    #if !defined(NSEC_PER_SEC)
+        #define NSEC_PER_SEC 1000000000L;
     #endif
 
     class CudaTimer
@@ -711,7 +710,9 @@ void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 {
     wbAssert(timeType >= Generic && timeType < wbTimeTypeNum, "Unrecognized wbTimeType value");
 
-    const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage };
+    wbInternal::CudaTimer timer;
+
+    const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage, timer };
     const wbInternal::wbTimerInfoList::iterator iter = std::find(wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo);
 
     wbInternal::wbTimerInfo& timerInfo = *iter;
