@@ -26,6 +26,10 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+////
+// Macros
+////
+
 #ifndef NDEBUG
     #define wbAssert(condition, message)                                                                  \
         do                                                                                                \
@@ -53,6 +57,41 @@ namespace wbInternal
     // For further information, see the PPM image format documentation at http://netpbm.sourceforge.net
     const int kImageChannels = 3;
     const int kImageMaxval   = 255;
+} // namespace wbInternal
+
+////
+// Supporting functions
+////
+
+namespace wbInternal
+{
+#if defined(_WIN32)
+    std::string wbStrerror(int errnum)
+    {
+        std::string str;
+        char buffer[1024];
+
+        if (errnum)
+        {
+            strerror_s(buffer, sizeof(buffer), errnum);
+            str = buffer;
+        }
+
+        return str;
+    }
+#else
+    std::string wbStrerror(int errnum)
+    {
+        std::string str;
+
+        if (errnum)
+        {
+            str = strerror(errnum);
+        }
+
+        return str;
+    }
+#endif
 } // namespace wbInternal
 
 ////
@@ -197,7 +236,7 @@ float* wbImport(const char* fName, int* numElements)
 
     if (!inFile.is_open())
     {
-        std::cerr << "Error opening input file " << fName << ". " << std::strerror(errno) << std::endl;
+        std::cerr << "Error opening input file " << fName << ". " << wbInternal::wbStrerror(errno) << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
@@ -249,7 +288,7 @@ namespace wbInternal
 
         if (!inFile.is_open())
         {
-            std::cerr << "Error opening input file " << fName << ". " << std::strerror(errno) << std::endl;
+            std::cerr << "Error opening input file " << fName << ". " << wbInternal::wbStrerror(errno) << std::endl;
             std::exit(EXIT_FAILURE);
         }
 
@@ -321,7 +360,7 @@ float* wbImport(const char* fName, int* numRows, int* numCols)
 
     if (!inFile.is_open())
     {
-        std::cerr << "Error opening input file " << fName << ". " << std::strerror(errno) << std::endl;
+        std::cerr << "Error opening input file " << fName << ". " << wbInternal::wbStrerror(errno) << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
@@ -392,7 +431,7 @@ wbImage_t wbImport(const char* fName)
 
     if (!inFile.is_open())
     {
-        std::cerr << "Error opening image file " << fName << ". " << std::strerror(errno) << std::endl;
+        std::cerr << "Error opening image file " << fName << ". " << wbInternal::wbStrerror(errno) << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
