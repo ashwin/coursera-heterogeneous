@@ -14,6 +14,7 @@
 #include <cerrno>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -75,6 +76,33 @@ namespace wbInternal
         {
             strerror_s(buffer, sizeof(buffer), errnum);
             str = buffer;
+        }
+
+        return str;
+    }
+#elif (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600 || __APPLE__) && ! _GNU_SOURCE
+    std::string wbStrerror(int errnum)
+    {
+        std::string str;
+        char buffer[1024];
+
+        if (errnum)
+        {
+            strerror_r(errnum, buffer, sizeof(buffer));
+            str = buffer;
+        }
+
+        return str;
+    }
+#elif defined(_GNU_SOURCE)
+    std::string wbStrerror(int errnum)
+    {
+        std::string str;
+        char buffer[1024];
+
+        if (errnum)
+        {
+            str = strerror_r(errnum, buffer, sizeof(buffer));
         }
 
         return str;
