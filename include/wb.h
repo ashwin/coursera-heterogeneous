@@ -777,9 +777,7 @@ void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 {
     wbAssert(timeType >= Generic && timeType < wbTimeTypeNum, "Unrecognized wbTimeType value");
 
-    wbInternal::CudaTimer timer;
-
-    const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage, timer };
+    const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage, wbInternal::CudaTimer() };
     const wbInternal::wbTimerInfoList::iterator iter = std::find(wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo);
 
     wbInternal::wbTimerInfo& timerInfo = *iter;
