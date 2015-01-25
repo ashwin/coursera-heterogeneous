@@ -16,16 +16,16 @@ endif(APPLE)
 
 INCLUDE_DIRECTORIES(./include)
 
-CUDA_ADD_EXECUTABLE(mp0 
+CUDA_ADD_EXECUTABLE(mp0
     src/mp0.cc)
 
-CUDA_ADD_EXECUTABLE(mp1 
+CUDA_ADD_EXECUTABLE(mp1
     src/mp1.cu)
 
-CUDA_ADD_EXECUTABLE(mp2 
+CUDA_ADD_EXECUTABLE(mp2
     src/mp2.cu)
 
-CUDA_ADD_EXECUTABLE(mp3 
+CUDA_ADD_EXECUTABLE(mp3
     src/mp3.cu)
 
 CUDA_ADD_EXECUTABLE(mp4
@@ -68,9 +68,9 @@ FOREACH (test ${tests})
     set (i 0)
     WHILE (${i} LESS ${numtests})
           set(testname ${test}_data-${i})
-          add_test(${testname} ${test} 
-            ${path}/${i}/input0.raw 
-            ${path}/${i}/input1.raw 
+          add_test(${testname} ${test}
+            ${path}/${i}/input0.raw
+            ${path}/${i}/input1.raw
             ${path}/${i}/output.raw)
           set_tests_properties (${testname}
             PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
@@ -87,7 +87,7 @@ FOREACH (test ${tests})
     set (i 0)
     WHILE (${i} LESS ${numtests})
           set(testname ${test}_data-${i})
-          add_test(${testname} ${test} 
+          add_test(${testname} ${test}
             ${path}/${i}/input.raw
             ${path}/${i}/output.raw)
           set_tests_properties (${testname}
@@ -104,32 +104,10 @@ FOREACH (test ${tests})
     set (i 0)
     WHILE (${i} LESS ${numtests})
           set(testname ${test}_data-${i})
-          add_test(${testname} ${test} 
-            ${path}/${i}/input0.ppm 
-            ${path}/${i}/input1.csv 
+          add_test(${testname} ${test}
+            ${path}/${i}/input0.ppm
+            ${path}/${i}/input1.csv
             ${path}/${i}/output.ppm)
-          set_tests_properties (${testname}
-            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${testname})
-          MATH(EXPR i "${i} + 1")
-    ENDWHILE (${i} LESS ${numtests} )
-ENDFOREACH(test)
-
-
-# official graded tests
-set (numtests 10)
-
-# tests for mp1 mp2 mp3
-set (tests mp1 mp2 mp3)
-FOREACH (test ${tests})
-    set (path tests/${test}_grade)
-    set (i 0)
-    WHILE (${i} LESS ${numtests})
-          set(testname ${test}_grade-${i})
-          add_test(${testname} ${test} 
-            ${path}/${i}/input0.raw 
-            ${path}/${i}/input1.raw 
-            ${path}/${i}/output.raw)
           set_tests_properties (${testname}
             PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
             LABELS ${testname})
