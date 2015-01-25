@@ -12,7 +12,6 @@ if (UNIX)
 endif ()
 
 if (APPLE)
-    set(CMAKE_EXE_LINKER_FLAGS "-lm -F/Library/Frameworks -framework CUDA")
     if (${CMAKE_SYSTEM_VERSION} LESS 12.0)
         # OS X 10.7 or less
         find_program(GCC_EXECUTABLE NAMES g++ PATHS ENV PATH)
@@ -32,40 +31,29 @@ if (APPLE)
     endif ()
 endif ()
 
-CUDA_ADD_EXECUTABLE(mp0
-    src/mp0.cc)
+# Set the correct linker options on UNIX platforms
+if (UNIX)
+    set(LINK_LIBRARIES "-lm")
+    if (APPLE)
+        find_library(CUDA_LIBRARY NAMES CUDA)
+        get_filename_component(FRAMEWORK_DIRECTORY ${CUDA_LIBRARY} DIRECTORY)
+        set(LINK_LIBRARIES "${LINK_LIBRARIES} -F${FRAMEWORK_DIRECTORY} -framework CUDA")
+    else ()
+        include(CheckLibraryExists)
+        check_library_exists(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME)
+        if (HAVE_CLOCK_GETTIME)
+            set(LINK_LIBRARIES "${LINK_LIBRARIES} -lrt")
+        endif ()
+    endif ()
+endif ()
 
-CUDA_ADD_EXECUTABLE(mp1
-    src/mp1.cu)
-
-CUDA_ADD_EXECUTABLE(mp2
-    src/mp2.cu)
-
-CUDA_ADD_EXECUTABLE(mp3
-    src/mp3.cu)
-
-CUDA_ADD_EXECUTABLE(mp4
-    src/mp4.cu)
-
-CUDA_ADD_EXECUTABLE(mp5
-    src/mp5.cu)
-
-CUDA_ADD_EXECUTABLE(mp6
-    src/mp6.cu)
-
-# We do this painfully here because setting CMAKE_EXE_LINKER_FLAGS
-# gives error on Ubuntu. Because CMake prepends the linker flags.
-if (UNIX AND NOT APPLE)
-    set(TIMER_FLAGS "-lm -lrt")
-    target_link_libraries(mp0 ${TIMER_FLAGS})
-    target_link_libraries(mp1 ${TIMER_FLAGS})
-    target_link_libraries(mp2 ${TIMER_FLAGS})
-    target_link_libraries(mp3 ${TIMER_FLAGS})
-    target_link_libraries(mp4 ${TIMER_FLAGS})
-    target_link_libraries(mp5 ${TIMER_FLAGS})
-    target_link_libraries(mp6 ${TIMER_FLAGS})
-endif(UNIX AND NOT APPLE)
-
+set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6)
+foreach (EXECUTABLE ${EXECUTABLES})
+    CUDA_ADD_EXECUTABLE(${EXECUTABLE} src/${EXECUTABLE}.cu)
+    if (UNIX)
+        target_link_libraries(${EXECUTABLE} ${LINK_LIBRARIES})
+    endif ()
+endforeach ()
 
 
 # CTEST TESTING
