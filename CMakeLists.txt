@@ -50,67 +50,84 @@ if (UNIX AND NOT APPLE)
     target_link_libraries(mp6 ${TIMER_FLAGS})
 endif(UNIX AND NOT APPLE)
 
-# Added tests, to execute use 'ctest'
+
+
+# CTEST TESTING
+#
+# To test all MPs against the official datasets type 'ctest -V' at the
+# terminal. To test a specific MP type 'ctest -L mpX -V'
 enable_testing()
 
-# tests for mp0
-add_test(mp0 mp0)
-set_tests_properties (mp0
-        PROPERTIES FAIL_REGULAR_EXPRESSION "No CUDA GPU has been detected"
-        LABELS mp0)
+add_test(
+    NAME mp0
+    COMMAND mp0
+)
+set_tests_properties(
+    mp0
+    PROPERTIES FAIL_REGULAR_EXPRESSION "No CUDA GPU has been detected"
+    LABELS mp0
+)
 
-set (numtests 6)
+set(DATASETS 9)
 
-# tests for mp1 mp2 mp3
-set (tests mp1 mp2 mp3)
-FOREACH (test ${tests})
-    set (path tests/${test})
-    set (i 0)
-    WHILE (${i} LESS ${numtests})
-          set(testname ${test}-${i})
-          add_test(${testname} ${test}
-            ${path}/${i}/input0.raw
-            ${path}/${i}/input1.raw
-            ${path}/${i}/output.raw)
-          set_tests_properties (${testname}
+set(TESTS mp1 mp2 mp3)
+foreach (TEST ${TESTS})
+    set(PATH tests/${TEST})
+    foreach (i RANGE 0 ${DATASETS})
+        set(TESTLABEL ${TEST}-${i})
+        add_test(
+            NAME ${TESTLABEL}
+            COMMAND ${TEST}
+            ${PATH}/${i}/input0.raw
+            ${PATH}/${i}/input1.raw
+            ${PATH}/${i}/output.raw
+        )
+        set_tests_properties(
+            ${TESTLABEL}
             PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${testname})
-          MATH(EXPR i "${i} + 1")
-    ENDWHILE (${i} LESS ${numtests} )
-ENDFOREACH(test)
+            LABELS ${TESTLABEL}
+        )
+    endforeach ()
+endforeach ()
 
-# tests for mp4 mp5
-set (tests mp4 mp5)
-set (i 0)
-FOREACH (test ${tests})
-    set (path tests/${test})
-    set (i 0)
-    WHILE (${i} LESS ${numtests})
-          set(testname ${test}-${i})
-          add_test(${testname} ${test}
-            ${path}/${i}/input.raw
-            ${path}/${i}/output.raw)
-          set_tests_properties (${testname}
-            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${testname})
-          MATH(EXPR i "${i} + 1")
-    ENDWHILE (${i} LESS ${numtests})
-ENDFOREACH(test)
+set(TEST mp4)
+set(PATH tests/${TEST})
+foreach (i RANGE 0 ${DATASETS})
+    set(TESTLABEL ${TEST}-${i})
+    add_test(
+        NAME ${TESTLABEL}
+        COMMAND ${TEST}
+        ${PATH}/${i}/input0.ppm
+        ${PATH}/${i}/input1.csv
+        ${PATH}/${i}/output.ppm
+    )
+    set_tests_properties(
+        ${TESTLABEL}
+        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
+        LABELS ${TESTLABEL}
+    )
+endforeach ()
 
-# tests for mp6
-set (tests mp6)
-FOREACH (test ${tests})
-    set (path tests/${test})
-    set (i 0)
-    WHILE (${i} LESS ${numtests})
-          set(testname ${test}-${i})
-          add_test(${testname} ${test}
-            ${path}/${i}/input0.ppm
-            ${path}/${i}/input1.csv
-            ${path}/${i}/output.ppm)
-          set_tests_properties (${testname}
+set(TESTS mp5 mp6)
+foreach (TEST ${TESTS})
+    set(PATH tests/${TEST})
+    if (${TEST} STREQUAL "mp5")
+        set(INPUT_FILE "input0")
+    else ()
+        set(INPUT_FILE "input")
+    endif ()
+    foreach (i RANGE 0 ${DATASETS})
+        set(TESTLABEL ${TEST}-${i})
+        add_test(
+            NAME ${TESTLABEL}
+            COMMAND ${TEST}
+            ${PATH}/${i}/${INPUT_FILE}.raw
+            ${PATH}/${i}/output.raw
+        )
+        set_tests_properties(
+            ${TESTLABEL}
             PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${testname})
-          MATH(EXPR i "${i} + 1")
-    ENDWHILE (${i} LESS ${numtests} )
-ENDFOREACH(test)
+            LABELS ${TESTLABEL}
+        )
+    endforeach ()
+endforeach ()
