@@ -64,10 +64,10 @@ set (numtests 6)
 # tests for mp1 mp2 mp3
 set (tests mp1 mp2 mp3)
 FOREACH (test ${tests})
-    set (path tests/${test}_data)
+    set (path tests/${test})
     set (i 0)
     WHILE (${i} LESS ${numtests})
-          set(testname ${test}_data-${i})
+          set(testname ${test}-${i})
           add_test(${testname} ${test}
             ${path}/${i}/input0.raw
             ${path}/${i}/input1.raw
@@ -83,10 +83,10 @@ ENDFOREACH(test)
 set (tests mp4 mp5)
 set (i 0)
 FOREACH (test ${tests})
-    set (path tests/${test}_data)
+    set (path tests/${test})
     set (i 0)
     WHILE (${i} LESS ${numtests})
-          set(testname ${test}_data-${i})
+          set(testname ${test}-${i})
           add_test(${testname} ${test}
             ${path}/${i}/input.raw
             ${path}/${i}/output.raw)
@@ -100,10 +100,10 @@ ENDFOREACH(test)
 # tests for mp6
 set (tests mp6)
 FOREACH (test ${tests})
-    set (path tests/${test}_data)
+    set (path tests/${test})
     set (i 0)
     WHILE (${i} LESS ${numtests})
-          set(testname ${test}_data-${i})
+          set(testname ${test}-${i})
           add_test(${testname} ${test}
             ${path}/${i}/input0.ppm
             ${path}/${i}/input1.csv
