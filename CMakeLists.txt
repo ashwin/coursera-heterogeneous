@@ -6,10 +6,26 @@ find_package(CUDA REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-if(APPLE)
-  set(CMAKE_EXE_LINKER_FLAGS "-lm -F/Library/Frameworks -framework CUDA")
-  set(CUDA_HOST_COMPILER "/usr/bin/gcc")
-endif(APPLE)
+if (APPLE)
+    set(CMAKE_EXE_LINKER_FLAGS "-lm -F/Library/Frameworks -framework CUDA")
+    if (${CMAKE_SYSTEM_VERSION} LESS 12.0)
+        # OS X 10.7 or less
+        find_program(GCC_EXECUTABLE NAMES g++ PATHS ENV PATH)
+        if (NOT GCC_EXECUTABLE)
+            message(FATAL_ERROR "Could not find host compiler 'g++'")
+        endif()
+        set(CUDA_HOST_COMPILER ${GCC_EXECUTABLE})
+    else ()
+        # OS X 10.8+
+        find_program(CLANG_EXECUTABLE NAMES clang++ PATHS ENV PATH)
+        if (NOT CLANG_EXECUTABLE)
+            message(FATAL_ERROR "Could not find host compiler 'clang++'")
+        endif ()
+        set(CUDA_HOST_COMPILER ${CLANG_EXECUTABLE})
+        set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} -stdlib=libstdc++ -isystem ${CUDA_INCLUDE_DIRS}")
+        set(CUDA_NVCC_FLAGS    "${CUDA_NVCC_FLAGS} --linker-options -stdlib=libstdc++")
+    endif ()
+endif ()
 
 CUDA_ADD_EXECUTABLE(mp0
     src/mp0.cc)
