@@ -1,20 +1,16 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-set(CUDA_VERBOSE_BUILD ON)
+project(libwb)
 
-find_package(CUDA QUIET REQUIRED)
-# The cuda_include_directories adds paths to only cuda compilation.
-CUDA_INCLUDE_DIRECTORIES(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
+find_package(CUDA REQUIRED)
+
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 set(BUILD_SHARED_LIBS ON)
 if(APPLE)
   set(CMAKE_EXE_LINKER_FLAGS "-lm -F/Library/Frameworks -framework CUDA")
   set(CUDA_HOST_COMPILER "/usr/bin/gcc")
 endif(APPLE)
-
-INCLUDE_DIRECTORIES(./include)
 
 CUDA_ADD_EXECUTABLE(mp0
     src/mp0.cc)
