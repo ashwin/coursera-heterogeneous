@@ -1,105 +1,79 @@
+// MP Scan
+// Given a list (lst) of length n
+// Output its prefix sum = {lst[0], lst[0] + lst[1], lst[0] + lst[1] + ... + lst[n-1]}
+
 #include    <wb.h>
 
-// Check ec2-174-129-21-232.compute-1.amazonaws.com:8080/mp/6 for more information
+#define BLOCK_SIZE 512 //@@ You can change this
 
-
-#define wbCheck(stmt) do {                                 \
-        cudaError_t err = stmt;                            \
-        if (err != cudaSuccess) {                          \
-            wbLog(ERROR, "Failed to run stmt ", #stmt);    \
-            return -1;                                     \
-        }                                                  \
+#define wbCheck(stmt) do {                                                    \
+        cudaError_t err = stmt;                                               \
+        if (err != cudaSuccess) {                                             \
+            wbLog(ERROR, "Failed to run stmt ", #stmt);                       \
+            wbLog(ERROR, "Got CUDA error ...  ", cudaGetErrorString(err));    \
+            return -1;                                                        \
+        }                                                                     \
     } while(0)
 
+__global__ void scan(float * input, float * output, int len) {
+    //@@ Modify the body of this function to complete the functionality of
+    //@@ the scan on the device
+    //@@ You may need multiple kernel calls; write your kernels before this
+    //@@ function and call them from here
+}
 
-#define Mask_width  5
-#define Mask_radius Mask_width/2
+int main(int argc, char ** argv) {
+    wbArg_t args;
+    float * hostInput; // The input 1D list
+    float * hostOutput; // The output list
+    float * deviceInput;
+    float * deviceOutput;
+    int numElements; // number of elements in the list
 
-//@@ INSERT CODE HERE
+    args = wbArg_read(argc, argv);
 
+    wbTime_start(Generic, "Importing data and creating memory on host");
+    hostInput = (float *) wbImport(wbArg_getInputFile(args, 0), &numElements);
+    hostOutput = (float*) malloc(numElements * sizeof(float));
+    wbTime_stop(Generic, "Importing data and creating memory on host");
 
-int main(int argc, char* argv[]) {
-    wbArg_t arg;
-    int maskRows;
-    int maskColumns;
-    int imageChannels;
-    int imageWidth;
-    int imageHeight;
-    char * inputImageFile;
-    char * inputMaskFile;
-    wbImage_t inputImage;
-    wbImage_t outputImage;
-    float * hostInputImageData;
-    float * hostOutputImageData;
-    float * hostMaskData;
-    float * deviceInputImageData;
-    float * deviceOutputImageData;
-    float * deviceMaskData;
+    wbLog(TRACE, "The number of input elements in the input is ", numElements);
 
-    arg = wbArg_read(argc, argv); /* parse the input arguments */
+    wbTime_start(GPU, "Allocating GPU memory.");
+    wbCheck(cudaMalloc((void**)&deviceInput, numElements*sizeof(float)));
+    wbCheck(cudaMalloc((void**)&deviceOutput, numElements*sizeof(float)));
+    wbTime_stop(GPU, "Allocating GPU memory.");
 
-    inputImageFile = wbArg_getInputFile(arg, 0);
-    inputMaskFile = wbArg_getInputFile(arg, 1);
+    wbTime_start(GPU, "Clearing output memory.");
+    wbCheck(cudaMemset(deviceOutput, 0, numElements*sizeof(float)));
+    wbTime_stop(GPU, "Clearing output memory.");
 
-    inputImage = wbImport(inputImageFile);
-    hostMaskData = (float *) wbImport(inputMaskFile, &maskRows, &maskColumns);
+    wbTime_start(GPU, "Copying input memory to the GPU.");
+    wbCheck(cudaMemcpy(deviceInput, hostInput, numElements*sizeof(float), cudaMemcpyHostToDevice));
+    wbTime_stop(GPU, "Copying input memory to the GPU.");
 
-    assert(maskRows == 5); /* mask height is fixed to 5 in this mp */
-    assert(maskColumns == 5); /* mask width is fixed to 5 in this mp */
+    //@@ Initialize the grid and block dimensions here
 
-    imageWidth = wbImage_getWidth(inputImage);
-    imageHeight = wbImage_getHeight(inputImage);
-    imageChannels = wbImage_getChannels(inputImage);
+    wbTime_start(Compute, "Performing CUDA computation");
+    //@@ Modify this to complete the functionality of the scan
+    //@@ on the deivce
 
-    outputImage = wbImage_new(imageWidth, imageHeight, imageChannels);
+    cudaDeviceSynchronize();
+    wbTime_stop(Compute, "Performing CUDA computation");
 
-    hostInputImageData = wbImage_getData(inputImage);
-    hostOutputImageData = wbImage_getData(outputImage);
+    wbTime_start(Copy, "Copying output memory to the CPU");
+    wbCheck(cudaMemcpy(hostOutput, deviceOutput, numElements*sizeof(float), cudaMemcpyDeviceToHost));
+    wbTime_stop(Copy, "Copying output memory to the CPU");
 
-    wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
+    wbTime_start(GPU, "Freeing GPU Memory");
+    cudaFree(deviceInput);
+    cudaFree(deviceOutput);
+    wbTime_stop(GPU, "Freeing GPU Memory");
 
-    wbTime_start(GPU, "Doing GPU memory allocation");
-    cudaMalloc((void **) &deviceInputImageData, imageWidth * imageHeight * imageChannels * sizeof(float));
-    cudaMalloc((void **) &deviceOutputImageData, imageWidth * imageHeight * imageChannels * sizeof(float));
-    cudaMalloc((void **) &deviceMaskData, maskRows * maskColumns * sizeof(float));
-    wbTime_stop(GPU, "Doing GPU memory allocation");
+    wbSolution(args, hostOutput, numElements);
 
-
-    wbTime_start(Copy, "Copying data to the GPU");
-    cudaMemcpy(deviceInputImageData,
-               hostInputImageData,
-               imageWidth * imageHeight * imageChannels * sizeof(float),
-               cudaMemcpyHostToDevice);
-    cudaMemcpy(deviceMaskData,
-               hostMaskData,
-               maskRows * maskColumns * sizeof(float),
-               cudaMemcpyHostToDevice);
-    wbTime_stop(Copy, "Copying data to the GPU");
-
-
-    wbTime_start(Compute, "Doing the computation on the GPU");
-    //@@ INSERT CODE HERE
-    wbTime_stop(Compute, "Doing the computation on the GPU");
-
-
-    wbTime_start(Copy, "Copying data from the GPU");
-    cudaMemcpy(hostOutputImageData,
-               deviceOutputImageData,
-               imageWidth * imageHeight * imageChannels * sizeof(float),
-               cudaMemcpyDeviceToHost);
-    wbTime_stop(Copy, "Copying data from the GPU");
-
-    wbTime_stop(GPU, "Doing GPU Computation (memory + compute)");
-
-    wbSolution(arg, outputImage);
-
-    cudaFree(deviceInputImageData);
-    cudaFree(deviceOutputImageData);
-    cudaFree(deviceMaskData);
-
-    free(hostMaskData);
-    wbImage_delete(outputImage);
-    wbImage_delete(inputImage);
+    free(hostInput);
+    free(hostOutput);
 
     return 0;
 }
