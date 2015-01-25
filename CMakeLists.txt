@@ -6,6 +6,11 @@ find_package(CUDA REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
+# Set warning levels for host compilation
+if (UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+endif ()
+
 if (APPLE)
     set(CMAKE_EXE_LINKER_FLAGS "-lm -F/Library/Frameworks -framework CUDA")
     if (${CMAKE_SYSTEM_VERSION} LESS 12.0)
