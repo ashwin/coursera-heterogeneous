@@ -6,6 +6,13 @@ find_package(CUDA REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
+# To specify the compute capability of your nVidia GPU uncomment the following
+# lines and set COMPUTE_CAPABILITY to one of the following architectures:
+# Tesla class 11, 12, or 13; Fermi class 20 or 21; Kepler class 30, 32, or 35;
+# Maxwell class 50 or 52
+# set(COMPUTE_CAPABILITY 35)
+# set(CUDA_NVCC_FLAGS "--generate-code arch=compute_${COMPUTE_CAPABILITY},code=sm_${COMPUTE_CAPABILITY}")
+
 # Set warning levels for host compilation
 if (UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
