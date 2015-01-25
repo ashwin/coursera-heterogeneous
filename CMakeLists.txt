@@ -6,7 +6,6 @@ find_package(CUDA REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-set(BUILD_SHARED_LIBS ON)
 if(APPLE)
   set(CMAKE_EXE_LINKER_FLAGS "-lm -F/Library/Frameworks -framework CUDA")
   set(CUDA_HOST_COMPILER "/usr/bin/gcc")
