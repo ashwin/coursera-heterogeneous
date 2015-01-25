@@ -1,3 +1,12 @@
+# WebGPU Machine Problems 2015
+# mp0 - Device Query
+# mp1 - Vector Addition
+# mp2 - Basic Matrix-Matrix Multiplication
+# mp3 - Tiled Matrix-Matrix Multiplication
+# mp4 - Image Convolution
+# mp5 - List Reduction
+# mp6 - List Scan
+
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project(libwb)
