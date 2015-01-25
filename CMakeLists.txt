@@ -11,6 +11,7 @@ if (UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif ()
 
+# Select the correct host compiler on OS X
 if (APPLE)
     if (${CMAKE_SYSTEM_VERSION} LESS 12.0)
         # OS X 10.7 or less
