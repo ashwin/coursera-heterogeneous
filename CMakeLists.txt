@@ -13,14 +13,15 @@ project(libwb)
 
 find_package(CUDA REQUIRED)
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # To specify the compute capability of your nVidia GPU uncomment the following
 # lines and set COMPUTE_CAPABILITY to one of the following architectures:
 # Tesla class 11, 12, or 13; Fermi class 20 or 21; Kepler class 30, 32, or 35;
 # Maxwell class 50 or 52
 # set(COMPUTE_CAPABILITY 35)
-# set(CUDA_NVCC_FLAGS "--generate-code arch=compute_${COMPUTE_CAPABILITY},code=sm_${COMPUTE_CAPABILITY}")
+# set(CUDA_NVCC_FLAGS --generate-code;arch=compute_${COMPUTE_CAPABILITY},code=sm_${COMPUTE_CAPABILITY})
+
 
 # Set warning levels for host compilation
 if (UNIX)
@@ -44,7 +45,6 @@ if (APPLE)
         endif ()
         set(CUDA_HOST_COMPILER ${CLANG_EXECUTABLE})
         set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} -stdlib=libstdc++ -isystem ${CUDA_INCLUDE_DIRS}")
-        set(CUDA_NVCC_FLAGS    "${CUDA_NVCC_FLAGS} --linker-options -stdlib=libstdc++")
     endif ()
 endif ()
 
@@ -66,7 +66,7 @@ endif ()
 
 set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6)
 foreach (EXECUTABLE ${EXECUTABLES})
-    CUDA_ADD_EXECUTABLE(${EXECUTABLE} src/${EXECUTABLE}.cu)
+    CUDA_ADD_EXECUTABLE(${EXECUTABLE} ${PROJECT_SOURCE_DIR}/src/${EXECUTABLE}.cu)
     if (UNIX)
         target_link_libraries(${EXECUTABLE} ${LINK_LIBRARIES})
     endif ()
@@ -91,64 +91,30 @@ set_tests_properties(
 
 set(DATASETS 9)
 
-set(TESTS mp1 mp2 mp3)
+set(TESTS mp1 mp2 mp3 mp4 mp5 mp6)
 foreach (TEST ${TESTS})
     set(PATH tests/${TEST})
     foreach (i RANGE 0 ${DATASETS})
-        set(TESTLABEL ${TEST}-${i})
+        if (${TEST} STREQUAL mp1 OR ${TEST} STREQUAL mp2 OR ${TEST} STREQUAL mp3)
+            set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/input1.raw ${PATH}/${i}/output.raw)
+        elseif (${TEST} STREQUAL mp4)
+            set(TEST_FILES ${PATH}/${i}/input0.ppm ${PATH}/${i}/input1.csv ${PATH}/${i}/output.ppm)
+        elseif (${TEST} STREQUAL mp5)
+            set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/output.raw)
+        elseif (${TEST} STREQUAL mp6)
+            set(TEST_FILES ${PATH}/${i}/input.raw ${PATH}/${i}/output.raw)
+        else ()
+            message(FATAL_ERROR "Unknown test target '${TEST}' specified")
+        endif ()
+        set(TEST_LABEL ${TEST}-${i})
         add_test(
-            NAME ${TESTLABEL}
-            COMMAND ${TEST}
-            ${PATH}/${i}/input0.raw
-            ${PATH}/${i}/input1.raw
-            ${PATH}/${i}/output.raw
+            NAME ${TEST_LABEL}
+            COMMAND ${TEST} ${TEST_FILES}
         )
         set_tests_properties(
-            ${TESTLABEL}
+            ${TEST_LABEL}
             PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${TESTLABEL}
-        )
-    endforeach ()
-endforeach ()
-
-set(TEST mp4)
-set(PATH tests/${TEST})
-foreach (i RANGE 0 ${DATASETS})
-    set(TESTLABEL ${TEST}-${i})
-    add_test(
-        NAME ${TESTLABEL}
-        COMMAND ${TEST}
-        ${PATH}/${i}/input0.ppm
-        ${PATH}/${i}/input1.csv
-        ${PATH}/${i}/output.ppm
-    )
-    set_tests_properties(
-        ${TESTLABEL}
-        PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-        LABELS ${TESTLABEL}
-    )
-endforeach ()
-
-set(TESTS mp5 mp6)
-foreach (TEST ${TESTS})
-    set(PATH tests/${TEST})
-    if (${TEST} STREQUAL "mp5")
-        set(INPUT_FILE "input0")
-    else ()
-        set(INPUT_FILE "input")
-    endif ()
-    foreach (i RANGE 0 ${DATASETS})
-        set(TESTLABEL ${TEST}-${i})
-        add_test(
-            NAME ${TESTLABEL}
-            COMMAND ${TEST}
-            ${PATH}/${i}/${INPUT_FILE}.raw
-            ${PATH}/${i}/output.raw
-        )
-        set_tests_properties(
-            ${TESTLABEL}
-            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${TESTLABEL}
+            LABELS ${TEST_LABEL}
         )
     endforeach ()
 endforeach ()
