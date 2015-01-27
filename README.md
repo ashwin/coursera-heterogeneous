@@ -8,8 +8,9 @@ This is a collaborative effort by the students of the course and you are welcome
 Files available include:
 
 - WB API header file (`wb.h`)
-- Generate data to test assignments (`GenDataMP1.cpp`, `GenDataMP2.cpp`, ...)
-- Assignment files (`mp0.cu`, `mp1.cu`, ...)
+- Official assignment files (`mp0.cu`, `mp1.cu`, ...)
+- Official test datasets
+- Programs to generate extra datasets to test assignments (`GenDataMP1.cpp`, `GenDataMP2.cpp`, ...)
 
 All of this works **only** if you have access to CUDA hardware.
 
@@ -20,27 +21,31 @@ Usage
 On Windows with Visual Studio
 -----------------------------
 
-- Update NVIDIA driver for your CUDA hardware
+### Dependencies
+
+- Update the NVIDIA driver for your CUDA hardware
 - Download and install Visual Studio or Visual C++ Express Edition
 - Download and install the [NVIDIA CUDA toolkit](https://developer.nvidia.com/cuda-downloads)
+
+### Using Visual Studio
+
 - Create a [CUDA project in Visual Studio](http://google.com/search?q=cuda%20project%20in%20visual%20studio)
-- Place this `wb.h` header in same directory as your CUDA source file (`mp1.cu` for example)
+- Place the `wb.h` header in same directory as your CUDA source file (`mp1.cu` for example)
 - Compile and run!
 
 On OS X with Xcode
 ------------------
 
-Make sure you have XCode (and/or the Command Line Tools) and Cmake installed.
-You can get cmake from macports via: `sudo port install cmake` or homebrew via:  `brew install cmake`
+Make sure you have XCode (and/or the Command Line Tools) and Cmake installed (Cmake is a cross-platform, open-source build system). You can get Cmake from macports via: `sudo port install cmake` or homebrew via: `brew install cmake`
 
 ### Dependencies
 
 - If you wish to use Xcode as your IDE, download and install the latest version from the [Mac App Store](https://itunes.apple.com/au/app/xcode/id497799835?mt=12)
 - Download and install the [Command Line Tools](https://developer.apple.com/downloads) from Apple's developer website or, if you are using Xcode, via the Downloads tab in Xcode's Preferences
 - Download and install the [NVIDIA CUDA toolkit](http://developer.download.nvidia.com/compute/cuda/5_0/rel-update-1/installers/cuda_5.0.36_macos.pkg)
-- Install cmake from either macports (`sudo port install cmake`) or homebrew (`brew install cmake`)
+- Install Cmake from either macports (`sudo port install cmake`) or homebrew (`brew install cmake`)
 - Clone the coursera-heterogenous repository
-- At this point, you can use either Xcode or the traditional Unix command line
+- At this point, you can either use Xcode (recommended only for the OpenCL assignments) or the traditional Unix command line (see the instructions below)
 
 ### Using Xcode
 
@@ -49,16 +54,25 @@ Initial setup:
 - Though Xcode can build and run CUDA projects, it does not integrate NVIDIA's cuda-gdb debugger into the IDE. OpenCL projects, in contrast, have complete integration with Xcode
 - If you haven't done so already, you need to install the [Command Line Tools](https://developer.apple.com/downloads) so that the UNIX development environment is exposed to NVIDIA's CUDA compiler `nvcc`
 - From the repository's root directory type: `cmake CMakeLists.txt -G Xcode`
-- Open the resulting Project.xcodeproj
+- Open the resulting libwb.xcodeproj
 
 To run each assignment:
 
 - You will need to edit each assignment's Scheme through the Product, Edit Scheme menu
  - Select the Run build action settings and, under the Arguments tab, enter the arguments that will be passed to the program when it launches
- - Make sure that, for each dataset file, you enter that file's absolute path
+ - Make sure that, for each data set file, you enter that file's absolute path
 - Compile and run!
 
-### Using the Unix command line
+On Unix with the command line
+-----------------------------
+
+### Dependencies
+
+- Download and install the [NVIDIA CUDA toolkit](http://developer.download.nvidia.com/compute/cuda/5_0/rel-update-1/installers/cuda_5.0.36_macos.pkg)
+- Install Cmake through your system's package manager
+- Clone the coursera-heterogenous repository
+
+### Using the command line
 
 Initial setup:
 
@@ -66,20 +80,18 @@ Initial setup:
 
 To run each assignment:
 
-- To compile an assignment, type `make mp<N>`, where `<N>` is the assignment's number
- - For example, to compile the MP2 assignment type `make mp2`
-- To run an assignment, type `./mp<N> tests/mp<N>_data/<D>/*`, where `<N>` is a homework number and `<D>` is a dataset number
- - For example, to execute assignment MP2 on dataset 0 type `./mp3 tests/mp3_data/0/*`
+- To compile an assignment, type: `make mp<N>`, where `<N>` is that assignment's number
+ - For example, to compile the MP2 assignment type: `make mp2`
+- To run an assignment, type: `./mp<N> tests/mp<N>/<D>/*`, where `<N>` is a homework number and `<D>` is a data set number
+ - For example, to execute assignment MP2 on dat aset 0 type: `./mp2 tests/mp2/0/*`
 
-You can also test each homework (`mp`) against the official datasets
-using the command `ctest` (part of cmake):
+You can also test each assignment against the official datasets
+using Cmake's test driver `ctest`:
 
-- To run all the `mps` against the official datasets: `ctest`.
-- To run a specific mp, for example MP2, run `ctest -L mp2`
+- To run all of the MP assignments against the official datasets type: `ctest` from the repository's root directory
+- To run a specific MP assignment, for example MP2, type `ctest -L mp2`
 
-The details of the execution of the tests can be found in the folder
-`Testing/Temporary/LastTest.log`. Or can be viewed adding the `-V` or
-`-VV` for extra verbose information, i.e. `ctest -L mp2 -V`.
+Details of the tests and report results can be found in the folder `Testing/Temporary/LastTest.log`. You can also view this information during the testing phase by adding the options `-V` (for verbose) or `-VV` (for extra verbose), i.e. `ctest -L mp2 -V`
 
 <a name="contributors"/>
 Contributors
