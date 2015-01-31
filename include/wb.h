@@ -725,7 +725,7 @@ enum wbTimeType
     GPU,
     Compute,
     Copy,
-    wbTimeTypeNum, // Keep this at the end
+    wbTimeTypeINVALID // Keep this at the end
 };
 
 namespace wbInternal
@@ -763,7 +763,7 @@ namespace wbInternal
 
 void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
 {
-    wbAssert(timeType >= Generic && timeType < wbTimeTypeNum, "Unrecognized wbTimeType value");
+    wbAssert(timeType >= Generic && timeType < wbTimeTypeINVALID, "Unrecognized wbTimeType value");
 
     wbInternal::wbTimer timer;
     timer.start();
@@ -775,7 +775,7 @@ void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
 
 void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 {
-    wbAssert(timeType >= Generic && timeType < wbTimeTypeNum, "Unrecognized wbTimeType value");
+    wbAssert(timeType >= Generic && timeType < wbTimeTypeINVALID, "Unrecognized wbTimeType value");
 
     const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage, wbInternal::wbTimer() };
     const wbInternal::wbTimerInfoList::iterator iter = std::find(wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo);
