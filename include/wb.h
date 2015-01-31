@@ -257,7 +257,7 @@ char* wbArg_getInputFile(const wbArg_t argInfo, const int argNum)
     return argInfo.argv[argNum + 1];
 }
 
-// For assignments MP1, MP4 & MP5
+// For assignments MP1, MP5 & MP6
 float* wbImport(const char* fName, int* numElements)
 {
     std::ifstream inFile(fName);
@@ -374,7 +374,7 @@ namespace wbInternal
     }
 } // namespace wbInternal
 
-// For assignments MP2, MP3 & MP6
+// For assignments MP2, MP3 & MP4
 float* wbImport(const char* fName, int* numRows, int* numCols)
 {
     std::string fNameStr(fName);
@@ -452,7 +452,7 @@ struct wbImage_t
     }
 };
 
-// For assignment MP6
+// For assignment MP4
 wbImage_t wbImport(const char* fName)
 {
     std::ifstream inFile(fName, std::ios::binary);
@@ -813,7 +813,7 @@ namespace wbInternal
     }
 } // namespace wbInternal
 
-// For assignments MP1, MP4 & MP5
+// For assignments MP1, MP5 & MP6
 template < typename T, typename S >
 void wbSolution(const wbArg_t args, const T& t, const S& s)
 {
@@ -924,7 +924,7 @@ namespace wbInternal
     }
 } // namespace wbInternal
 
-// For assignment MP6
+// For assignment MP4
 void wbSolution(const wbArg_t& args, const wbImage_t& image)
 {
     wbImage_t solnImage = wbImport(wbArg_getInputFile(args, 2));
