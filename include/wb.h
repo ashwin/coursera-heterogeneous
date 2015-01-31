@@ -936,8 +936,9 @@ void wbSolution(const wbArg_t& args, const wbImage_t& image)
     }
     else // Check solution
     {
-        wbInternal::wbImage_save(image, args, "convolved_image.ppm");
+        wbInternal::wbImage_save(image, args, "transformed_image.ppm");
 
+        const float tolerance = 1.5f;
         int errCnt = 0;
 
         for (int i = 0; i < image.width; ++i)
@@ -947,8 +948,9 @@ void wbSolution(const wbArg_t& args, const wbImage_t& image)
                 for (int k = 0; k < image.channels; ++k)
                 {
                     const int index = (j * image.width + i) * image.channels + k;
+                    const float error = fabs(solnImage.data[index] - image.data[index]);
 
-                    if (fabs(solnImage.data[index] - image.data[index]) >= (1.0f / wbInternal::kImageColorLimit))
+                    if (error > (1.0f / wbInternal::kImageColorLimit * tolerance))
                     {
                         if (errCnt < wbInternal::kErrorReportLimit)
                             std::cout << "Image pixels do not match at position (" << j << ", " << i << ", " << k << "). [" << image.data[index] << ", " <<  solnImage.data[index] << "]\n";
