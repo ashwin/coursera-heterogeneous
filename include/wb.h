@@ -74,7 +74,7 @@ namespace wbInternal
 
         if (errnum)
         {
-            strerror_s(buffer, sizeof(buffer), errnum);
+            (void) strerror_s(buffer, sizeof(buffer), errnum);
             str = buffer;
         }
 
@@ -88,7 +88,7 @@ namespace wbInternal
 
         if (errnum)
         {
-            strerror_r(errnum, buffer, sizeof(buffer));
+            (void) strerror_r(errnum, buffer, sizeof(buffer));
             str = buffer;
         }
 
