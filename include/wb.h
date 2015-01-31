@@ -586,8 +586,8 @@ namespace wbInternal
 #if defined(_WIN32)
     #include <Windows.h>
 
-    // CudaTimer class from: https://bitbucket.org/ashwin/cudatimer
-    class CudaTimer
+    // wbTimer class adapted from: https://bitbucket.org/ashwin/cudatimer
+    class wbTimer
     {
     private:
         double        timerResolution;
@@ -595,7 +595,7 @@ namespace wbInternal
         LARGE_INTEGER endTime;
 
     public:
-        CudaTimer::CudaTimer()
+        wbTimer::wbTimer()
         {
             LARGE_INTEGER freq;
             QueryPerformanceFrequency(&freq);
@@ -622,7 +622,7 @@ namespace wbInternal
 #elif defined(__APPLE__)
     #include <mach/mach_time.h>
 
-    class CudaTimer
+    class wbTimer
     {
     private:
         uint64_t startTime;
@@ -665,7 +665,7 @@ namespace wbInternal
         #define NSEC_PER_SEC 1000000000L;
     #endif
 
-    class CudaTimer
+    class wbTimer
     {
     private:
         long long startTime;
@@ -746,9 +746,9 @@ namespace wbInternal
 
     struct wbTimerInfo
     {
-        wbTimeType            type;
-        std::string           message;
-        wbInternal::CudaTimer timer;
+        wbTimeType  type;
+        std::string message;
+        wbTimer     timer;
 
         bool operator==(const wbTimerInfo& t2) const
         {
@@ -765,7 +765,7 @@ void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
 {
     wbAssert(timeType >= Generic && timeType < wbTimeTypeNum, "Unrecognized wbTimeType value");
 
-    wbInternal::CudaTimer timer;
+    wbInternal::wbTimer timer;
     timer.start();
 
     wbInternal::wbTimerInfo timerInfo = { timeType, timeMessage, timer };
@@ -777,7 +777,7 @@ void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 {
     wbAssert(timeType >= Generic && timeType < wbTimeTypeNum, "Unrecognized wbTimeType value");
 
-    const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage, wbInternal::CudaTimer() };
+    const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage, wbInternal::wbTimer() };
     const wbInternal::wbTimerInfoList::iterator iter = std::find(wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo);
 
     wbInternal::wbTimerInfo& timerInfo = *iter;
