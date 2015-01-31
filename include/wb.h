@@ -857,11 +857,11 @@ template < typename T, typename S, typename U >
 void wbSolution(const wbArg_t& args, const T& t, const S& s, const U& u)
 {
     int solnRows, solnColumns;
-    float* soln = wbImport(wbArg_getInputFile(args, 2), &solnRows, &solnColumns);
+    float* soln = wbImport(wbArg_getInputFile(args, args.argc - 2), &solnRows, &solnColumns);
 
     if (solnRows != s || solnColumns != u)
     {
-        std::cout << "Size of the matrix in solution file " << wbArg_getInputFile(args, 2) << " does not match. ";
+        std::cout << "Size of the matrix in solution file " << wbArg_getInputFile(args, args.argc - 2) << " does not match. ";
         std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
     }
     else // Check solution
@@ -902,7 +902,7 @@ namespace wbInternal
     void wbImage_save(const wbImage_t& image, const wbArg_t& args, const char* fName)
     {
         std::ostringstream oss;
-        oss << "P6\n" << "# Created by applying convolution " << wbArg_getInputFile(args, 1) << "\n" << image.width << " " << image.height << "\n" << image.colors << "\n";
+        oss << "P6\n" << "# Created by applying convolution " << wbArg_getInputFile(args, args.argc - 3) << "\n" << image.width << " " << image.height << "\n" << image.colors << "\n";
         std::string headerStr(oss.str());
 
         std::ofstream outFile(fName, std::ios::binary);
@@ -927,11 +927,11 @@ namespace wbInternal
 // For assignment MP4
 void wbSolution(const wbArg_t& args, const wbImage_t& image)
 {
-    wbImage_t solnImage = wbImport(wbArg_getInputFile(args, 2));
+    wbImage_t solnImage = wbImport(wbArg_getInputFile(args, args.argc - 2));
 
     if (solnImage.width != image.width || solnImage.height != image.height)
     {
-        std::cout << "Size of the image in file " << wbArg_getInputFile(args, 2) << " does not match. ";
+        std::cout << "Size of the image in file " << wbArg_getInputFile(args, args.argc - 2) << " does not match. ";
         std::cout << "Expecting " << image.width << " x " << image.height << " but got " << solnImage.width << " x " << solnImage.height << ".\n";
     }
     else // Check solution
