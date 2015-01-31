@@ -442,7 +442,7 @@ struct wbImage_t
     int colors;
     float* data;
 
-    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = wbInternal::kImageChannels) : width(imageWidth), height(imageHeight), channels(imageChannels), colors(0), data(NULL)
+    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = wbInternal::kImageChannels, int imageColors = wbInternal::kImageMaxval) : width(imageWidth), height(imageHeight), channels(imageChannels), colors(imageColors), data(NULL)
     {
         const int numElements = width * height * channels;
 
