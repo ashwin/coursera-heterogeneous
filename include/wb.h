@@ -43,7 +43,7 @@
             }                                                                                             \
         } while (0)
 #else
-    #define wbAssert(condition, message) do { } while (0)
+    #define wbAssert(condition, message)
 #endif
 
 ////
@@ -274,7 +274,7 @@ float* wbImport(const char* fName, int* numElements)
     std::vector<float> fVec;
 
     fVec.reserve(*numElements);
-    
+
     while (inFile >> sVal)
     {
         std::istringstream iss(sVal);
@@ -335,14 +335,14 @@ namespace wbInternal
             {
                 float fVal;
                 ++(*numCols);
-                
+
                 if (!(std::istringstream(cellStr) >> fVal))
                 {
                     std::cerr << "Error reading element (" << *numRows << ", " << *numCols << ") in file " << fName << std::endl;
                     inFile.close();
                     std::exit(EXIT_FAILURE);
                 }
-                
+
                 fVec.push_back(fVal);
             }
         }
@@ -401,7 +401,7 @@ float* wbImport(const char* fName, int* numRows, int* numCols)
     std::vector<float> fVec;
 
     fVec.reserve(numElements);
-    
+
     while (inFile >> sVal)
     {
         std::istringstream iss(sVal);
@@ -514,7 +514,7 @@ wbImage_t wbImport(const char* fName)
     {
         inFile.get();
     }
-    
+
     const int numElements = image.width * image.height * image.channels;
 
     unsigned char* rawData = new unsigned char[numElements];
