@@ -6,6 +6,8 @@
 # mp4 - Image Convolution
 # mp5 - List Reduction
 # mp6 - List Scan
+# mp7 - Histograms
+# mp8 - Vector Addition with Streams
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
@@ -64,7 +66,7 @@ if (UNIX)
     endif ()
 endif ()
 
-set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6)
+set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
 foreach (EXECUTABLE ${EXECUTABLES})
     CUDA_ADD_EXECUTABLE(${EXECUTABLE} ${PROJECT_SOURCE_DIR}/src/${EXECUTABLE}.cu)
     if (UNIX)
@@ -91,11 +93,11 @@ set_tests_properties(
 
 set(DATASETS 9)
 
-set(TESTS mp1 mp2 mp3 mp4 mp5 mp6)
+set(TESTS mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
 foreach (TEST ${TESTS})
     set(PATH tests/${TEST})
     foreach (i RANGE 0 ${DATASETS})
-        if (${TEST} STREQUAL mp1 OR ${TEST} STREQUAL mp2 OR ${TEST} STREQUAL mp3)
+        if (${TEST} STREQUAL mp1 OR ${TEST} STREQUAL mp2 OR ${TEST} STREQUAL mp3 OR ${TEST} STREQUAL mp8)
             set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/input1.raw ${PATH}/${i}/output.raw)
         elseif (${TEST} STREQUAL mp4)
             set(TEST_FILES ${PATH}/${i}/input0.ppm ${PATH}/${i}/input1.csv ${PATH}/${i}/output.ppm)
@@ -103,6 +105,8 @@ foreach (TEST ${TESTS})
             set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/output.raw)
         elseif (${TEST} STREQUAL mp6)
             set(TEST_FILES ${PATH}/${i}/input.raw ${PATH}/${i}/output.raw)
+        elseif (${TEST} STREQUAL mp7)
+            set(TEST_FILES ${PATH}/${i}/input.ppm ${PATH}/${i}/output.ppm)
         else ()
             message(FATAL_ERROR "Unknown test target '${TEST}' specified")
         endif ()
