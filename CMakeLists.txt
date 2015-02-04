@@ -17,10 +17,11 @@ find_package(CUDA REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-# To specify the compute capability of your nVidia GPU uncomment the following
-# lines and set COMPUTE_CAPABILITY to one of the following architectures:
-# Tesla class 11, 12, or 13; Fermi class 20 or 21; Kepler class 30, 32, or 35;
-# Maxwell class 50 or 52
+# For some MPs it may be necessary to specify the compute capability of your
+# nVidia GPU. In that case, simply uncomment the following two lines that start
+# with 'set' and change the value of COMPUTE_CAPABILITY to one of the following
+# hardware architectures: Tesla-class '11', '12', or '13'; Fermi-class '20'
+# or '21'; Kepler-class '30', '32', or '35'; or Maxwell-class '50' or '52'
 # set(COMPUTE_CAPABILITY 35)
 # set(CUDA_NVCC_FLAGS --generate-code;arch=compute_${COMPUTE_CAPABILITY},code=sm_${COMPUTE_CAPABILITY})
 
