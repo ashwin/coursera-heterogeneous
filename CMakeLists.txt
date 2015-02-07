@@ -47,15 +47,20 @@ if (APPLE)
             message(FATAL_ERROR "Could not find host compiler 'clang++'")
         endif ()
         set(CUDA_HOST_COMPILER ${CLANG_EXECUTABLE})
-        set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} -stdlib=libstdc++ -isystem ${CUDA_INCLUDE_DIRS}")
-        if (CMAKE_GENERATOR MATCHES "Xcode")
-            set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libstdc++")
+        if (CUDA_VERSION VERSION_LESS 7.0)
+            # CUDA Toolkits 5.5-6.5 are incompatible with LLVM's C++ standard library
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
+            if (CMAKE_GENERATOR MATCHES "Xcode")
+                set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libstdc++")
+            endif ()
         endif ()
     endif ()
     if (CMAKE_GENERATOR MATCHES "Xcode")
         set(CMAKE_XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD)")
         set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "x86_64")
     endif ()
+    # Suppress warnings related to the CUDA headers
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ${CUDA_TOOLKIT_INCLUDE}")
 endif ()
 
 # Set the correct linker options on UNIX platforms
