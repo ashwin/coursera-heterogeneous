@@ -23,8 +23,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # hardware architectures: Tesla-class '11', '12', or '13'; Fermi-class '20'
 # or '21'; Kepler-class '30', '32', or '35'; or Maxwell-class '50' or '52'
 # set(COMPUTE_CAPABILITY 35)
-# set(CUDA_NVCC_FLAGS --generate-code;arch=compute_${COMPUTE_CAPABILITY},code=sm_${COMPUTE_CAPABILITY})
-
+# set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};--generate-code;arch=compute_${COMPUTE_CAPABILITY},code=sm_${COMPUTE_CAPABILITY})
 
 # Set warning levels for host compilation
 if (UNIX)
