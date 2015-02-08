@@ -24,8 +24,17 @@
 #include <vector>
 
 // CUDA
-#include <cuda.h>
-#include <cuda_runtime.h>
+#if defined(__CUDACC__)
+    #include <cuda.h>
+    #include <cuda_runtime.h>
+#else
+// OpenCL
+    #if defined(__APPLE__)
+        #include <OpenCL/cl.h>
+    #else
+        #include <CL/cl.h>
+    #endif
+#endif
 
 ////
 // Macros
