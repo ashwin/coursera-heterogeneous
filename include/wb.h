@@ -690,10 +690,9 @@ namespace wbInternal
         {
             long long time;
         #if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
-
             struct timespec ts;
 
-            if (0 == clock_gettime(CLOCK_REALTIME, &ts))
+            if (0 == clock_gettime(CLOCK_MONOTONIC, &ts))
             {
                 time  = NSEC_PER_SEC;
                 time *= ts.tv_sec;
