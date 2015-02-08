@@ -673,22 +673,22 @@ namespace wbInternal
         #include <sys/time.h>
     #endif
 
-    #if !defined(MSEC_PER_SEC)
-        #define MSEC_PER_SEC 1000L;
-    #endif
     #if !defined(NSEC_PER_SEC)
-        #define NSEC_PER_SEC 1000000000L;
+        #define NSEC_PER_SEC 1e9L
+    #endif
+    #if !defined(MSEC_PER_NSEC)
+        #define MSEC_PER_NSEC (NSEC_PER_SEC / CLOCKS_PER_SEC)
     #endif
 
     class wbTimer
     {
     private:
-        long long startTime;
-        long long endTime;
+        long startTime;
+        long endTime;
 
-        long long getTime()
+        long getTime()
         {
-            long long time;
+            long time;
         #if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
             struct timespec ts;
 
@@ -705,10 +705,9 @@ namespace wbInternal
             {
                 time  = NSEC_PER_SEC;
                 time *= tv.tv_sec;
-                time += tv.tv_usec * MSEC_PER_SEC;
+                time += tv.tv_usec * MSEC_PER_NSEC;
             }
         #endif
-
             return time;
         }
 
