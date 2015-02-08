@@ -589,6 +589,12 @@ void wbImage_delete(wbImage_t& image)
 // Timer
 ////
 
+#if defined(__CUDACC__)
+    #define wbTimerDeviceSynchronize() cudaDeviceSynchronize()
+#else
+    #define wbTimerDeviceSynchronize()
+#endif
+
 // Namespace because Windows.h causes errors
 namespace wbInternal
 {
@@ -613,13 +619,13 @@ namespace wbInternal
 
         void start()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             QueryPerformanceCounter(&startTime);
         }
 
         void stop()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             QueryPerformanceCounter(&endTime);
         }
 
@@ -640,13 +646,13 @@ namespace wbInternal
     public:
         void start()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             startTime = mach_absolute_time();
         }
 
         void stop()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             endTime = mach_absolute_time();
         }
 
@@ -710,13 +716,13 @@ namespace wbInternal
     public:
         void start()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             startTime = getTime();
         }
 
         void stop()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             endTime = getTime();
         }
 
