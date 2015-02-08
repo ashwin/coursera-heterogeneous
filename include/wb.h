@@ -135,20 +135,20 @@ namespace wbInternal
 // Logging
 ////
 
-enum wbLogLevel
-{
-    OFF,
-    FATAL,
-    ERROR,
-    WARN,
-    INFO,
-    DEBUG,
-    TRACE,
-    wbLogLevelNum, // Keep this at the end
-};
-
 namespace wbInternal
 {
+    enum wbLogLevel
+    {
+        wbLogLevel_OFF,
+        wbLogLevel_FATAL,
+        wbLogLevel_ERROR,
+        wbLogLevel_WARN,
+        wbLogLevel_INFO,
+        wbLogLevel_DEBUG,
+        wbLogLevel_TRACE,
+        wbLogLevel_INVALID // Keep this at the end
+    };
+
     const char* wbLogLevelStr[] =
     {
         "Off",
@@ -158,12 +158,12 @@ namespace wbInternal
         "Info",
         "Debug",
         "Trace",
-        "***InvalidLogLevel***", // Keep this at the end
+        "***InvalidLogLevel***" // Keep this at the end
     };
 
     const char* wbLogLevelToStr(const wbLogLevel level)
     {
-        wbAssert(level >= OFF && level <= TRACE, "Unrecognized wbLogLevel value");
+        wbAssert(level >= wbLogLevel_OFF && level < wbLogLevel_INVALID, "Unrecognized wbLogLevel value");
         return wbLogLevelStr[level];
     }
 
@@ -238,7 +238,7 @@ namespace wbInternal
 #define wbLog(level, ...)                                                                \
     do                                                                                   \
     {                                                                                    \
-        std::cout << wbInternal::wbLogLevelToStr(static_cast<wbLogLevel>(level)) << " "; \
+        std::cout << wbInternal::wbLogLevelToStr(wbInternal::wbLogLevel_##level) << " "; \
         std::cout << __FUNCTION__ << "::" << __LINE__ << " ";                            \
         wbInternal::wbLog(__VA_ARGS__);                                                  \
         std::cout << std::endl;                                                          \
