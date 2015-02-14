@@ -132,6 +132,144 @@ namespace wbInternal
 } // namespace wbInternal
 
 ////
+// OpenCL
+////
+
+#if !defined(__CUDACC__)
+#define wbOpenCL_ERROR(error) \
+    case error:               \
+        return #error
+
+const char* wbOpenCLGetErrorString(cl_int error)
+{
+    switch (error)
+    {
+/*
+ * OpenCL runtime and JIT compile errors
+ */
+#if defined(CL_VERSION_1_0)
+        wbOpenCL_ERROR(CL_SUCCESS);
+        wbOpenCL_ERROR(CL_DEVICE_NOT_FOUND);
+        wbOpenCL_ERROR(CL_DEVICE_NOT_AVAILABLE);
+        wbOpenCL_ERROR(CL_COMPILER_NOT_AVAILABLE);
+        wbOpenCL_ERROR(CL_MEM_OBJECT_ALLOCATION_FAILURE);
+        wbOpenCL_ERROR(CL_OUT_OF_RESOURCES);
+        wbOpenCL_ERROR(CL_OUT_OF_HOST_MEMORY);
+        wbOpenCL_ERROR(CL_PROFILING_INFO_NOT_AVAILABLE);
+        wbOpenCL_ERROR(CL_MEM_COPY_OVERLAP);
+        wbOpenCL_ERROR(CL_IMAGE_FORMAT_MISMATCH);
+        wbOpenCL_ERROR(CL_IMAGE_FORMAT_NOT_SUPPORTED);
+        wbOpenCL_ERROR(CL_BUILD_PROGRAM_FAILURE);
+        wbOpenCL_ERROR(CL_MAP_FAILURE);
+#endif
+#if defined(CL_VERSION_1_1)
+        wbOpenCL_ERROR(CL_MISALIGNED_SUB_BUFFER_OFFSET);
+        wbOpenCL_ERROR(CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST);
+#endif
+#if defined(CL_VERSION_1_2)
+        wbOpenCL_ERROR(CL_COMPILE_PROGRAM_FAILURE);
+        wbOpenCL_ERROR(CL_LINKER_NOT_AVAILABLE);
+        wbOpenCL_ERROR(CL_LINK_PROGRAM_FAILURE);
+        wbOpenCL_ERROR(CL_DEVICE_PARTITION_FAILED);
+        wbOpenCL_ERROR(CL_KERNEL_ARG_INFO_NOT_AVAILABLE);
+#endif
+/*
+ * OpenCL compile-time errors
+ */
+#if defined(CL_VERSION_1_0)
+        wbOpenCL_ERROR(CL_INVALID_VALUE);
+        wbOpenCL_ERROR(CL_INVALID_DEVICE_TYPE);
+        wbOpenCL_ERROR(CL_INVALID_PLATFORM);
+        wbOpenCL_ERROR(CL_INVALID_DEVICE);
+        wbOpenCL_ERROR(CL_INVALID_CONTEXT);
+        wbOpenCL_ERROR(CL_INVALID_QUEUE_PROPERTIES);
+        wbOpenCL_ERROR(CL_INVALID_COMMAND_QUEUE);
+        wbOpenCL_ERROR(CL_INVALID_HOST_PTR);
+        wbOpenCL_ERROR(CL_INVALID_MEM_OBJECT);
+        wbOpenCL_ERROR(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
+        wbOpenCL_ERROR(CL_INVALID_IMAGE_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_SAMPLER);
+        wbOpenCL_ERROR(CL_INVALID_BINARY);
+        wbOpenCL_ERROR(CL_INVALID_BUILD_OPTIONS);
+        wbOpenCL_ERROR(CL_INVALID_PROGRAM);
+        wbOpenCL_ERROR(CL_INVALID_PROGRAM_EXECUTABLE);
+        wbOpenCL_ERROR(CL_INVALID_KERNEL_NAME);
+        wbOpenCL_ERROR(CL_INVALID_KERNEL_DEFINITION);
+        wbOpenCL_ERROR(CL_INVALID_KERNEL);
+        wbOpenCL_ERROR(CL_INVALID_ARG_INDEX);
+        wbOpenCL_ERROR(CL_INVALID_ARG_VALUE);
+        wbOpenCL_ERROR(CL_INVALID_ARG_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_KERNEL_ARGS);
+        wbOpenCL_ERROR(CL_INVALID_WORK_DIMENSION);
+        wbOpenCL_ERROR(CL_INVALID_WORK_GROUP_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_WORK_ITEM_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_GLOBAL_OFFSET);
+        wbOpenCL_ERROR(CL_INVALID_EVENT_WAIT_LIST);
+        wbOpenCL_ERROR(CL_INVALID_EVENT);
+        wbOpenCL_ERROR(CL_INVALID_OPERATION);
+        wbOpenCL_ERROR(CL_INVALID_GL_OBJECT);
+        wbOpenCL_ERROR(CL_INVALID_BUFFER_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_MIP_LEVEL);
+        wbOpenCL_ERROR(CL_INVALID_GLOBAL_WORK_SIZE);
+#endif
+#if defined(CL_VERSION_1_1)
+        wbOpenCL_ERROR(CL_INVALID_PROPERTY);
+#endif
+#if defined(CL_VERSION_1_2)
+        wbOpenCL_ERROR(CL_INVALID_IMAGE_DESCRIPTOR);
+        wbOpenCL_ERROR(CL_INVALID_COMPILER_OPTIONS);
+        wbOpenCL_ERROR(CL_INVALID_LINKER_OPTIONS);
+        wbOpenCL_ERROR(CL_INVALID_DEVICE_PARTITION_COUNT);
+#endif
+#if defined(CL_VERSION_2_0)
+        wbOpenCL_ERROR(CL_INVALID_PIPE_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_DEVICE_QUEUE);
+#endif
+/*
+ * OpenCL extension error values
+ */
+#if defined(__OPENCL_CL_GL_H) && defined(cl_khr_gl_sharing)
+        wbOpenCL_ERROR(CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR);
+#endif
+#if defined(__CL_EXT_H) && defined(cl_khr_icd)
+        wbOpenCL_ERROR(CL_PLATFORM_NOT_FOUND_KHR);
+#endif
+#if defined(__OPENCL_CL_D3D10_H)
+        wbOpenCL_ERROR(CL_INVALID_D3D10_DEVICE_KHR);
+        wbOpenCL_ERROR(CL_INVALID_D3D10_RESOURCE_KHR);
+        wbOpenCL_ERROR(CL_D3D10_RESOURCE_ALREADY_ACQUIRED_KHR);
+        wbOpenCL_ERROR(CL_D3D10_RESOURCE_NOT_ACQUIRED_KHR);
+#endif
+#if defined(__OPENCL_CL_D3D11_H)
+        wbOpenCL_ERROR(CL_INVALID_D3D11_DEVICE_KHR);
+        wbOpenCL_ERROR(CL_INVALID_D3D11_RESOURCE_KHR);
+        wbOpenCL_ERROR(CL_D3D11_RESOURCE_ALREADY_ACQUIRED_KHR);
+        wbOpenCL_ERROR(CL_D3D11_RESOURCE_NOT_ACQUIRED_KHR);
+#endif
+#if defined(__OPENCL_CL_DX9_MEDIA_SHARING_H)
+        wbOpenCL_ERROR(CL_INVALID_DX9_MEDIA_ADAPTER_KHR);
+        wbOpenCL_ERROR(CL_INVALID_DX9_MEDIA_SURFACE_KHR);
+        wbOpenCL_ERROR(CL_DX9_MEDIA_SURFACE_ALREADY_ACQUIRED_KHR);
+        wbOpenCL_ERROR(CL_DX9_MEDIA_SURFACE_NOT_ACQUIRED_KHR);
+#endif
+#if defined(__CL_EXT_H) && defined(cl_ext_device_fission)
+        wbOpenCL_ERROR(CL_DEVICE_PARTITION_FAILED_EXT);
+        wbOpenCL_ERROR(CL_INVALID_PARTITION_COUNT_EXT);
+        wbOpenCL_ERROR(CL_INVALID_PARTITION_NAME_EXT);
+#endif
+#if defined(__OPENCL_CL_EGL_H)
+        wbOpenCL_ERROR(CL_EGL_RESOURCE_NOT_ACQUIRED_KHR);
+        wbOpenCL_ERROR(CL_INVALID_EGL_OBJECT_KHR);
+#endif
+    // Undeclared OpenCL error (possibly implementation specific?)
+    default:
+        return "[Undeclared OpenCL error]";
+    }
+}
+#undef wbOpenCL_ERROR
+#endif
+
+////
 // Logging
 ////
 
