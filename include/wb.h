@@ -261,6 +261,12 @@ const char* wbOpenCLGetErrorString(cl_int error)
         wbOpenCL_ERROR(CL_EGL_RESOURCE_NOT_ACQUIRED_KHR);
         wbOpenCL_ERROR(CL_INVALID_EGL_OBJECT_KHR);
 #endif
+#if defined(__CL_EXT_H) && defined(cl_intel_accelerator)
+        wbOpenCL_ERROR(CL_INVALID_ACCELERATOR_INTEL);
+        wbOpenCL_ERROR(CL_INVALID_ACCELERATOR_TYPE_INTEL);
+        wbOpenCL_ERROR(CL_INVALID_ACCELERATOR_DESCRIPTOR_INTEL);
+        wbOpenCL_ERROR(CL_ACCELERATOR_TYPE_NOT_SUPPORTED_INTEL);
+#endif
     // Undeclared OpenCL error (possibly implementation specific?)
     default:
         return "[Undeclared OpenCL error]";
