@@ -13,7 +13,6 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project(libwb)
 
-find_package(CUDA REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
@@ -30,107 +29,122 @@ if (UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif ()
 
-# Select the correct host compiler on OS X
-if (APPLE)
-    if (${CMAKE_SYSTEM_VERSION} LESS 12.0)
-        # OS X 10.7 or less
-        find_program(GCC_EXECUTABLE NAMES g++ PATHS ENV PATH)
-        if (NOT GCC_EXECUTABLE)
-            message(FATAL_ERROR "Could not find host compiler 'g++'")
-        endif()
-        set(CUDA_HOST_COMPILER ${GCC_EXECUTABLE})
-    else ()
-        # OS X 10.8+
-        find_program(CLANG_EXECUTABLE NAMES clang++ PATHS ENV PATH)
-        if (NOT CLANG_EXECUTABLE)
-            message(FATAL_ERROR "Could not find host compiler 'clang++'")
+#
+# Settings for NVidia CUDA-based MPs
+#
+
+find_package(CUDA)
+
+if (CUDA_FOUND)
+    # Select the correct host compiler on OS X
+    if (APPLE)
+        if (${CMAKE_SYSTEM_VERSION} LESS 12.0)
+            # OS X 10.7 or less
+            find_program(GCC_EXECUTABLE NAMES g++ PATHS ENV PATH)
+            if (NOT GCC_EXECUTABLE)
+                message(FATAL_ERROR "Could not find host compiler 'g++'")
+            endif()
+            set(CUDA_HOST_COMPILER ${GCC_EXECUTABLE})
+        else ()
+            # OS X 10.8+
+            find_program(CLANG_EXECUTABLE NAMES clang++ PATHS ENV PATH)
+            if (NOT CLANG_EXECUTABLE)
+                message(FATAL_ERROR "Could not find host compiler 'clang++'")
+            endif ()
+            set(CUDA_HOST_COMPILER ${CLANG_EXECUTABLE})
+            if (CUDA_VERSION VERSION_LESS 7.0)
+                # CUDA Toolkits 5.5-6.5 are incompatible with LLVM's C++ standard library
+                set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
+                if (CMAKE_GENERATOR MATCHES "Xcode")
+                    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libstdc++")
+                endif ()
+            endif ()
         endif ()
-        set(CUDA_HOST_COMPILER ${CLANG_EXECUTABLE})
-        if (CUDA_VERSION VERSION_LESS 7.0)
-            # CUDA Toolkits 5.5-6.5 are incompatible with LLVM's C++ standard library
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
-            if (CMAKE_GENERATOR MATCHES "Xcode")
-                set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libstdc++")
+        if (CMAKE_GENERATOR MATCHES "Xcode")
+            set(CMAKE_XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD)")
+            set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "x86_64")
+        endif ()
+        # Suppress warnings related to the CUDA headers
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ${CUDA_TOOLKIT_INCLUDE}")
+    endif ()
+
+    # Set the correct linker options on UNIX platforms
+    if (UNIX)
+        set(LINK_LIBRARIES "-lm")
+        if (APPLE)
+            find_library(CUDA_LIBRARY NAMES CUDA)
+            get_filename_component(FRAMEWORK_DIRECTORY ${CUDA_LIBRARY} DIRECTORY)
+            set(LINK_LIBRARIES "${LINK_LIBRARIES} -F${FRAMEWORK_DIRECTORY} -framework CUDA")
+        else ()
+            include(CheckLibraryExists)
+            check_library_exists(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME)
+            if (HAVE_CLOCK_GETTIME)
+                set(LINK_LIBRARIES "${LINK_LIBRARIES} -lrt")
             endif ()
         endif ()
     endif ()
-    if (CMAKE_GENERATOR MATCHES "Xcode")
-        set(CMAKE_XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD)")
-        set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "x86_64")
-    endif ()
-    # Suppress warnings related to the CUDA headers
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ${CUDA_TOOLKIT_INCLUDE}")
-endif ()
 
-# Set the correct linker options on UNIX platforms
-if (UNIX)
-    set(LINK_LIBRARIES "-lm")
-    if (APPLE)
-        find_library(CUDA_LIBRARY NAMES CUDA)
-        get_filename_component(FRAMEWORK_DIRECTORY ${CUDA_LIBRARY} DIRECTORY)
-        set(LINK_LIBRARIES "${LINK_LIBRARIES} -F${FRAMEWORK_DIRECTORY} -framework CUDA")
-    else ()
-        include(CheckLibraryExists)
-        check_library_exists(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME)
-        if (HAVE_CLOCK_GETTIME)
-            set(LINK_LIBRARIES "${LINK_LIBRARIES} -lrt")
+    set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
+    foreach (EXECUTABLE ${EXECUTABLES})
+        CUDA_ADD_EXECUTABLE(${EXECUTABLE} ${PROJECT_SOURCE_DIR}/src/${EXECUTABLE}.cu)
+        if (UNIX)
+            target_link_libraries(${EXECUTABLE} ${LINK_LIBRARIES})
         endif ()
-    endif ()
-endif ()
+    endforeach ()
+endif()
 
-set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
-foreach (EXECUTABLE ${EXECUTABLES})
-    CUDA_ADD_EXECUTABLE(${EXECUTABLE} ${PROJECT_SOURCE_DIR}/src/${EXECUTABLE}.cu)
-    if (UNIX)
-        target_link_libraries(${EXECUTABLE} ${LINK_LIBRARIES})
-    endif ()
-endforeach ()
-
-
+#
 # CTEST TESTING
 #
+
 # To test all MPs against the official datasets type 'ctest -V' at the
-# terminal. To test a specific MP type 'ctest -L mpX -V'
+# terminal; to test a specific MP type 'ctest -L mpX -V'
 enable_testing()
 
-add_test(
-    NAME mp0
-    COMMAND mp0
-)
-set_tests_properties(
-    mp0
-    PROPERTIES FAIL_REGULAR_EXPRESSION "No CUDA GPU has been detected"
-    LABELS mp0
-)
+if (CUDA_FOUND)
+    add_test(
+        NAME mp0
+        COMMAND mp0
+    )
+    set_tests_properties(
+        mp0
+        PROPERTIES FAIL_REGULAR_EXPRESSION "No CUDA GPU has been detected"
+        LABELS mp0
+    )
+
+    # CUDA-based MPs
+    set(TESTS mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
+endif ()
 
 set(DATASETS 9)
 
-set(TESTS mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
-foreach (TEST ${TESTS})
-    set(PATH tests/${TEST})
-    foreach (i RANGE 0 ${DATASETS})
-        if (${TEST} STREQUAL mp1 OR ${TEST} STREQUAL mp2 OR ${TEST} STREQUAL mp3 OR ${TEST} STREQUAL mp8)
-            set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/input1.raw ${PATH}/${i}/output.raw)
-        elseif (${TEST} STREQUAL mp4)
-            set(TEST_FILES ${PATH}/${i}/input0.ppm ${PATH}/${i}/input1.csv ${PATH}/${i}/output.ppm)
-        elseif (${TEST} STREQUAL mp5)
-            set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/output.raw)
-        elseif (${TEST} STREQUAL mp6)
-            set(TEST_FILES ${PATH}/${i}/input.raw ${PATH}/${i}/output.raw)
-        elseif (${TEST} STREQUAL mp7)
-            set(TEST_FILES ${PATH}/${i}/input.ppm ${PATH}/${i}/output.ppm)
-        else ()
-            message(FATAL_ERROR "Unknown test target '${TEST}' specified")
-        endif ()
-        set(TEST_LABEL ${TEST}-${i})
-        add_test(
-            NAME ${TEST_LABEL}
-            COMMAND ${TEST} ${TEST_FILES}
-        )
-        set_tests_properties(
-            ${TEST_LABEL}
-            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${TEST_LABEL}
-        )
+if (CUDA_FOUND)
+    foreach (TEST ${TESTS})
+        set(PATH tests/${TEST})
+        foreach (i RANGE 0 ${DATASETS})
+            if (${TEST} STREQUAL mp1 OR ${TEST} STREQUAL mp2 OR ${TEST} STREQUAL mp3 OR ${TEST} STREQUAL mp8)
+                set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/input1.raw ${PATH}/${i}/output.raw)
+            elseif (${TEST} STREQUAL mp4)
+                set(TEST_FILES ${PATH}/${i}/input0.ppm ${PATH}/${i}/input1.csv ${PATH}/${i}/output.ppm)
+            elseif (${TEST} STREQUAL mp5)
+                set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/output.raw)
+            elseif (${TEST} STREQUAL mp6)
+                set(TEST_FILES ${PATH}/${i}/input.raw ${PATH}/${i}/output.raw)
+            elseif (${TEST} STREQUAL mp7)
+                set(TEST_FILES ${PATH}/${i}/input.ppm ${PATH}/${i}/output.ppm)
+            else ()
+                message(FATAL_ERROR "Unknown test target '${TEST}' specified")
+            endif ()
+            set(TEST_LABEL ${TEST}-${i})
+            add_test(
+                NAME ${TEST_LABEL}
+                COMMAND ${TEST} ${TEST_FILES}
+            )
+            set_tests_properties(
+                ${TEST_LABEL}
+                PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
+                LABELS ${TEST_LABEL}
+            )
+        endforeach ()
     endforeach ()
-endforeach ()
+endif ()
