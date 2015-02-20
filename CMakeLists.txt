@@ -65,7 +65,7 @@ if (CUDA_FOUND)
             endif ()
         endif ()
         # Suppress warnings related to the CUDA headers
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ${CUDA_TOOLKIT_INCLUDE}")
+        set(libwb_NVCC_OPTIONS --compiler-options -isystem,${CUDA_INCLUDE_DIRS})
     endif ()
 
     # Set the correct linker options on UNIX platforms
@@ -86,7 +86,11 @@ if (CUDA_FOUND)
 
     set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
     foreach (TARGET ${EXECUTABLES})
-        CUDA_ADD_EXECUTABLE(${TARGET} ${PROJECT_SOURCE_DIR}/src/${TARGET}.cu)
+        CUDA_ADD_EXECUTABLE(
+            ${TARGET}
+            ${PROJECT_SOURCE_DIR}/src/${TARGET}.cu
+            OPTIONS ${libwb_NVCC_OPTIONS}
+        )
         if (DEFINED libwb_STANDARD_LIBRARY)
             set_target_properties(
                 ${TARGET}
