@@ -58,9 +58,9 @@ if (CUDA_FOUND)
             set(CUDA_HOST_COMPILER ${libwb_CXX_COMPILER} CACHE FILEPATH "Host side compiler used by NVCC")
             if (CUDA_VERSION VERSION_LESS 7.0)
                 # CUDA Toolkits 5.5-6.5 are incompatible with LLVM's C++ standard library
-                set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
+                set(libwb_STANDARD_LIBRARY -stdlib=libstdc++)
                 if (CMAKE_GENERATOR MATCHES "Xcode")
-                    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libstdc++")
+                    set(libwb_XCODE_ATTRIBUTES XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY libstdc++)
                 endif ()
             endif ()
         endif ()
@@ -85,10 +85,24 @@ if (CUDA_FOUND)
     endif ()
 
     set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
-    foreach (EXECUTABLE ${EXECUTABLES})
-        CUDA_ADD_EXECUTABLE(${EXECUTABLE} ${PROJECT_SOURCE_DIR}/src/${EXECUTABLE}.cu)
+    foreach (TARGET ${EXECUTABLES})
+        CUDA_ADD_EXECUTABLE(${TARGET} ${PROJECT_SOURCE_DIR}/src/${TARGET}.cu)
+        if (DEFINED libwb_STANDARD_LIBRARY)
+            set_target_properties(
+                ${TARGET}
+                PROPERTIES
+                COMPILE_FLAGS ${libwb_STANDARD_LIBRARY}
+                LINK_FLAGS ${libwb_STANDARD_LIBRARY}
+            )
+        endif ()
+        if (DEFINED libwb_XCODE_ATTRIBUTES)
+            set_target_properties(
+                ${TARGET}
+                PROPERTIES ${libwb_XCODE_ATTRIBUTES}
+            )
+        endif ()
         if (UNIX)
-            target_link_libraries(${EXECUTABLE} ${LINK_LIBRARIES})
+            target_link_libraries(${TARGET} ${LINK_LIBRARIES})
         endif ()
     endforeach ()
 endif()
