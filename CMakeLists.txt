@@ -26,6 +26,11 @@ if (UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif ()
 
+if (CMAKE_GENERATOR MATCHES "Xcode")
+    set(CMAKE_XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD)")
+    set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "x86_64")
+endif ()
+
 
 #
 # Settings for NVidia CUDA-based MPs
@@ -58,10 +63,6 @@ if (CUDA_FOUND)
                     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libstdc++")
                 endif ()
             endif ()
-        endif ()
-        if (CMAKE_GENERATOR MATCHES "Xcode")
-            set(CMAKE_XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD)")
-            set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "x86_64")
         endif ()
         # Suppress warnings related to the CUDA headers
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ${CUDA_TOOLKIT_INCLUDE}")
