@@ -68,14 +68,14 @@ if (CUDA_FOUND)
         set(libwb_NVCC_OPTIONS --compiler-options -isystem,${CUDA_INCLUDE_DIRS})
     endif ()
 
-    # Set the correct linker options on UNIX platforms
+    # Set additional linker options on UNIX platforms
     if (UNIX)
-        set(LINK_LIBRARIES "-lm")
+        set(libwb_LINK_LIBRARIES -lm)
         if (NOT APPLE)
             include(CheckLibraryExists)
             check_library_exists(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME)
             if (HAVE_CLOCK_GETTIME)
-                set(LINK_LIBRARIES "${LINK_LIBRARIES} -lrt")
+                list(APPEND libwb_LINK_LIBRARIES -lrt)
             endif ()
         endif ()
     endif ()
@@ -102,10 +102,13 @@ if (CUDA_FOUND)
             )
         endif ()
         if (UNIX)
-            target_link_libraries(${TARGET} ${LINK_LIBRARIES})
+            target_link_libraries(
+                ${TARGET}
+                ${libwb_LINK_LIBRARIES}
+            )
         endif ()
     endforeach ()
-endif()
+endif ()
 
 
 #
