@@ -44,20 +44,13 @@ if (CUDA_FOUND)
 
     # Select the correct host compiler on OS X
     if (APPLE)
-        if (${CMAKE_SYSTEM_VERSION} LESS 12.0)
-            # OS X 10.7 or less
-            find_program(GCC_EXECUTABLE NAMES g++ PATHS ENV PATH)
-            if (NOT GCC_EXECUTABLE)
-                message(FATAL_ERROR "Could not find host compiler 'g++'")
-            endif()
-            set(CUDA_HOST_COMPILER ${GCC_EXECUTABLE})
-        else ()
+        if (${CMAKE_SYSTEM_VERSION} VERSION_GREATER 11.0)
             # OS X 10.8+
-            find_program(CLANG_EXECUTABLE NAMES clang++ PATHS ENV PATH)
-            if (NOT CLANG_EXECUTABLE)
-                message(FATAL_ERROR "Could not find host compiler 'clang++'")
+            find_program(libwb_CXX_COMPILER NAMES clang PATHS ENV PATH)
+            if (NOT libwb_CXX_COMPILER)
+                message(FATAL_ERROR "Could not find host compiler 'clang'")
             endif ()
-            set(CUDA_HOST_COMPILER ${CLANG_EXECUTABLE})
+            set(CUDA_HOST_COMPILER ${libwb_CXX_COMPILER} CACHE FILEPATH "Host side compiler used by NVCC")
             if (CUDA_VERSION VERSION_LESS 7.0)
                 # CUDA Toolkits 5.5-6.5 are incompatible with LLVM's C++ standard library
                 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
