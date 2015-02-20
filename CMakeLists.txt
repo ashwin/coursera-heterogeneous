@@ -13,124 +13,163 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project(libwb)
 
-find_package(CUDA REQUIRED)
 
+#
+# Settings common to CUDA / OpenCL
+#
+
+# Include project header
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-# For some MPs it may be necessary to specify the compute capability of your
-# nVidia GPU. In that case, simply uncomment the following two lines that start
-# with 'set' and change the value of COMPUTE_CAPABILITY to one of the following
-# hardware architectures: Tesla-class '11', '12', or '13'; Fermi-class '20'
-# or '21'; Kepler-class '30', '32', or '35'; or Maxwell-class '50' or '52'
-# set(COMPUTE_CAPABILITY 35)
-# set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};--generate-code;arch=compute_${COMPUTE_CAPABILITY},code=sm_${COMPUTE_CAPABILITY})
-
-# Set warning levels for host compilation
+# Set warning levels for host compilation; VS defaults to /W3
 if (UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif ()
 
-# Select the correct host compiler on OS X
-if (APPLE)
-    if (${CMAKE_SYSTEM_VERSION} LESS 12.0)
-        # OS X 10.7 or less
-        find_program(GCC_EXECUTABLE NAMES g++ PATHS ENV PATH)
-        if (NOT GCC_EXECUTABLE)
-            message(FATAL_ERROR "Could not find host compiler 'g++'")
-        endif()
-        set(CUDA_HOST_COMPILER ${GCC_EXECUTABLE})
-    else ()
-        # OS X 10.8+
-        find_program(CLANG_EXECUTABLE NAMES clang++ PATHS ENV PATH)
-        if (NOT CLANG_EXECUTABLE)
-            message(FATAL_ERROR "Could not find host compiler 'clang++'")
+if (CMAKE_GENERATOR MATCHES "Xcode")
+    set(CMAKE_XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD)")
+    set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "x86_64")
+endif ()
+
+
+#
+# Settings for NVidia CUDA-based MPs
+#
+
+find_package(CUDA)
+
+if (CUDA_FOUND)
+    # For some MPs it may be necessary to specify the compute capability of your
+    # NVidia GPU. In that case, simply uncomment the following two lines that start
+    # with 'set' and change the value of COMPUTE_CAPABILITY to one of the following
+    # hardware architectures: Tesla-class '11', '12', or '13'; Fermi-class '20'
+    # or '21'; Kepler-class '30', '32', '35' or '37'; or Maxwell-class '50' or '52'
+    # set(COMPUTE_CAPABILITY 35)
+    # set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};--gpu-architecture;sm_${COMPUTE_CAPABILITY})
+
+    # Select the correct host compiler on OS X
+    if (APPLE)
+        if (${CMAKE_SYSTEM_VERSION} VERSION_GREATER 11.0)
+            # OS X 10.8+
+            find_program(libwb_CXX_COMPILER NAMES clang PATHS ENV PATH)
+            if (NOT libwb_CXX_COMPILER)
+                message(FATAL_ERROR "Could not find host compiler 'clang'")
+            endif ()
+            set(CUDA_HOST_COMPILER ${libwb_CXX_COMPILER} CACHE FILEPATH "Host side compiler used by NVCC")
+            if (CUDA_VERSION VERSION_LESS 7.0)
+                # CUDA Toolkits 5.5-6.5 are incompatible with LLVM's C++ standard library
+                set(libwb_STANDARD_LIBRARY -stdlib=libstdc++)
+                if (CMAKE_GENERATOR MATCHES "Xcode")
+                    set(libwb_XCODE_ATTRIBUTES XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY libstdc++)
+                endif ()
+            endif ()
         endif ()
-        set(CUDA_HOST_COMPILER ${CLANG_EXECUTABLE})
-        if (CUDA_VERSION VERSION_LESS 7.0)
-            # CUDA Toolkits 5.5-6.5 are incompatible with LLVM's C++ standard library
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
-            if (CMAKE_GENERATOR MATCHES "Xcode")
-                set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libstdc++")
+        # Suppress warnings related to the CUDA headers
+        set(libwb_NVCC_OPTIONS --compiler-options -isystem,${CUDA_INCLUDE_DIRS})
+    endif ()
+
+    # Set additional linker options on UNIX platforms
+    if (UNIX)
+        set(libwb_LINK_LIBRARIES -lm)
+        if (NOT APPLE)
+            include(CheckLibraryExists)
+            check_library_exists(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME)
+            if (HAVE_CLOCK_GETTIME)
+                list(APPEND libwb_LINK_LIBRARIES -lrt)
             endif ()
         endif ()
     endif ()
-    if (CMAKE_GENERATOR MATCHES "Xcode")
-        set(CMAKE_XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD)")
-        set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "x86_64")
-    endif ()
-    # Suppress warnings related to the CUDA headers
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ${CUDA_TOOLKIT_INCLUDE}")
-endif ()
 
-# Set the correct linker options on UNIX platforms
-if (UNIX)
-    set(LINK_LIBRARIES "-lm")
-    if (APPLE)
-        find_library(CUDA_LIBRARY NAMES CUDA)
-        get_filename_component(FRAMEWORK_DIRECTORY ${CUDA_LIBRARY} DIRECTORY)
-        set(LINK_LIBRARIES "${LINK_LIBRARIES} -F${FRAMEWORK_DIRECTORY} -framework CUDA")
-    else ()
-        include(CheckLibraryExists)
-        check_library_exists(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME)
-        if (HAVE_CLOCK_GETTIME)
-            set(LINK_LIBRARIES "${LINK_LIBRARIES} -lrt")
+    set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
+    foreach (TARGET ${EXECUTABLES})
+        CUDA_ADD_EXECUTABLE(
+            ${TARGET}
+            ${PROJECT_SOURCE_DIR}/src/${TARGET}.cu
+            OPTIONS ${libwb_NVCC_OPTIONS}
+        )
+        if (DEFINED libwb_STANDARD_LIBRARY)
+            set_target_properties(
+                ${TARGET}
+                PROPERTIES
+                COMPILE_FLAGS ${libwb_STANDARD_LIBRARY}
+                LINK_FLAGS ${libwb_STANDARD_LIBRARY}
+            )
         endif ()
-    endif ()
+        if (DEFINED libwb_XCODE_ATTRIBUTES)
+            set_target_properties(
+                ${TARGET}
+                PROPERTIES ${libwb_XCODE_ATTRIBUTES}
+            )
+        endif ()
+        if (UNIX)
+            target_link_libraries(
+                ${TARGET}
+                ${libwb_LINK_LIBRARIES}
+            )
+        endif ()
+    endforeach ()
 endif ()
 
-set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
-foreach (EXECUTABLE ${EXECUTABLES})
-    CUDA_ADD_EXECUTABLE(${EXECUTABLE} ${PROJECT_SOURCE_DIR}/src/${EXECUTABLE}.cu)
-    if (UNIX)
-        target_link_libraries(${EXECUTABLE} ${LINK_LIBRARIES})
-    endif ()
-endforeach ()
+
+#
+# Settings for OpenCL MPs
+#
+
+# TODO
 
 
+#
 # CTEST TESTING
 #
+
 # To test all MPs against the official datasets type 'ctest -V' at the
-# terminal. To test a specific MP type 'ctest -L mpX -V'
+# terminal; to test a specific MP type 'ctest -L mpX -V'
 enable_testing()
 
-add_test(
-    NAME mp0
-    COMMAND mp0
-)
-set_tests_properties(
-    mp0
-    PROPERTIES FAIL_REGULAR_EXPRESSION "No CUDA GPU has been detected"
-    LABELS mp0
-)
+if (CUDA_FOUND)
+    add_test(
+        NAME mp0
+        COMMAND mp0
+    )
+    set_tests_properties(
+        mp0
+        PROPERTIES FAIL_REGULAR_EXPRESSION "No CUDA GPU has been detected"
+        LABELS mp0
+    )
+
+    # CUDA-based MPs
+    set(TESTS mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
+endif ()
 
 set(DATASETS 9)
 
-set(TESTS mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
-foreach (TEST ${TESTS})
-    set(PATH tests/${TEST})
-    foreach (i RANGE 0 ${DATASETS})
-        if (${TEST} STREQUAL mp1 OR ${TEST} STREQUAL mp2 OR ${TEST} STREQUAL mp3 OR ${TEST} STREQUAL mp8)
-            set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/input1.raw ${PATH}/${i}/output.raw)
-        elseif (${TEST} STREQUAL mp4)
-            set(TEST_FILES ${PATH}/${i}/input0.ppm ${PATH}/${i}/input1.csv ${PATH}/${i}/output.ppm)
-        elseif (${TEST} STREQUAL mp5)
-            set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/output.raw)
-        elseif (${TEST} STREQUAL mp6)
-            set(TEST_FILES ${PATH}/${i}/input.raw ${PATH}/${i}/output.raw)
-        elseif (${TEST} STREQUAL mp7)
-            set(TEST_FILES ${PATH}/${i}/input.ppm ${PATH}/${i}/output.ppm)
-        else ()
-            message(FATAL_ERROR "Unknown test target '${TEST}' specified")
-        endif ()
-        set(TEST_LABEL ${TEST}-${i})
-        add_test(
-            NAME ${TEST_LABEL}
-            COMMAND ${TEST} ${TEST_FILES}
-        )
-        set_tests_properties(
-            ${TEST_LABEL}
-            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${TEST_LABEL}
-        )
+if (CUDA_FOUND)
+    foreach (TEST ${TESTS})
+        set(PATH tests/${TEST})
+        foreach (i RANGE 0 ${DATASETS})
+            if (${TEST} STREQUAL mp1 OR ${TEST} STREQUAL mp2 OR ${TEST} STREQUAL mp3 OR ${TEST} STREQUAL mp8)
+                set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/input1.raw ${PATH}/${i}/output.raw)
+            elseif (${TEST} STREQUAL mp4)
+                set(TEST_FILES ${PATH}/${i}/input0.ppm ${PATH}/${i}/input1.csv ${PATH}/${i}/output.ppm)
+            elseif (${TEST} STREQUAL mp5)
+                set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/output.raw)
+            elseif (${TEST} STREQUAL mp6)
+                set(TEST_FILES ${PATH}/${i}/input.raw ${PATH}/${i}/output.raw)
+            elseif (${TEST} STREQUAL mp7)
+                set(TEST_FILES ${PATH}/${i}/input.ppm ${PATH}/${i}/output.ppm)
+            else ()
+                message(FATAL_ERROR "Unknown test target '${TEST}' specified")
+            endif ()
+            set(TEST_LABEL ${TEST}-${i})
+            add_test(
+                NAME ${TEST_LABEL}
+                COMMAND ${TEST} ${TEST_FILES}
+            )
+            set_tests_properties(
+                ${TEST_LABEL}
+                PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
+                LABELS ${TEST_LABEL}
+            )
+        endforeach ()
     endforeach ()
-endforeach ()
+endif ()
