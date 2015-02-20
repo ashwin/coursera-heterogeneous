@@ -1,13 +1,16 @@
+#
 # WebGPU Machine Problems 2015
+#
+
 # mp0 - Device Query
 # mp1 - Vector Addition
 # mp2 - Basic Matrix-Matrix Multiplication
 # mp3 - Tiled Matrix-Matrix Multiplication
-# mp4 - Image Convolution
-# mp5 - List Reduction
-# mp6 - List Scan
-# mp7 - Histograms
-# mp8 - Vector Addition with Streams
+# mp6 - Image Convolution
+# mp4 - List Reduction
+# mp5 - List Scan
+# mp11 - Histograms
+# mp12 - Vector Addition with Streams
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
@@ -44,8 +47,8 @@ if (CUDA_FOUND)
     # with 'set' and change the value of COMPUTE_CAPABILITY to one of the following
     # hardware architectures: Tesla-class '11', '12', or '13'; Fermi-class '20'
     # or '21'; Kepler-class '30', '32', '35' or '37'; or Maxwell-class '50' or '52'
-    # set(COMPUTE_CAPABILITY 35)
-    # set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};--gpu-architecture;sm_${COMPUTE_CAPABILITY})
+    set(COMPUTE_CAPABILITY 11)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};--gpu-architecture;sm_${COMPUTE_CAPABILITY})
 
     # Select the correct host compiler on OS X
     if (APPLE)
@@ -80,7 +83,7 @@ if (CUDA_FOUND)
         endif ()
     endif ()
 
-    set(EXECUTABLES mp0 mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
+    set(EXECUTABLES mp0 mp1 mp2 mp3 mp6 mp4 mp5 mp11 mp12)
     foreach (TARGET ${EXECUTABLES})
         CUDA_ADD_EXECUTABLE(
             ${TARGET}
@@ -138,7 +141,7 @@ if (CUDA_FOUND)
     )
 
     # CUDA-based MPs
-    set(TESTS mp1 mp2 mp3 mp4 mp5 mp6 mp7 mp8)
+    set(TESTS mp1 mp2 mp3 mp6 mp4 mp5 mp11 mp12)
 endif ()
 
 set(DATASETS 9)
@@ -147,18 +150,18 @@ if (CUDA_FOUND)
     foreach (TEST ${TESTS})
         set(PATH tests/${TEST})
         foreach (i RANGE 0 ${DATASETS})
-            if (${TEST} STREQUAL mp1 OR ${TEST} STREQUAL mp2 OR ${TEST} STREQUAL mp3 OR ${TEST} STREQUAL mp8)
+            if ("mp1 mp2 mp3 mp12" MATCHES ${TEST})
                 set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/input1.raw ${PATH}/${i}/output.raw)
-            elseif (${TEST} STREQUAL mp4)
-                set(TEST_FILES ${PATH}/${i}/input0.ppm ${PATH}/${i}/input1.csv ${PATH}/${i}/output.ppm)
-            elseif (${TEST} STREQUAL mp5)
+            elseif (mp4 STREQUAL ${TEST})
                 set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/output.raw)
-            elseif (${TEST} STREQUAL mp6)
+            elseif (mp5 STREQUAL ${TEST})
                 set(TEST_FILES ${PATH}/${i}/input.raw ${PATH}/${i}/output.raw)
-            elseif (${TEST} STREQUAL mp7)
+            elseif (mp6 STREQUAL ${TEST})
+                set(TEST_FILES ${PATH}/${i}/input0.ppm ${PATH}/${i}/input1.csv ${PATH}/${i}/output.ppm)
+            elseif (mp11 STREQUAL ${TEST})
                 set(TEST_FILES ${PATH}/${i}/input.ppm ${PATH}/${i}/output.ppm)
             else ()
-                message(FATAL_ERROR "Unknown test target '${TEST}' specified")
+                message(FATAL_ERROR "Unknown test target '${TEST}'")
             endif ()
             set(TEST_LABEL ${TEST}-${i})
             add_test(
