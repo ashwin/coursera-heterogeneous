@@ -453,10 +453,7 @@ float* wbImport(const char* fName, int* numElements)
         std::exit(EXIT_FAILURE);
     }
 
-    for (int i = 0; i < *numElements; ++i)
-    {
-        fBuf[i] = fVec[i];
-    }
+    std::copy(fVec.begin(), fVec.end(), fBuf);
 
     return fBuf;
 }
@@ -518,10 +515,7 @@ namespace wbInternal
             std::exit(EXIT_FAILURE);
         }
 
-        for (int i = 0; i < numElements; ++i)
-        {
-            fBuf[i] = fVec[i];
-        }
+        std::copy(fVec.begin(), fVec.end(), fBuf);
 
         return fBuf;
     }
@@ -532,7 +526,7 @@ float* wbImport(const char* fName, int* numRows, int* numCols)
 {
     std::string fNameStr(fName);
 
-    if(fNameStr.substr(fNameStr.find_last_of(".") + 1) == "csv")
+    if (fNameStr.substr(fNameStr.find_last_of(".") + 1) == "csv")
     {
         return wbInternal::wbParseCSV(fName, numRows, numCols);
     }
@@ -579,10 +573,7 @@ float* wbImport(const char* fName, int* numRows, int* numCols)
         std::exit(EXIT_FAILURE);
     }
 
-    for (int i = 0; i < numElements; ++i)
-    {
-        fBuf[i] = fVec[i];
-    }
+    std::copy(fVec.begin(), fVec.end(), fBuf);
 
     return fBuf;
 }
