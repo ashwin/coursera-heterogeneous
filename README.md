@@ -36,14 +36,14 @@ On Windows with Visual Studio
 On OS X with Xcode
 ------------------
 
-Make sure you have XCode (and/or the Command Line Tools) and Cmake installed (Cmake is a cross-platform, open-source build system). You can get Cmake from macports via: `sudo port install cmake` or homebrew via: `brew install cmake`
+Make sure you have XCode (and/or the Command Line Tools) and CMake installed (CMake is a cross-platform, open-source build system). You can get CMake from macports via: `sudo port install cmake` or homebrew via: `brew install cmake`
 
 ### Dependencies
 
 - If you wish to use Xcode as your IDE, download and install the latest version from the [Mac App Store](https://itunes.apple.com/au/app/xcode/id497799835?mt=12)
 - Download and install the [Command Line Tools](https://developer.apple.com/downloads) from Apple's developer website or, if you are using Xcode, via the Downloads tab in Xcode's Preferences
 - Download and install the [NVIDIA CUDA toolkit](http://developer.download.nvidia.com/compute/cuda/5_0/rel-update-1/installers/cuda_5.0.36_macos.pkg)
-- Install Cmake from either macports (`sudo port install cmake`) or homebrew (`brew install cmake`)
+- Install CMake from either macports (`sudo port install cmake`) or homebrew (`brew install cmake`)
 - Clone the coursera-heterogenous repository
 - At this point, you can either use Xcode (recommended only for the OpenCL assignments) or the traditional Unix command line (see the instructions below)
 
@@ -69,7 +69,7 @@ On Unix with the command line
 ### Dependencies
 
 - Download and install the [NVIDIA CUDA toolkit](http://developer.download.nvidia.com/compute/cuda/5_0/rel-update-1/installers/cuda_5.0.36_macos.pkg)
-- Install Cmake through your system's package manager
+- Install CMake through your system's package manager
 - Clone the coursera-heterogenous repository
 
 ### Using the command line
@@ -86,7 +86,7 @@ To run each assignment:
  - For example, to execute assignment MP2 on dat aset 0 type: `./mp2 tests/mp2/0/*`
 
 You can also test each assignment against the official datasets
-using Cmake's test driver `ctest`:
+using CMake's test driver `ctest`:
 
 - To run all of the MP assignments against the official datasets type: `ctest` from the repository's root directory
 - To run a specific MP assignment, for example MP2, type `ctest -L mp2`
