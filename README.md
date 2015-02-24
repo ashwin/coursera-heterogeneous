@@ -25,7 +25,7 @@ On Windows with Visual Studio
 
 - Update the NVIDIA driver for your CUDA hardware
 - Download and install Visual Studio or Visual C++ Express Edition
-- Download and install the [NVIDIA CUDA toolkit](https://developer.nvidia.com/cuda-downloads)
+- Download and install the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads#win)
 
 ### Using Visual Studio
 
@@ -42,7 +42,7 @@ Make sure you have XCode (and/or the Command Line Tools) and CMake installed (CM
 
 - If you wish to use Xcode as your IDE, download and install the latest version from the [Mac App Store](https://itunes.apple.com/au/app/xcode/id497799835?mt=12)
 - Download and install the [Command Line Tools](https://developer.apple.com/downloads) from Apple's developer website or, if you are using Xcode, via the Downloads tab in Xcode's Preferences
-- Download and install the [NVIDIA CUDA toolkit](http://developer.download.nvidia.com/compute/cuda/5_0/rel-update-1/installers/cuda_5.0.36_macos.pkg)
+- Download and install the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads#mac)
 - Install CMake from either macports (`sudo port install cmake`) or homebrew (`brew install cmake`)
 - Clone the coursera-heterogenous repository
 - At this point, you can either use Xcode (recommended only for the OpenCL assignments) or the traditional Unix command line (see the instructions below)
@@ -68,7 +68,7 @@ On Unix with the command line
 
 ### Dependencies
 
-- Download and install the [NVIDIA CUDA toolkit](http://developer.download.nvidia.com/compute/cuda/5_0/rel-update-1/installers/cuda_5.0.36_macos.pkg)
+- Download and install the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads#linux)
 - Install CMake through your system's package manager
 - Clone the coursera-heterogenous repository
 
