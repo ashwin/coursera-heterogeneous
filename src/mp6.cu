@@ -1,16 +1,14 @@
 #include    <wb.h>
 
-// Check ec2-174-129-21-232.compute-1.amazonaws.com:8080/mp/6 for more information
 
-
-#define wbCheck(stmt) do {                                 \
-        cudaError_t err = stmt;                            \
-        if (err != cudaSuccess) {                          \
-            wbLog(ERROR, "Failed to run stmt ", #stmt);    \
-            return -1;                                     \
-        }                                                  \
+#define wbCheck(stmt) do {                                                    \
+        cudaError_t err = stmt;                                               \
+        if (err != cudaSuccess) {                                             \
+            wbLog(ERROR, "Failed to run stmt ", #stmt);                       \
+            wbLog(ERROR, "Got CUDA error ...  ", cudaGetErrorString(err));    \
+            return -1;                                                        \
+        }                                                                     \
     } while(0)
-
 
 #define Mask_width  5
 #define Mask_radius Mask_width/2
@@ -19,7 +17,7 @@
 
 
 int main(int argc, char* argv[]) {
-    wbArg_t arg;
+    wbArg_t args;
     int maskRows;
     int maskColumns;
     int imageChannels;
@@ -36,10 +34,10 @@ int main(int argc, char* argv[]) {
     float * deviceOutputImageData;
     float * deviceMaskData;
 
-    arg = wbArg_read(argc, argv); /* parse the input arguments */
+    args = wbArg_read(argc, argv); /* parse the input arguments */
 
-    inputImageFile = wbArg_getInputFile(arg, 0);
-    inputMaskFile = wbArg_getInputFile(arg, 1);
+    inputImageFile = wbArg_getInputFile(args, 0);
+    inputMaskFile = wbArg_getInputFile(args, 1);
 
     inputImage = wbImport(inputImageFile);
     hostMaskData = (float *) wbImport(inputMaskFile, &maskRows, &maskColumns);
@@ -91,7 +89,7 @@ int main(int argc, char* argv[]) {
 
     wbTime_stop(GPU, "Doing GPU Computation (memory + compute)");
 
-    wbSolution(arg, outputImage);
+    wbSolution(args, outputImage);
 
     cudaFree(deviceInputImageData);
     cudaFree(deviceOutputImageData);

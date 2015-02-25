@@ -24,8 +24,17 @@
 #include <vector>
 
 // CUDA
-#include <cuda.h>
-#include <cuda_runtime.h>
+#if defined(__CUDACC__)
+    #include <cuda.h>
+    #include <cuda_runtime.h>
+#else
+// OpenCL
+    #if defined(__APPLE__)
+        #include <OpenCL/cl.h>
+    #else
+        #include <CL/cl.h>
+    #endif
+#endif
 
 ////
 // Macros
@@ -43,7 +52,7 @@
             }                                                                                             \
         } while (0)
 #else
-    #define wbAssert(condition, message) do { } while (0)
+    #define wbAssert(condition, message)
 #endif
 
 ////
@@ -57,7 +66,7 @@ namespace wbInternal
 
     // For further information, see the PPM image format documentation at http://netpbm.sourceforge.net
     const int kImageChannels = 3;
-    const int kImageMaxval   = 255;
+    const int kImageColorLimit = 255;
 } // namespace wbInternal
 
 ////
@@ -74,7 +83,7 @@ namespace wbInternal
 
         if (errnum)
         {
-            strerror_s(buffer, sizeof(buffer), errnum);
+            (void) strerror_s(buffer, sizeof(buffer), errnum);
             str = buffer;
         }
 
@@ -88,7 +97,7 @@ namespace wbInternal
 
         if (errnum)
         {
-            strerror_r(errnum, buffer, sizeof(buffer));
+            (void) strerror_r(errnum, buffer, sizeof(buffer));
             str = buffer;
         }
 
@@ -123,23 +132,167 @@ namespace wbInternal
 } // namespace wbInternal
 
 ////
+// OpenCL
+////
+
+#if !defined(__CUDACC__)
+#define wbOpenCL_ERROR(error) \
+    case error:               \
+        return #error
+
+const char* wbOpenCLGetErrorString(cl_int error)
+{
+    switch (error)
+    {
+/*
+ * OpenCL runtime and JIT compile errors
+ */
+#if defined(CL_VERSION_1_0)
+        wbOpenCL_ERROR(CL_SUCCESS);
+        wbOpenCL_ERROR(CL_DEVICE_NOT_FOUND);
+        wbOpenCL_ERROR(CL_DEVICE_NOT_AVAILABLE);
+        wbOpenCL_ERROR(CL_COMPILER_NOT_AVAILABLE);
+        wbOpenCL_ERROR(CL_MEM_OBJECT_ALLOCATION_FAILURE);
+        wbOpenCL_ERROR(CL_OUT_OF_RESOURCES);
+        wbOpenCL_ERROR(CL_OUT_OF_HOST_MEMORY);
+        wbOpenCL_ERROR(CL_PROFILING_INFO_NOT_AVAILABLE);
+        wbOpenCL_ERROR(CL_MEM_COPY_OVERLAP);
+        wbOpenCL_ERROR(CL_IMAGE_FORMAT_MISMATCH);
+        wbOpenCL_ERROR(CL_IMAGE_FORMAT_NOT_SUPPORTED);
+        wbOpenCL_ERROR(CL_BUILD_PROGRAM_FAILURE);
+        wbOpenCL_ERROR(CL_MAP_FAILURE);
+#endif
+#if defined(CL_VERSION_1_1)
+        wbOpenCL_ERROR(CL_MISALIGNED_SUB_BUFFER_OFFSET);
+        wbOpenCL_ERROR(CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST);
+#endif
+#if defined(CL_VERSION_1_2)
+        wbOpenCL_ERROR(CL_COMPILE_PROGRAM_FAILURE);
+        wbOpenCL_ERROR(CL_LINKER_NOT_AVAILABLE);
+        wbOpenCL_ERROR(CL_LINK_PROGRAM_FAILURE);
+        wbOpenCL_ERROR(CL_DEVICE_PARTITION_FAILED);
+        wbOpenCL_ERROR(CL_KERNEL_ARG_INFO_NOT_AVAILABLE);
+#endif
+/*
+ * OpenCL compile-time errors
+ */
+#if defined(CL_VERSION_1_0)
+        wbOpenCL_ERROR(CL_INVALID_VALUE);
+        wbOpenCL_ERROR(CL_INVALID_DEVICE_TYPE);
+        wbOpenCL_ERROR(CL_INVALID_PLATFORM);
+        wbOpenCL_ERROR(CL_INVALID_DEVICE);
+        wbOpenCL_ERROR(CL_INVALID_CONTEXT);
+        wbOpenCL_ERROR(CL_INVALID_QUEUE_PROPERTIES);
+        wbOpenCL_ERROR(CL_INVALID_COMMAND_QUEUE);
+        wbOpenCL_ERROR(CL_INVALID_HOST_PTR);
+        wbOpenCL_ERROR(CL_INVALID_MEM_OBJECT);
+        wbOpenCL_ERROR(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
+        wbOpenCL_ERROR(CL_INVALID_IMAGE_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_SAMPLER);
+        wbOpenCL_ERROR(CL_INVALID_BINARY);
+        wbOpenCL_ERROR(CL_INVALID_BUILD_OPTIONS);
+        wbOpenCL_ERROR(CL_INVALID_PROGRAM);
+        wbOpenCL_ERROR(CL_INVALID_PROGRAM_EXECUTABLE);
+        wbOpenCL_ERROR(CL_INVALID_KERNEL_NAME);
+        wbOpenCL_ERROR(CL_INVALID_KERNEL_DEFINITION);
+        wbOpenCL_ERROR(CL_INVALID_KERNEL);
+        wbOpenCL_ERROR(CL_INVALID_ARG_INDEX);
+        wbOpenCL_ERROR(CL_INVALID_ARG_VALUE);
+        wbOpenCL_ERROR(CL_INVALID_ARG_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_KERNEL_ARGS);
+        wbOpenCL_ERROR(CL_INVALID_WORK_DIMENSION);
+        wbOpenCL_ERROR(CL_INVALID_WORK_GROUP_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_WORK_ITEM_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_GLOBAL_OFFSET);
+        wbOpenCL_ERROR(CL_INVALID_EVENT_WAIT_LIST);
+        wbOpenCL_ERROR(CL_INVALID_EVENT);
+        wbOpenCL_ERROR(CL_INVALID_OPERATION);
+        wbOpenCL_ERROR(CL_INVALID_GL_OBJECT);
+        wbOpenCL_ERROR(CL_INVALID_BUFFER_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_MIP_LEVEL);
+        wbOpenCL_ERROR(CL_INVALID_GLOBAL_WORK_SIZE);
+#endif
+#if defined(CL_VERSION_1_1)
+        wbOpenCL_ERROR(CL_INVALID_PROPERTY);
+#endif
+#if defined(CL_VERSION_1_2)
+        wbOpenCL_ERROR(CL_INVALID_IMAGE_DESCRIPTOR);
+        wbOpenCL_ERROR(CL_INVALID_COMPILER_OPTIONS);
+        wbOpenCL_ERROR(CL_INVALID_LINKER_OPTIONS);
+        wbOpenCL_ERROR(CL_INVALID_DEVICE_PARTITION_COUNT);
+#endif
+#if defined(CL_VERSION_2_0)
+        wbOpenCL_ERROR(CL_INVALID_PIPE_SIZE);
+        wbOpenCL_ERROR(CL_INVALID_DEVICE_QUEUE);
+#endif
+/*
+ * OpenCL extension error values
+ */
+#if defined(__OPENCL_CL_GL_H) && defined(cl_khr_gl_sharing)
+        wbOpenCL_ERROR(CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR);
+#endif
+#if defined(__CL_EXT_H) && defined(cl_khr_icd)
+        wbOpenCL_ERROR(CL_PLATFORM_NOT_FOUND_KHR);
+#endif
+#if defined(__OPENCL_CL_D3D10_H)
+        wbOpenCL_ERROR(CL_INVALID_D3D10_DEVICE_KHR);
+        wbOpenCL_ERROR(CL_INVALID_D3D10_RESOURCE_KHR);
+        wbOpenCL_ERROR(CL_D3D10_RESOURCE_ALREADY_ACQUIRED_KHR);
+        wbOpenCL_ERROR(CL_D3D10_RESOURCE_NOT_ACQUIRED_KHR);
+#endif
+#if defined(__OPENCL_CL_D3D11_H)
+        wbOpenCL_ERROR(CL_INVALID_D3D11_DEVICE_KHR);
+        wbOpenCL_ERROR(CL_INVALID_D3D11_RESOURCE_KHR);
+        wbOpenCL_ERROR(CL_D3D11_RESOURCE_ALREADY_ACQUIRED_KHR);
+        wbOpenCL_ERROR(CL_D3D11_RESOURCE_NOT_ACQUIRED_KHR);
+#endif
+#if defined(__OPENCL_CL_DX9_MEDIA_SHARING_H)
+        wbOpenCL_ERROR(CL_INVALID_DX9_MEDIA_ADAPTER_KHR);
+        wbOpenCL_ERROR(CL_INVALID_DX9_MEDIA_SURFACE_KHR);
+        wbOpenCL_ERROR(CL_DX9_MEDIA_SURFACE_ALREADY_ACQUIRED_KHR);
+        wbOpenCL_ERROR(CL_DX9_MEDIA_SURFACE_NOT_ACQUIRED_KHR);
+#endif
+#if defined(__CL_EXT_H) && defined(cl_ext_device_fission)
+        wbOpenCL_ERROR(CL_DEVICE_PARTITION_FAILED_EXT);
+        wbOpenCL_ERROR(CL_INVALID_PARTITION_COUNT_EXT);
+        wbOpenCL_ERROR(CL_INVALID_PARTITION_NAME_EXT);
+#endif
+#if defined(__OPENCL_CL_EGL_H)
+        wbOpenCL_ERROR(CL_EGL_RESOURCE_NOT_ACQUIRED_KHR);
+        wbOpenCL_ERROR(CL_INVALID_EGL_OBJECT_KHR);
+#endif
+#if defined(__CL_EXT_H) && defined(cl_intel_accelerator)
+        wbOpenCL_ERROR(CL_INVALID_ACCELERATOR_INTEL);
+        wbOpenCL_ERROR(CL_INVALID_ACCELERATOR_TYPE_INTEL);
+        wbOpenCL_ERROR(CL_INVALID_ACCELERATOR_DESCRIPTOR_INTEL);
+        wbOpenCL_ERROR(CL_ACCELERATOR_TYPE_NOT_SUPPORTED_INTEL);
+#endif
+    // Undeclared OpenCL error (possibly implementation specific?)
+    default:
+        return "[Undeclared OpenCL error]";
+    }
+}
+#undef wbOpenCL_ERROR
+#endif
+
+////
 // Logging
 ////
 
-enum wbLogLevel
-{
-    OFF,
-    FATAL,
-    ERROR,
-    WARN,
-    INFO,
-    DEBUG,
-    TRACE,
-    wbLogLevelNum, // Keep this at the end
-};
-
 namespace wbInternal
 {
+    enum wbLogLevel
+    {
+        wbLogLevel_OFF,
+        wbLogLevel_FATAL,
+        wbLogLevel_ERROR,
+        wbLogLevel_WARN,
+        wbLogLevel_INFO,
+        wbLogLevel_DEBUG,
+        wbLogLevel_TRACE,
+        wbLogLevel_INVALID // Keep this at the end
+    };
+
     const char* wbLogLevelStr[] =
     {
         "Off",
@@ -149,12 +302,12 @@ namespace wbInternal
         "Info",
         "Debug",
         "Trace",
-        "***InvalidLogLevel***", // Keep this at the end
+        "***InvalidLogLevel***" // Keep this at the end
     };
 
     const char* wbLogLevelToStr(const wbLogLevel level)
     {
-        wbAssert(level >= OFF && level <= TRACE, "Unrecognized wbLogLevel value");
+        wbAssert(level >= wbLogLevel_OFF && level < wbLogLevel_INVALID, "Unrecognized wbLogLevel value");
         return wbLogLevelStr[level];
     }
 
@@ -229,7 +382,7 @@ namespace wbInternal
 #define wbLog(level, ...)                                                                \
     do                                                                                   \
     {                                                                                    \
-        std::cout << wbInternal::wbLogLevelToStr(static_cast<wbLogLevel>(level)) << " "; \
+        std::cout << wbInternal::wbLogLevelToStr(wbInternal::wbLogLevel_##level) << " "; \
         std::cout << __FUNCTION__ << "::" << __LINE__ << " ";                            \
         wbInternal::wbLog(__VA_ARGS__);                                                  \
         std::cout << std::endl;                                                          \
@@ -257,7 +410,7 @@ char* wbArg_getInputFile(const wbArg_t argInfo, const int argNum)
     return argInfo.argv[argNum + 1];
 }
 
-// For assignments MP1, MP4 & MP5
+// For assignments MP1, MP4, MP5 & MP12
 float* wbImport(const char* fName, int* numElements)
 {
     std::ifstream inFile(fName);
@@ -274,7 +427,7 @@ float* wbImport(const char* fName, int* numElements)
     std::vector<float> fVec;
 
     fVec.reserve(*numElements);
-    
+
     while (inFile >> sVal)
     {
         std::istringstream iss(sVal);
@@ -300,16 +453,14 @@ float* wbImport(const char* fName, int* numElements)
         std::exit(EXIT_FAILURE);
     }
 
-    for (int i = 0; i < *numElements; ++i)
-    {
-        fBuf[i] = fVec[i];
-    }
+    std::copy(fVec.begin(), fVec.end(), fBuf);
 
     return fBuf;
 }
 
 namespace wbInternal
 {
+    // For assignment MP6
     float* wbParseCSV(const char* fName, int* numRows, int* numCols)
     {
         std::ifstream inFile(fName);
@@ -335,14 +486,14 @@ namespace wbInternal
             {
                 float fVal;
                 ++(*numCols);
-                
+
                 if (!(std::istringstream(cellStr) >> fVal))
                 {
                     std::cerr << "Error reading element (" << *numRows << ", " << *numCols << ") in file " << fName << std::endl;
                     inFile.close();
                     std::exit(EXIT_FAILURE);
                 }
-                
+
                 fVec.push_back(fVal);
             }
         }
@@ -365,10 +516,7 @@ namespace wbInternal
             std::exit(EXIT_FAILURE);
         }
 
-        for (int i = 0; i < numElements; ++i)
-        {
-            fBuf[i] = fVec[i];
-        }
+        std::copy(fVec.begin(), fVec.end(), fBuf);
 
         return fBuf;
     }
@@ -379,7 +527,7 @@ float* wbImport(const char* fName, int* numRows, int* numCols)
 {
     std::string fNameStr(fName);
 
-    if(fNameStr.substr(fNameStr.find_last_of(".") + 1) == "csv")
+    if (fNameStr.substr(fNameStr.find_last_of(".") + 1) == "csv")
     {
         return wbInternal::wbParseCSV(fName, numRows, numCols);
     }
@@ -401,7 +549,7 @@ float* wbImport(const char* fName, int* numRows, int* numCols)
     std::vector<float> fVec;
 
     fVec.reserve(numElements);
-    
+
     while (inFile >> sVal)
     {
         std::istringstream iss(sVal);
@@ -426,10 +574,7 @@ float* wbImport(const char* fName, int* numRows, int* numCols)
         std::exit(EXIT_FAILURE);
     }
 
-    for (int i = 0; i < numElements; ++i)
-    {
-        fBuf[i] = fVec[i];
-    }
+    std::copy(fVec.begin(), fVec.end(), fBuf);
 
     return fBuf;
 }
@@ -442,7 +587,7 @@ struct wbImage_t
     int colors;
     float* data;
 
-    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = wbInternal::kImageChannels) : width(imageWidth), height(imageHeight), channels(imageChannels), colors(0), data(NULL)
+    wbImage_t(int imageWidth = 0, int imageHeight = 0, int imageChannels = wbInternal::kImageChannels, int imageColors = wbInternal::kImageColorLimit) : width(imageWidth), height(imageHeight), channels(imageChannels), colors(imageColors), data(NULL)
     {
         const int numElements = width * height * channels;
 
@@ -452,7 +597,7 @@ struct wbImage_t
     }
 };
 
-// For assignment MP6
+// For assignments MP6 & MP11
 wbImage_t wbImport(const char* fName)
 {
     std::ifstream inFile(fName, std::ios::binary);
@@ -503,7 +648,7 @@ wbImage_t wbImport(const char* fName)
 
     inFile >> image.colors;
 
-    if (inFile.fail() || image.colors != wbInternal::kImageMaxval)
+    if (inFile.fail() || image.colors != wbInternal::kImageColorLimit)
     {
         std::cerr << "Error reading colors value of image in file " << fName << std::endl;
         inFile.close();
@@ -514,7 +659,7 @@ wbImage_t wbImport(const char* fName)
     {
         inFile.get();
     }
-    
+
     const int numElements = image.width * image.height * image.channels;
 
     unsigned char* rawData = new unsigned char[numElements];
@@ -536,7 +681,7 @@ wbImage_t wbImport(const char* fName)
 
     for (int i = 0; i < numElements; ++i)
     {
-        data[i] = rawData[i] * (1.0f / wbInternal::kImageMaxval);
+        data[i] = rawData[i] * (1.0f / wbInternal::kImageColorLimit);
     }
 
     image.data = data;
@@ -580,14 +725,20 @@ void wbImage_delete(wbImage_t& image)
 // Timer
 ////
 
+#if defined(__CUDACC__)
+    #define wbTimerDeviceSynchronize() cudaDeviceSynchronize()
+#else
+    #define wbTimerDeviceSynchronize()
+#endif
+
 // Namespace because Windows.h causes errors
 namespace wbInternal
 {
 #if defined(_WIN32)
     #include <Windows.h>
 
-    // CudaTimer class from: https://bitbucket.org/ashwin/cudatimer
-    class CudaTimer
+    // wbTimer class adapted from: https://bitbucket.org/ashwin/cudatimer
+    class wbTimer
     {
     private:
         double        timerResolution;
@@ -595,7 +746,7 @@ namespace wbInternal
         LARGE_INTEGER endTime;
 
     public:
-        CudaTimer::CudaTimer()
+        wbTimer::wbTimer()
         {
             LARGE_INTEGER freq;
             QueryPerformanceFrequency(&freq);
@@ -604,13 +755,13 @@ namespace wbInternal
 
         void start()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             QueryPerformanceCounter(&startTime);
         }
 
         void stop()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             QueryPerformanceCounter(&endTime);
         }
 
@@ -622,7 +773,7 @@ namespace wbInternal
 #elif defined(__APPLE__)
     #include <mach/mach_time.h>
 
-    class CudaTimer
+    class wbTimer
     {
     private:
         uint64_t startTime;
@@ -631,13 +782,13 @@ namespace wbInternal
     public:
         void start()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             startTime = mach_absolute_time();
         }
 
         void stop()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             endTime = mach_absolute_time();
         }
 
@@ -658,27 +809,26 @@ namespace wbInternal
         #include <sys/time.h>
     #endif
 
-    #if !defined(MSEC_PER_SEC)
-        #define MSEC_PER_SEC 1000L;
-    #endif
     #if !defined(NSEC_PER_SEC)
-        #define NSEC_PER_SEC 1000000000L;
+        #define NSEC_PER_SEC 1e9L
+    #endif
+    #if !defined(MSEC_PER_NSEC)
+        #define MSEC_PER_NSEC (NSEC_PER_SEC / CLOCKS_PER_SEC)
     #endif
 
-    class CudaTimer
+    class wbTimer
     {
     private:
-        long long startTime;
-        long long endTime;
+        long startTime;
+        long endTime;
 
-        long long getTime()
+        long getTime()
         {
-            long long time;
+            long time;
         #if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
-
             struct timespec ts;
 
-            if (0 == clock_gettime(CLOCK_REALTIME, &ts))
+            if (0 == clock_gettime(CLOCK_MONOTONIC, &ts))
             {
                 time  = NSEC_PER_SEC;
                 time *= ts.tv_sec;
@@ -691,23 +841,22 @@ namespace wbInternal
             {
                 time  = NSEC_PER_SEC;
                 time *= tv.tv_sec;
-                time += tv.tv_usec * MSEC_PER_SEC;
+                time += tv.tv_usec * MSEC_PER_NSEC;
             }
         #endif
-
             return time;
         }
 
     public:
         void start()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             startTime = getTime();
         }
 
         void stop()
         {
-            cudaDeviceSynchronize();
+            wbTimerDeviceSynchronize();
             endTime = getTime();
         }
 
@@ -725,7 +874,7 @@ enum wbTimeType
     GPU,
     Compute,
     Copy,
-    wbTimeTypeNum, // Keep this at the end
+    wbTimeTypeINVALID // Keep this at the end
 };
 
 namespace wbInternal
@@ -746,9 +895,9 @@ namespace wbInternal
 
     struct wbTimerInfo
     {
-        wbTimeType            type;
-        std::string           message;
-        wbInternal::CudaTimer timer;
+        wbTimeType  type;
+        std::string message;
+        wbTimer     timer;
 
         bool operator==(const wbTimerInfo& t2) const
         {
@@ -763,9 +912,9 @@ namespace wbInternal
 
 void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
 {
-    wbAssert(timeType >= Generic && timeType < wbTimeTypeNum, "Unrecognized wbTimeType value");
+    wbAssert(timeType >= Generic && timeType < wbTimeTypeINVALID, "Unrecognized wbTimeType value");
 
-    wbInternal::CudaTimer timer;
+    wbInternal::wbTimer timer;
     timer.start();
 
     wbInternal::wbTimerInfo timerInfo = { timeType, timeMessage, timer };
@@ -775,9 +924,9 @@ void wbTime_start(const wbTimeType timeType, const std::string timeMessage)
 
 void wbTime_stop(const wbTimeType timeType, const std::string timeMessage)
 {
-    wbAssert(timeType >= Generic && timeType < wbTimeTypeNum, "Unrecognized wbTimeType value");
+    wbAssert(timeType >= Generic && timeType < wbTimeTypeINVALID, "Unrecognized wbTimeType value");
 
-    const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage, wbInternal::CudaTimer() };
+    const wbInternal::wbTimerInfo searchInfo = { timeType, timeMessage, wbInternal::wbTimer() };
     const wbInternal::wbTimerInfoList::iterator iter = std::find(wbInternal::timerInfoList.begin(), wbInternal::timerInfoList.end(), searchInfo);
 
     wbInternal::wbTimerInfo& timerInfo = *iter;
@@ -813,7 +962,7 @@ namespace wbInternal
     }
 } // namespace wbInternal
 
-// For assignments MP1, MP4 & MP5
+// For assignments MP1, MP4, MP5 & MP12
 template < typename T, typename S >
 void wbSolution(const wbArg_t args, const T& t, const S& s)
 {
@@ -857,11 +1006,11 @@ template < typename T, typename S, typename U >
 void wbSolution(const wbArg_t& args, const T& t, const S& s, const U& u)
 {
     int solnRows, solnColumns;
-    float* soln = wbImport(wbArg_getInputFile(args, 2), &solnRows, &solnColumns);
+    float* soln = wbImport(wbArg_getInputFile(args, args.argc - 2), &solnRows, &solnColumns);
 
     if (solnRows != s || solnColumns != u)
     {
-        std::cout << "Size of the matrix in solution file " << wbArg_getInputFile(args, 2) << " does not match. ";
+        std::cout << "Size of the matrix in solution file " << wbArg_getInputFile(args, args.argc - 2) << " does not match. ";
         std::cout << "Expecting " << solnRows << " x " << solnColumns << " but got " << s << " x " << u << ".\n";
     }
     else // Check solution
@@ -899,10 +1048,11 @@ void wbSolution(const wbArg_t& args, const T& t, const S& s, const U& u)
 
 namespace wbInternal
 {
+    // For assignments MP6 & MP11
     void wbImage_save(const wbImage_t& image, const wbArg_t& args, const char* fName)
     {
         std::ostringstream oss;
-        oss << "P6\n" << "# Created by applying convolution " << wbArg_getInputFile(args, 1) << "\n" << image.width << " " << image.height << "\n" << image.colors << "\n";
+        oss << "P6\n" << "# Created by applying convolution " << wbArg_getInputFile(args, args.argc - 3) << "\n" << image.width << " " << image.height << "\n" << image.colors << "\n";
         std::string headerStr(oss.str());
 
         std::ofstream outFile(fName, std::ios::binary);
@@ -914,7 +1064,7 @@ namespace wbInternal
 
         for (int i = 0; i < numElements; ++i)
         {
-            rawData[i] = static_cast<unsigned char>(image.data[i] * wbInternal::kImageMaxval + 0.5f);
+            rawData[i] = static_cast<unsigned char>(image.data[i] * wbInternal::kImageColorLimit + 0.5f);
         }
 
         outFile.write(reinterpret_cast<char*>(rawData), numElements);
@@ -924,20 +1074,21 @@ namespace wbInternal
     }
 } // namespace wbInternal
 
-// For assignment MP6
+// For assignment MP6 & MP11
 void wbSolution(const wbArg_t& args, const wbImage_t& image)
 {
-    wbImage_t solnImage = wbImport(wbArg_getInputFile(args, 2));
+    wbImage_t solnImage = wbImport(wbArg_getInputFile(args, args.argc - 2));
 
     if (solnImage.width != image.width || solnImage.height != image.height)
     {
-        std::cout << "Size of the image in file " << wbArg_getInputFile(args, 2) << " does not match. ";
+        std::cout << "Size of the image in file " << wbArg_getInputFile(args, args.argc - 2) << " does not match. ";
         std::cout << "Expecting " << image.width << " x " << image.height << " but got " << solnImage.width << " x " << solnImage.height << ".\n";
     }
     else // Check solution
     {
-        wbInternal::wbImage_save(image, args, "convolved_image.ppm");
+        wbInternal::wbImage_save(image, args, "transformed_image.ppm");
 
+        const float tolerance = 1.5f;
         int errCnt = 0;
 
         for (int i = 0; i < image.width; ++i)
@@ -947,8 +1098,9 @@ void wbSolution(const wbArg_t& args, const wbImage_t& image)
                 for (int k = 0; k < image.channels; ++k)
                 {
                     const int index = (j * image.width + i) * image.channels + k;
+                    const float error = fabs(solnImage.data[index] - image.data[index]);
 
-                    if (fabs(solnImage.data[index] - image.data[index]) >= (1.0f / wbInternal::kImageMaxval))
+                    if (error > (1.0f / wbInternal::kImageColorLimit * tolerance))
                     {
                         if (errCnt < wbInternal::kErrorReportLimit)
                             std::cout << "Image pixels do not match at position (" << j << ", " << i << ", " << k << "). [" << image.data[index] << ", " <<  solnImage.data[index] << "]\n";

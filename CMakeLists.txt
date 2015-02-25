@@ -1,138 +1,178 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+#
+# WebGPU Machine Problems 2015
+#
 
-set(CUDA_VERBOSE_BUILD ON)
+# mp0 - Device Query
+# mp1 - Vector Addition
+# mp2 - Basic Matrix-Matrix Multiplication
+# mp3 - Tiled Matrix-Matrix Multiplication
+# mp6 - Image Convolution
+# mp4 - List Reduction
+# mp5 - List Scan
+# mp11 - Histograms
+# mp12 - Vector Addition with Streams
 
-find_package(CUDA QUIET REQUIRED)
-# The cuda_include_directories adds paths to only cuda compilation.
-CUDA_INCLUDE_DIRECTORIES(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-set(BUILD_SHARED_LIBS ON)
-if(APPLE)
-  set(CMAKE_EXE_LINKER_FLAGS "-lm -F/Library/Frameworks -framework CUDA")
-  set(CUDA_HOST_COMPILER "/usr/bin/gcc")
-endif(APPLE)
+project(libwb)
 
-INCLUDE_DIRECTORIES(./include)
 
-CUDA_ADD_EXECUTABLE(mp0 
-    src/mp0.cc)
+#
+# Settings common to CUDA / OpenCL
+#
 
-CUDA_ADD_EXECUTABLE(mp1 
-    src/mp1.cu)
+# Include project header
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
-CUDA_ADD_EXECUTABLE(mp2 
-    src/mp2.cu)
+# Set warning levels for host compilation; VS defaults to /W3
+if (UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+endif ()
 
-CUDA_ADD_EXECUTABLE(mp3 
-    src/mp3.cu)
+if (CMAKE_GENERATOR MATCHES "Xcode")
+    set(CMAKE_XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD)")
+    set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "x86_64")
+endif ()
 
-CUDA_ADD_EXECUTABLE(mp4
-    src/mp4.cu)
 
-CUDA_ADD_EXECUTABLE(mp5
-    src/mp5.cu)
+#
+# Settings for NVidia CUDA-based MPs
+#
 
-CUDA_ADD_EXECUTABLE(mp6
-    src/mp6.cu)
+find_package(CUDA)
 
-# We do this painfully here because setting CMAKE_EXE_LINKER_FLAGS
-# gives error on Ubuntu. Because CMake prepends the linker flags.
-if (UNIX AND NOT APPLE)
-    set(TIMER_FLAGS "-lm -lrt")
-    target_link_libraries(mp0 ${TIMER_FLAGS})
-    target_link_libraries(mp1 ${TIMER_FLAGS})
-    target_link_libraries(mp2 ${TIMER_FLAGS})
-    target_link_libraries(mp3 ${TIMER_FLAGS})
-    target_link_libraries(mp4 ${TIMER_FLAGS})
-    target_link_libraries(mp5 ${TIMER_FLAGS})
-    target_link_libraries(mp6 ${TIMER_FLAGS})
-endif(UNIX AND NOT APPLE)
+if (CUDA_FOUND)
+    # For some MPs it may be necessary to specify the compute capability of your
+    # NVidia GPU. In that case, simply uncomment the following two lines that start
+    # with 'set' and change the value of COMPUTE_CAPABILITY to one of the following
+    # hardware architectures: Tesla-class '11', '12', or '13'; Fermi-class '20'
+    # or '21'; Kepler-class '30', '32', '35' or '37'; or Maxwell-class '50' or '52'
+    set(COMPUTE_CAPABILITY 11)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};--gpu-architecture;sm_${COMPUTE_CAPABILITY})
 
-# Added tests, to execute use 'ctest'
+    # Select the correct host compiler on OS X
+    if (APPLE)
+        if (${CMAKE_SYSTEM_VERSION} VERSION_GREATER 11.0)
+            # OS X 10.8+
+            find_program(libwb_CXX_COMPILER NAMES clang PATHS ENV PATH)
+            if (NOT libwb_CXX_COMPILER)
+                message(FATAL_ERROR "Could not find host compiler 'clang'")
+            endif ()
+            set(CUDA_HOST_COMPILER ${libwb_CXX_COMPILER} CACHE FILEPATH "Host side compiler used by NVCC")
+            if (CUDA_VERSION VERSION_LESS 7.0)
+                # CUDA Toolkits 5.5-6.5 are incompatible with LLVM's C++ standard library
+                set(libwb_STANDARD_LIBRARY -stdlib=libstdc++)
+                if (CMAKE_GENERATOR MATCHES "Xcode")
+                    set(libwb_XCODE_ATTRIBUTES XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY libstdc++)
+                endif ()
+            endif ()
+        endif ()
+        # Suppress warnings related to the CUDA headers
+        set(libwb_NVCC_OPTIONS --compiler-options -isystem,${CUDA_INCLUDE_DIRS})
+    endif ()
+
+    # Set additional linker options on UNIX platforms
+    if (UNIX)
+        set(libwb_LINK_LIBRARIES -lm)
+        if (NOT APPLE)
+            include(CheckLibraryExists)
+            check_library_exists(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME)
+            if (HAVE_CLOCK_GETTIME)
+                list(APPEND libwb_LINK_LIBRARIES -lrt)
+            endif ()
+        endif ()
+    endif ()
+
+    set(EXECUTABLES mp0 mp1 mp2 mp3 mp6 mp4 mp5 mp11 mp12)
+    foreach (TARGET ${EXECUTABLES})
+        CUDA_ADD_EXECUTABLE(
+            ${TARGET}
+            ${PROJECT_SOURCE_DIR}/src/${TARGET}.cu
+            OPTIONS ${libwb_NVCC_OPTIONS}
+        )
+        if (DEFINED libwb_STANDARD_LIBRARY)
+            set_target_properties(
+                ${TARGET}
+                PROPERTIES
+                COMPILE_FLAGS ${libwb_STANDARD_LIBRARY}
+                LINK_FLAGS ${libwb_STANDARD_LIBRARY}
+            )
+        endif ()
+        if (DEFINED libwb_XCODE_ATTRIBUTES)
+            set_target_properties(
+                ${TARGET}
+                PROPERTIES ${libwb_XCODE_ATTRIBUTES}
+            )
+        endif ()
+        if (UNIX)
+            target_link_libraries(
+                ${TARGET}
+                ${libwb_LINK_LIBRARIES}
+            )
+        endif ()
+    endforeach ()
+endif ()
+
+
+#
+# Settings for OpenCL MPs
+#
+
+# TODO
+
+
+#
+# CTEST TESTING
+#
+
+# To test all MPs against the official datasets type 'ctest -V' at the
+# terminal; to test a specific MP type 'ctest -L mpX -V'
 enable_testing()
 
-# tests for mp0
-add_test(mp0 mp0)
-set_tests_properties (mp0
+if (CUDA_FOUND)
+    add_test(
+        NAME mp0
+        COMMAND mp0
+    )
+    set_tests_properties(
+        mp0
         PROPERTIES FAIL_REGULAR_EXPRESSION "No CUDA GPU has been detected"
-        LABELS mp0)
+        LABELS mp0
+    )
 
-set (numtests 6)
+    # CUDA-based MPs
+    set(TESTS mp1 mp2 mp3 mp6 mp4 mp5 mp11 mp12)
+endif ()
 
-# tests for mp1 mp2 mp3
-set (tests mp1 mp2 mp3)
-FOREACH (test ${tests})
-    set (path tests/${test}_data)
-    set (i 0)
-    WHILE (${i} LESS ${numtests})
-          set(testname ${test}_data-${i})
-          add_test(${testname} ${test} 
-            ${path}/${i}/input0.raw 
-            ${path}/${i}/input1.raw 
-            ${path}/${i}/output.raw)
-          set_tests_properties (${testname}
-            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${testname})
-          MATH(EXPR i "${i} + 1")
-    ENDWHILE (${i} LESS ${numtests} )
-ENDFOREACH(test)
+set(DATASETS 9)
 
-# tests for mp4 mp5
-set (tests mp4 mp5)
-set (i 0)
-FOREACH (test ${tests})
-    set (path tests/${test}_data)
-    set (i 0)
-    WHILE (${i} LESS ${numtests})
-          set(testname ${test}_data-${i})
-          add_test(${testname} ${test} 
-            ${path}/${i}/input.raw
-            ${path}/${i}/output.raw)
-          set_tests_properties (${testname}
-            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${testname})
-          MATH(EXPR i "${i} + 1")
-    ENDWHILE (${i} LESS ${numtests})
-ENDFOREACH(test)
-
-# tests for mp6
-set (tests mp6)
-FOREACH (test ${tests})
-    set (path tests/${test}_data)
-    set (i 0)
-    WHILE (${i} LESS ${numtests})
-          set(testname ${test}_data-${i})
-          add_test(${testname} ${test} 
-            ${path}/${i}/input0.ppm 
-            ${path}/${i}/input1.csv 
-            ${path}/${i}/output.ppm)
-          set_tests_properties (${testname}
-            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${testname})
-          MATH(EXPR i "${i} + 1")
-    ENDWHILE (${i} LESS ${numtests} )
-ENDFOREACH(test)
-
-
-# official graded tests
-set (numtests 10)
-
-# tests for mp1 mp2 mp3
-set (tests mp1 mp2 mp3)
-FOREACH (test ${tests})
-    set (path tests/${test}_grade)
-    set (i 0)
-    WHILE (${i} LESS ${numtests})
-          set(testname ${test}_grade-${i})
-          add_test(${testname} ${test} 
-            ${path}/${i}/input0.raw 
-            ${path}/${i}/input1.raw 
-            ${path}/${i}/output.raw)
-          set_tests_properties (${testname}
-            PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
-            LABELS ${testname})
-          MATH(EXPR i "${i} + 1")
-    ENDWHILE (${i} LESS ${numtests} )
-ENDFOREACH(test)
+if (CUDA_FOUND)
+    foreach (TEST ${TESTS})
+        set(PATH tests/${TEST})
+        foreach (i RANGE 0 ${DATASETS})
+            if ("mp1 mp2 mp3 mp12" MATCHES ${TEST})
+                set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/input1.raw ${PATH}/${i}/output.raw)
+            elseif (mp4 STREQUAL ${TEST})
+                set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/output.raw)
+            elseif (mp5 STREQUAL ${TEST})
+                set(TEST_FILES ${PATH}/${i}/input.raw ${PATH}/${i}/output.raw)
+            elseif (mp6 STREQUAL ${TEST})
+                set(TEST_FILES ${PATH}/${i}/input0.ppm ${PATH}/${i}/input1.csv ${PATH}/${i}/output.ppm)
+            elseif (mp11 STREQUAL ${TEST})
+                set(TEST_FILES ${PATH}/${i}/input.ppm ${PATH}/${i}/output.ppm)
+            else ()
+                message(FATAL_ERROR "Unknown test target '${TEST}'")
+            endif ()
+            set(TEST_LABEL ${TEST}-${i})
+            add_test(
+                NAME ${TEST_LABEL}
+                COMMAND ${TEST} ${TEST_FILES}
+            )
+            set_tests_properties(
+                ${TEST_LABEL}
+                PROPERTIES PASS_REGULAR_EXPRESSION "Solution is correct"
+                LABELS ${TEST_LABEL}
+            )
+        endforeach ()
+    endforeach ()
+endif ()

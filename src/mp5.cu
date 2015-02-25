@@ -1,18 +1,18 @@
-// MP 5 Scan
+// MP Scan
 // Given a list (lst) of length n
 // Output its prefix sum = {lst[0], lst[0] + lst[1], lst[0] + lst[1] + ... + lst[n-1]}
-// Due Tuesday, January 22, 2013 at 11:59 p.m. PST
 
 #include    <wb.h>
 
 #define BLOCK_SIZE 512 //@@ You can change this
 
-#define wbCheck(stmt) do {                                 \
-        cudaError_t err = stmt;                            \
-        if (err != cudaSuccess) {                          \
-            wbLog(ERROR, "Failed to run stmt ", #stmt);    \
-            return -1;                                     \
-        }                                                  \
+#define wbCheck(stmt) do {                                                    \
+        cudaError_t err = stmt;                                               \
+        if (err != cudaSuccess) {                                             \
+            wbLog(ERROR, "Failed to run stmt ", #stmt);                       \
+            wbLog(ERROR, "Got CUDA error ...  ", cudaGetErrorString(err));    \
+            return -1;                                                        \
+        }                                                                     \
     } while(0)
 
 __global__ void scan(float * input, float * output, int len) {
@@ -45,7 +45,7 @@ int main(int argc, char ** argv) {
     wbTime_stop(GPU, "Allocating GPU memory.");
 
     wbTime_start(GPU, "Clearing output memory.");
-    wbCheck(cudaMemset(deviceInput, 0, numElements*sizeof(float)));
+    wbCheck(cudaMemset(deviceOutput, 0, numElements*sizeof(float)));
     wbTime_stop(GPU, "Clearing output memory.");
 
     wbTime_start(GPU, "Copying input memory to the GPU.");
@@ -77,5 +77,3 @@ int main(int argc, char ** argv) {
 
     return 0;
 }
-
-
