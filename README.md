@@ -84,15 +84,15 @@ To run each assignment:
 - To compile an assignment, type: `make mp<N>`, where `<N>` is that assignment's number
  - For example, to compile the MP2 assignment type: `make mp2`
 - To run an assignment, type: `./mp<N> tests/mp<N>/<D>/*`, where `<N>` is a homework number and `<D>` is a data set number
- - For example, to execute assignment MP2 on dat aset 0 type: `./mp2 tests/mp2/0/*`
+ - For example, to execute assignment MP2 on data set 0 type: `./mp2 tests/mp2/0/*`
 
 You can also test each assignment against the official datasets
-using CMake's test driver `ctest`:
+using CMake's `ctest`:
 
-- To run all of the MP assignments against the official datasets type: `ctest` from the repository's root directory
-- To run a specific MP assignment, for example MP2, type `ctest -L mp2`
+- To run all of the MP assignments against the official datasets, from the repository's root directory, type: `ctest -V`
+- To run a specific MP assignment, for example MP2, type `ctest -L mp2 -V`
 
-Details of the tests and report results can be found in the folder `Testing/Temporary/LastTest.log`. You can also view this information during the testing phase by adding the options `-V` (for verbose) or `-VV` (for extra verbose), i.e. `ctest -L mp2 -V`
+You can view all of the information presented during the testing phase in the folder `Testing/Temporary/LastTest.log`
 
 <a name="contributors"/>
 Contributors
