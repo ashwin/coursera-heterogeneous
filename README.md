@@ -70,6 +70,8 @@ On Unix with the command line
 
 - Download and install the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads#linux)
 - Install CMake through your system's package manager
+ - Ubuntu `sudo apt-get install cmake`
+ - Fedora `sudo yum install cmake`
 - Clone the coursera-heterogenous repository
 
 ### Using the command line
