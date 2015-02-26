@@ -12,7 +12,7 @@ Files available include:
 - Official test datasets
 - Programs to generate extra datasets to test assignments (`GenDataMP1.cpp`, `GenDataMP2.cpp`, ...)
 
-All of this works **only** if you have access to CUDA hardware.
+All of this works **only** if you have access to CUDA hardware or an OpenCL installation.
 
 Usage
 =====
@@ -30,7 +30,7 @@ On Windows with Visual Studio
 ### Using Visual Studio
 
 - Create a [CUDA project in Visual Studio](http://google.com/search?q=cuda%20project%20in%20visual%20studio)
-- Place the `wb.h` header in same directory as your CUDA source file (`mp1.cu` for example)
+- Place the `wb.h` header in the same directory as your CUDA source file (`mp1.cu` for example)
 - Compile and run!
 
 On OS X with Xcode
@@ -101,7 +101,7 @@ Contributors
 
 [View list of contributors](https://github.com/ashwin/coursera-heterogeneous/contributors)
 
-We welcome improvements to this code. Fork it, make your change and give me a pull request. Please follow the coding conventions already in use in the source files.
+We welcome improvements to this code. Simply fork it, make your change, and initiate  a pull request! (Please follow the coding conventions already in use in the source files).
 
 
 License
