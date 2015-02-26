@@ -40,8 +40,8 @@ Make sure you have Xcode (and/or the Command Line Tools) and CMake installed (CM
 
 ### Dependencies
 
-- If you wish to use Xcode as your IDE, download and install the latest version from the [Mac App Store](https://itunes.apple.com/au/app/xcode/id497799835?mt=12)
-- Download and install the [Command Line Tools](https://developer.apple.com/downloads) from Apple's developer website or, if you are using Xcode, via the Downloads tab in Xcode's Preferences
+- If you wish to use Xcode as your IDE, download and install the latest version from [Apple's](https://developer.apple.com/xcode/downloads/) developer website
+- Download and install the [Command Line Tools](https://developer.apple.com/downloads) from Apple's developer website
 - Download and install the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads#mac)
 - Install CMake from [Homebrew](http://brew.sh/) (`brew update && brew install cmake`)
 - Clone the coursera-heterogenous repository
@@ -51,7 +51,7 @@ Make sure you have Xcode (and/or the Command Line Tools) and CMake installed (CM
 
 Initial setup:
 
-- Though Xcode can build and run CUDA projects, it does not integrate NVIDIA's cuda-gdb debugger into the IDE. OpenCL projects, in contrast, have complete integration with Xcode
+- Though Xcode can build and run CUDA projects, it does not integrate NVIDIA's cuda-gdb debugger into the IDE. In contrast, OpenCL projects have complete integration with Xcode and LLDB  (with `CL_DEVICE_TYPE_CPU` selected during development)
 - If you haven't done so already, you need to install the [Command Line Tools](https://developer.apple.com/downloads) so that the UNIX development environment is exposed to NVIDIA's CUDA compiler `nvcc`
 - From the repository's root directory type: `cmake CMakeLists.txt -G Xcode`
 - Open the resulting libwb.xcodeproj
@@ -59,8 +59,7 @@ Initial setup:
 To run each assignment:
 
 - You will need to edit each assignment's Scheme through the Product, Edit Scheme menu
- - Select the Run build action settings and, under the Arguments tab, enter the arguments that will be passed to the program when it launches
- - Make sure that, for each data set file, you enter that file's absolute path
+ - Select the Run build action settings and, under the Arguments tab, enter the arguments that will be passed to the program when it launches (make sure that you enter each data set file's absolute path)
 - Compile and run!
 
 On Unix with the command line
