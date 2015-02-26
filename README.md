@@ -36,14 +36,14 @@ On Windows with Visual Studio
 On OS X with Xcode
 ------------------
 
-Make sure you have XCode (and/or the Command Line Tools) and CMake installed (CMake is a cross-platform, open-source build system). You can get CMake from macports via: `sudo port install cmake` or homebrew via: `brew install cmake`
+Make sure you have Xcode (and/or the Command Line Tools) and CMake installed (CMake is a cross-platform, open-source build system). The preferred method of obtaining CMake is from [Homebrew](http://brew.sh/) via: `brew update && brew install cmake`
 
 ### Dependencies
 
 - If you wish to use Xcode as your IDE, download and install the latest version from the [Mac App Store](https://itunes.apple.com/au/app/xcode/id497799835?mt=12)
 - Download and install the [Command Line Tools](https://developer.apple.com/downloads) from Apple's developer website or, if you are using Xcode, via the Downloads tab in Xcode's Preferences
 - Download and install the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads#mac)
-- Install CMake from either macports (`sudo port install cmake`) or homebrew (`brew install cmake`)
+- Install CMake from [Homebrew](http://brew.sh/) (`brew update && brew install cmake`)
 - Clone the coursera-heterogenous repository
 - At this point, you can either use Xcode (recommended only for the OpenCL assignments) or the traditional Unix command line (see the instructions below)
 
