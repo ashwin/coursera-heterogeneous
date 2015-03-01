@@ -9,6 +9,7 @@
 # mp6 - Image Convolution
 # mp4 - List Reduction
 # mp5 - List Scan
+# mp7 - Vector Addition (OpenCL)
 # mp11 - Histograms
 # mp12 - Vector Addition with Streams
 
@@ -30,8 +31,8 @@ if (UNIX)
 endif ()
 
 if (CMAKE_GENERATOR MATCHES "Xcode")
-    set(CMAKE_XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD)")
-    set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "x86_64")
+    set(CMAKE_XCODE_ATTRIBUTE_ARCHS $(ARCHS_STANDARD))
+    set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS x86_64)
 endif ()
 
 
@@ -112,6 +113,73 @@ if (CUDA_FOUND)
         endif ()
     endforeach ()
 endif ()
+
+
+#
+# Implement a minimal FindOpenCL.cmake
+#
+
+find_path(
+    OpenCL_INCLUDE_DIR
+    NAMES
+        OpenCL/cl.h CL/cl.h
+    PATHS
+        ENV OPENCL_ROOT
+        ENV AMDAPPSDKROOT
+        ENV INTELOCLSDKROOT
+        ENV CUDA_PATH
+        ENV NVSDKCOMPUTE_ROOT
+    PATH_SUFFIXES
+        include
+        OpenCL/common/inc
+)
+
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    find_library(
+        OpenCL_LIBRARY
+        NAMES
+            OpenCL
+        PATHS
+            ENV OPENCL_ROOT
+            ENV AMDAPPSDKROOT
+            ENV INTELOCLSDKROOT
+            ENV CUDA_PATH
+            ENV NVSDKCOMPUTE_ROOT
+        PATH_SUFFIXES
+            lib/x86
+            lib/Win32
+    )
+elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    find_library(
+        OpenCL_LIBRARY
+        NAMES
+            OpenCL
+        PATHS
+            ENV OPENCL_ROOT
+            ENV AMDAPPSDKROOT
+            ENV INTELOCLSDKROOT
+            ENV CUDA_PATH
+            ENV NVSDKCOMPUTE_ROOT
+        PATH_SUFFIXES
+            lib/x86_64
+            lib/x64
+    )
+endif ()
+
+set(OpenCL_LIBRARIES ${OpenCL_LIBRARY})
+set(OpenCL_INCLUDE_DIRS ${OpenCL_INCLUDE_DIR})
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(
+    OpenCL
+    DEFAULT_MSG
+    OpenCL_LIBRARY
+    OpenCL_INCLUDE_DIR
+)
+mark_as_advanced(
+    OpenCL_INCLUDE_DIR
+    OpenCL_LIBRARY
+)
 
 
 #
