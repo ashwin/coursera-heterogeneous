@@ -12,7 +12,7 @@ Files available include:
 - Official test datasets
 - Programs to generate extra datasets to test assignments (`GenDataMP1.cpp`, `GenDataMP2.cpp`, ...)
 
-All of this works **only** if you have access to CUDA hardware.
+All of this works **only** if you have access to CUDA hardware or an OpenCL installation.
 
 Usage
 =====
@@ -25,25 +25,25 @@ On Windows with Visual Studio
 
 - Update the NVIDIA driver for your CUDA hardware
 - Download and install Visual Studio or Visual C++ Express Edition
-- Download and install the [NVIDIA CUDA toolkit](https://developer.nvidia.com/cuda-downloads)
+- Download and install the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads#win)
 
 ### Using Visual Studio
 
 - Create a [CUDA project in Visual Studio](http://google.com/search?q=cuda%20project%20in%20visual%20studio)
-- Place the `wb.h` header in same directory as your CUDA source file (`mp1.cu` for example)
+- Place the `wb.h` header in the same directory as your CUDA source file (`mp1.cu` for example)
 - Compile and run!
 
 On OS X with Xcode
 ------------------
 
-Make sure you have XCode (and/or the Command Line Tools) and Cmake installed (Cmake is a cross-platform, open-source build system). You can get Cmake from macports via: `sudo port install cmake` or homebrew via: `brew install cmake`
+Make sure you have Xcode (and/or the Command Line Tools) and CMake installed (CMake is a cross-platform, open-source build system). The preferred method of obtaining CMake is from [Homebrew](http://brew.sh/) via: `brew update && brew install cmake`
 
 ### Dependencies
 
-- If you wish to use Xcode as your IDE, download and install the latest version from the [Mac App Store](https://itunes.apple.com/au/app/xcode/id497799835?mt=12)
-- Download and install the [Command Line Tools](https://developer.apple.com/downloads) from Apple's developer website or, if you are using Xcode, via the Downloads tab in Xcode's Preferences
-- Download and install the [NVIDIA CUDA toolkit](http://developer.download.nvidia.com/compute/cuda/5_0/rel-update-1/installers/cuda_5.0.36_macos.pkg)
-- Install Cmake from either macports (`sudo port install cmake`) or homebrew (`brew install cmake`)
+- If you wish to use Xcode as your IDE, download and install the latest version from [Apple's](https://developer.apple.com/xcode/downloads/) developer website
+- Download and install the [Command Line Tools](https://developer.apple.com/downloads) from Apple's developer website
+- Download and install the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads#mac)
+- Install CMake from [Homebrew](http://brew.sh/) (`brew update && brew install cmake`)
 - Clone the coursera-heterogenous repository
 - At this point, you can either use Xcode (recommended only for the OpenCL assignments) or the traditional Unix command line (see the instructions below)
 
@@ -51,7 +51,7 @@ Make sure you have XCode (and/or the Command Line Tools) and Cmake installed (Cm
 
 Initial setup:
 
-- Though Xcode can build and run CUDA projects, it does not integrate NVIDIA's cuda-gdb debugger into the IDE. OpenCL projects, in contrast, have complete integration with Xcode
+- Though Xcode can build and run CUDA projects, it does not integrate NVIDIA's cuda-gdb debugger into the IDE. In contrast, OpenCL projects have complete integration with Xcode and LLDB  (with `CL_DEVICE_TYPE_CPU` selected during development)
 - If you haven't done so already, you need to install the [Command Line Tools](https://developer.apple.com/downloads) so that the UNIX development environment is exposed to NVIDIA's CUDA compiler `nvcc`
 - From the repository's root directory type: `cmake CMakeLists.txt -G Xcode`
 - Open the resulting libwb.xcodeproj
@@ -59,8 +59,7 @@ Initial setup:
 To run each assignment:
 
 - You will need to edit each assignment's Scheme through the Product, Edit Scheme menu
- - Select the Run build action settings and, under the Arguments tab, enter the arguments that will be passed to the program when it launches
- - Make sure that, for each data set file, you enter that file's absolute path
+ - Select the Run build action settings and, under the Arguments tab, enter the arguments that will be passed to the program when it launches (make sure that you enter each data set file's absolute path)
 - Compile and run!
 
 On Unix with the command line
@@ -68,8 +67,10 @@ On Unix with the command line
 
 ### Dependencies
 
-- Download and install the [NVIDIA CUDA toolkit](http://developer.download.nvidia.com/compute/cuda/5_0/rel-update-1/installers/cuda_5.0.36_macos.pkg)
-- Install Cmake through your system's package manager
+- Download and install the [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads#linux)
+- Install CMake through your system's package manager
+ - Ubuntu `sudo apt-get install cmake`
+ - Fedora `sudo yum install cmake`
 - Clone the coursera-heterogenous repository
 
 ### Using the command line
@@ -83,15 +84,15 @@ To run each assignment:
 - To compile an assignment, type: `make mp<N>`, where `<N>` is that assignment's number
  - For example, to compile the MP2 assignment type: `make mp2`
 - To run an assignment, type: `./mp<N> tests/mp<N>/<D>/*`, where `<N>` is a homework number and `<D>` is a data set number
- - For example, to execute assignment MP2 on dat aset 0 type: `./mp2 tests/mp2/0/*`
+ - For example, to execute assignment MP2 on data set 0 type: `./mp2 tests/mp2/0/*`
 
 You can also test each assignment against the official datasets
-using Cmake's test driver `ctest`:
+using CMake's `ctest`:
 
-- To run all of the MP assignments against the official datasets type: `ctest` from the repository's root directory
-- To run a specific MP assignment, for example MP2, type `ctest -L mp2`
+- To run all of the MP assignments against the official datasets, from the repository's root directory, type: `ctest -V`
+- To run a specific MP assignment, for example MP2, type `ctest -L mp2 -V`
 
-Details of the tests and report results can be found in the folder `Testing/Temporary/LastTest.log`. You can also view this information during the testing phase by adding the options `-V` (for verbose) or `-VV` (for extra verbose), i.e. `ctest -L mp2 -V`
+You can view all of the information presented during the testing phase in the folder `Testing/Temporary/LastTest.log`
 
 <a name="contributors"/>
 Contributors
@@ -100,7 +101,7 @@ Contributors
 
 [View list of contributors](https://github.com/ashwin/coursera-heterogeneous/contributors)
 
-We welcome improvements to this code. Fork it, make your change and give me a pull request. Please follow the coding conventions already in use in the source files.
+We welcome improvements to this code. Simply fork it, make your change, and initiate  a pull request! (Please follow the coding conventions already in use in the source files).
 
 
 License
