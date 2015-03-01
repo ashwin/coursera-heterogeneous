@@ -249,11 +249,16 @@ endif ()
 
 set(DATASETS 9)
 
-if (CUDA_FOUND)
+# OpenCL-based MPs
+if (OPENCL_FOUND)
+    set(TESTS ${TESTS} mp7)
+endif ()
+
+if (CUDA_FOUND OR OPENCL_FOUND)
     foreach (TEST ${TESTS})
         set(PATH tests/${TEST})
         foreach (i RANGE 0 ${DATASETS})
-            if ("mp1 mp2 mp3 mp12" MATCHES ${TEST})
+            if ("mp1 mp2 mp3 mp12 mp7" MATCHES ${TEST})
                 set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/input1.raw ${PATH}/${i}/output.raw)
             elseif (mp4 STREQUAL ${TEST})
                 set(TEST_FILES ${PATH}/${i}/input0.raw ${PATH}/${i}/output.raw)
