@@ -186,7 +186,42 @@ mark_as_advanced(
 # Settings for OpenCL MPs
 #
 
-# TODO
+if (OPENCL_FOUND)
+    set(libwb_LINK_LIBRARIES ${OpenCL_LIBRARIES})
+
+    # Set additional linker options on UNIX platforms
+    if (UNIX)
+        list(APPEND libwb_LINK_LIBRARIES -lm)
+        if (NOT APPLE)
+            include(CheckLibraryExists)
+            check_library_exists(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME)
+            if (HAVE_CLOCK_GETTIME)
+                list(APPEND libwb_LINK_LIBRARIES -lrt)
+            endif ()
+        endif ()
+    endif ()
+
+    set(TARGET mp7)
+    add_executable(
+        ${TARGET}
+        ${PROJECT_SOURCE_DIR}/src/${TARGET}.cc
+    )
+    target_link_libraries(
+        ${TARGET}
+        ${libwb_LINK_LIBRARIES}
+    )
+    if (NOT APPLE)
+        if (CMAKE_VERSION VERSION_GREATER 2.8.10)
+            target_include_directories(
+                ${TARGET}
+                BEFORE
+                PRIVATE ${OpenCL_INCLUDE_DIRS}
+            )
+        else ()
+            include_directories(BEFORE ${OpenCL_INCLUDE_DIRS})
+        endif ()
+    endif ()
+endif ()
 
 
 #
