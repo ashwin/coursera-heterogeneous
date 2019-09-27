@@ -1021,8 +1021,8 @@ void wbSolution(const wbArg_t& args, const T& t, const S& s, const U& u)
         {
             for (int col = 0; col < solnColumns; ++col)
             {
-                const float expected = row * solnColumns + col + *soln;
-                const float result   = row * solnColumns + col + *t;
+                const float expected = soln[row * solnColumns + col];
+                const float result   = t[row * solnColumns + col];
 
                 if (!wbInternal::wbFPCloseEnough(expected, result))
                 {
